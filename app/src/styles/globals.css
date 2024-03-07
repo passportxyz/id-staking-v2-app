@@ -1,0 +1,54 @@
+@import url("https://fonts.googleapis.com/css2?family=DM+Mono&display=swap");
+
+/* This sources Adobe CC fonts */
+@import url("https://use.typekit.net/tdl1ktm.css");
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer components {
+  .verify-btn {
+    @apply w-full border-t border-accent-2 p-2 hover:text-accent-3;
+  }
+  .verify-btn:disabled {
+    @apply text-gray-400;
+  }
+}
+
+.step-icon-inner {
+  width: 0.625rem;
+  height: 0.625rem;
+
+  animation-duration: 1s;
+  animation-name: step-icon-loading;
+  animation-iteration-count: infinite;
+  animation-direction: alternate;
+  animation-timing-function: ease;
+}
+
+:root {
+  --onboard-shadow-3: none;
+  --account-center-position-top: -14px;
+  --account-center-position-right: 4.1rem;
+  --account-center-border-radius: 16px;
+  --onboard-action-required-btn-text-color: #fff;
+  --onboard-font-family-normal: var(--font-body);
+}
+
+.override-text-color * {
+  color: inherit !important;
+}
+
+@media (max-width: 1020px /* md */) {
+  :root {
+    --account-center-position-right: 24px;
+  }
+}
+
+@media (max-width: 480px /* base */) {
+  :root {
+    --account-center-position-right: 0px;
+    --onboard-modal-top: 0;
+  }
+}
