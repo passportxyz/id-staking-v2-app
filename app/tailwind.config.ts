@@ -13,6 +13,10 @@ const config: Config = {
       xl: "1280px",
     },
     extend: {
+      backgroundImage: {
+        "radial-gradient":
+          "radial-gradient(rgba(73,121,107,0.4), #000)"
+      },
       colors: {
         background: "rgb(var(--color-background) / <alpha-value>)",
         "background-1": "rgb(var(--color-background-1) / <alpha-value>)",
@@ -41,9 +45,12 @@ const config: Config = {
 
         // Set this variable dynamically to allow for customization
         // colors defined by an API call
-        "customization-background-1": "rgb(var(--color-customization-background-1) / <alpha-value>)",
-        "customization-background-2": "rgb(var(--color-customization-background-2) / <alpha-value>)",
-        "customization-foreground-1": "rgb(var(--color-customization-foreground-1) / <alpha-value>)",
+        "customization-background-1":
+          "rgb(var(--color-customization-background-1) / <alpha-value>)",
+        "customization-background-2":
+          "rgb(var(--color-customization-background-2) / <alpha-value>)",
+        "customization-foreground-1":
+          "rgb(var(--color-customization-foreground-1) / <alpha-value>)",
 
         // Temporary, to be removed
         accent: "#000",
@@ -87,6 +94,9 @@ const config: Config = {
       alt: ["var(--font-alt)"],
     },
   },
-  plugins: [require("@headlessui/tailwindcss"), require("tailwind-gradient-mask-image")],
+  plugins: [
+    require("@headlessui/tailwindcss"),
+    require("tailwind-gradient-mask-image"),
+  ],
 };
 export default config;

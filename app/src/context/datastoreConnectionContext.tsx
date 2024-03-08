@@ -7,9 +7,8 @@ import { DIDSession } from "did-session";
 import { DID } from "dids";
 import axios from "axios";
 import { AccountId } from "caip";
-import { MAX_VALID_DID_SESSION_AGE } from "@gitcoin/passport-identity";
+// import { MAX_VALID_DID_SESSION_AGE } from "@gitcoin/passport-identity";
 
-import { CERAMIC_CACHE_ENDPOINT } from "../config/stamp_config";
 import { useToast } from "@chakra-ui/react";
 import { Eip1193Provider } from "ethers";
 import { createSignedPayload } from "../utils/helpers";
@@ -18,6 +17,9 @@ import { datadogLogs } from "@datadog/browser-logs";
 const BUFFER_TIME_BEFORE_EXPIRATION = 60 * 60 * 1000;
 
 export type DbAuthTokenStatus = "idle" | "failed" | "connected" | "connecting";
+
+const CERAMIC_CACHE_ENDPOINT = process.env.NEXT_PUBLIC_CERAMIC_CACHE_ENDPOINT;
+
 
 export type DatastoreConnectionContextState = {
   dbAccessTokenStatus: DbAuthTokenStatus;
@@ -125,11 +127,14 @@ export const useDatastoreConnection = () => {
 
   const connect = useCallback(
     async (address: string, provider: Eip1193Provider) => {
+      console.log("geri connect 1")
       if (address) {
         let sessionKey = "";
         let dbCacheTokenKey = "";
 
+        console.log("geri connect 2")
         try {
+          console.log("geri connect 3")
           const accountId = new AccountId({
             chainId: "eip155:1",
             address,
@@ -164,6 +169,7 @@ export const useDatastoreConnection = () => {
           //   // Store the session in localstorage
           //   // window.localStorage.setItem(sessionKey, session.serialize());
           // }
+          console.log("geri connect 4")
 
           // Extensions which inject the Buffer library break the
           // did-session library, so we need to remove it

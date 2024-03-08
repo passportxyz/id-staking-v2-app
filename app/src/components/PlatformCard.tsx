@@ -37,6 +37,7 @@ export const PlatformCard = ({
   const { filter } = router.query;
 
   // hide platforms based on filter
+  // TODO: This filtering should be done in the parent
   const stampFilters = filter?.length && typeof filter === "string" ? getStampProviderFilters(filter) : false;
   const hidePlatform = stampFilters && !Object.keys(stampFilters).includes(platform.platform);
   if (hidePlatform) return <></>;
