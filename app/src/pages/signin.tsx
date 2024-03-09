@@ -20,7 +20,7 @@ export default function Home() {
   const connectError = useWalletStore((state) => state.error);
   const { connect: connectDatastore } = useDatastoreConnectionContext();
   const toast = useToast();
-  const [enableEthBranding, setEnableEthBranding] = useState(false);
+  const [enableEthBranding, setEnableEthBranding] = useState(true);
 
   const navigate = useNavigate();
 
@@ -54,7 +54,7 @@ export default function Home() {
   }, [connectError]);
 
   return (
-    <PageRoot className="bg-radial-gradient text-color-2">
+    <PageRoot className="text-color-2">
       <div className="flex h-full min-h-default items-center justify-center self-center p-8">
         <div className="absolute top-0 right-0 z-0 h-auto w-full  gradient-mask-t-0 md:h-[110%] md:w-auto md:gradient-mask-l-0">
           <svg
@@ -98,7 +98,6 @@ export default function Home() {
             </defs>
           </svg>
         </div>
-
 
         <div className="grid grid-cols-1">
           <div className="z-10 grid grid-flow-row grid-cols-2 gap-4 lg:grid-flow-col">
