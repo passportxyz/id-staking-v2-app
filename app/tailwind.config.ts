@@ -14,7 +14,10 @@ const config: Config = {
     },
     extend: {
       backgroundImage: {
-        "radial-gradient": "radial-gradient(rgba(73,121,107,0.4), #000)",
+        "radial-gradient-top":
+          "radial-gradient(farthest-corner at 50% 5%, rgba(8,47,42,1), rgba(0,0,0,0) 80%)",
+        "radial-gradient-side":
+          "radial-gradient(farthest-corner at 90% 80%, rgba(8,47,42,1), rgba(0,0,0,0) 40%)",
       },
       colors: {
         background: "rgb(var(--color-background) / <alpha-value>)",

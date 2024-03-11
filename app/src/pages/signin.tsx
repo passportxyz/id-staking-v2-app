@@ -54,9 +54,9 @@ export default function Home() {
   }, [connectError]);
 
   return (
-    <PageRoot className="text-color-2">
+    <PageRoot className="text-color-2" backgroundGradientStyle="top-only">
       <div className="flex h-full min-h-default items-center justify-center self-center p-8">
-        <div className="absolute top-0 right-0 z-0 h-auto w-full  gradient-mask-t-0 md:h-[110%] md:w-auto md:gradient-mask-l-0">
+        <div className="absolute top-0 right-0 z-0 h-auto w-full  gradient-mask-t-0 md:h-full md:w-auto md:gradient-mask-l-0">
           <svg
             width="674"
             height="746"
