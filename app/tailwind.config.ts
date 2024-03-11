@@ -8,14 +8,13 @@ const config: Config = {
   ],
   theme: {
     screens: {
-      md: "480px",
+      md: "580px",
       lg: "1020px",
       xl: "1280px",
     },
     extend: {
       backgroundImage: {
-        "radial-gradient":
-          "radial-gradient(rgba(73,121,107,0.4), #000)"
+        "radial-gradient": "radial-gradient(rgba(73,121,107,0.4), #000)",
       },
       colors: {
         background: "rgb(var(--color-background) / <alpha-value>)",

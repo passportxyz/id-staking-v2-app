@@ -25,7 +25,12 @@ const Header = (): JSX.Element => {
         <div className="h-1 w-full bg-gradient-to-b from-foreground-4 to-background" />
       )}
       <div className={`w-full bg-background-3 ${PAGE_PADDING}`}>
-        {userWarning && <Warning userWarning={userWarning} onDismiss={() => setUserWarning(undefined)} />}
+        {userWarning && (
+          <Warning
+            userWarning={userWarning}
+            onDismiss={() => setUserWarning(undefined)}
+          />
+        )}
       </div>
       <div className="w-full bg-foreground-2">
         <SupportBanner banners={banners} />

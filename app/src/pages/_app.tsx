@@ -40,7 +40,7 @@ export default function App({ Component, pageProps }: AppProps) {
               initChakra={true}
               defaultTheme={themes.LUNARPUNK_DARK_MODE}
             >
-              <Component {...pageProps} />;
+              <Component {...pageProps} />
             </ThemeWrapper>
           </RenderOnlyOnClient>
         </ManageAccountCenter>
