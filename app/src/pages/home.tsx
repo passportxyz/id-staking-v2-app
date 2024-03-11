@@ -146,39 +146,8 @@ export default function LeaderBoard() {
           HOME PAGE HOME PAGE HOME PAGE HOME PAGE HOME PAGE HOME PAGE HOME PAGE
           HOME PAGE HOME PAGE HOME PAGE HOME PAGE HOME PAGE HOME PAGE HOME PAGE
           HOME PAGE HOME PAGE HOME PAGE HOME PAGE HOME PAGE
-          {/* <PageWidthGrid>
-            <Subheader className="col-span-full xl:col-span-7 " />
-            <DashboardScorePanel
-              className={`col-span-full ${useCustomDashboardPanel ? "lg:col-span-4" : "xl:max-h-52"} xl:col-span-7`}
-            />
-            {useCustomDashboardPanel || (
-              <DashboardIllustration className="col-start-8 col-end-[-1] row-span-2 hidden xl:block" />
-            )}
-            {useCustomDashboardPanel && (
-              <DynamicCustomDashboardPanel
-                customizationKey={customizationKey}
-                className="col-start-1 col-end-[-1] lg:col-start-5 xl:col-start-8"
-              />
-            )}
-            <span className="col-start-1 col-end-4 font-heading text-4xl">Add Stamps</span>
-            <CardList
-              className="col-span-full"
-              isLoading={
-                isLoadingPassport == IsLoadingPassportState.Loading ||
-                isLoadingPassport == IsLoadingPassportState.CreatingPassport ||
-                isLoadingPassport == IsLoadingPassportState.FailedToConnect
-              }
-            />
-            <span className="col-start-1 col-end-4 font-heading text-3xl">Add Collected Stamps</span>
-            <span className="col-end-[-1] self-center whitespace-nowrap text-right font-alt text-3xl text-foreground-2">
-              {numVerifiedPlatforms}/{numPlatforms}
-            </span>
-            <DashboardValidStampsPanel className="col-span-full" />
-            <ExpiredStampsPanel className="col-span-full" />
-          </PageWidthGrid> */}
+          END
         </BodyWrapper>
-        {/* This footer contains dark colored text and dark images */}
-        <Footer lightMode={true} />
       </HeaderContentFooterGrid>
     </PageRoot>
   );
