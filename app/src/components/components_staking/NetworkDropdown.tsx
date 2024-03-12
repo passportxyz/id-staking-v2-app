@@ -5,7 +5,8 @@ import { Menu } from '@headlessui/react';
 
 
 // Component for the dropdown menu
-export const Networks = () => {
+//  chainConfigs
+export const NetworkDropdown = () => {
   return (
     <Menu>
       <Menu.Button>Current network</Menu.Button>

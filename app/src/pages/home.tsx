@@ -23,7 +23,7 @@ import {
 } from "@chakra-ui/react";
 import PageWidthGrid from "@/components/PageWidthGrid";
 import { Stake } from "@/components/components_staking/Stake";
-import { Networks } from "@/components/components_staking/Networks";
+import { NetworkDropdown } from "@/components/components_staking/NetworkDropdown";
 
 export default function LeaderBoard() {
   return (
@@ -32,7 +32,7 @@ export default function LeaderBoard() {
         <Header />
         <BodyWrapper className="mt-4 md:mt-6 z-1">
           <PageWidthGrid>
-            <Networks></Networks>
+            <NetworkDropdown></NetworkDropdown>
             <Stake></Stake>
           </PageWidthGrid>
         </BodyWrapper>
