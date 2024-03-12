@@ -6,17 +6,9 @@ import Link from "next/link";
 
 // --Components
 import PageRoot from "../components/PageRoot";
-import { CardList } from "../components/CardList";
-import { JsonOutputModal } from "../components/JsonOutputModal";
-import { Footer } from "../components/Footer";
 import Header from "../components/Header";
 import BodyWrapper from "../components/BodyWrapper";
-import PageWidthGrid from "../components/PageWidthGrid";
 import HeaderContentFooterGrid from "../components/HeaderContentFooterGrid";
-import { DoneToastContent } from "../components/DoneToastContent";
-import { DashboardScorePanel } from "../components/DashboardScorePanel";
-import { DashboardValidStampsPanel } from "../components/DashboardValidStampsPanel";
-import { ExpiredStampsPanel } from "../components/ExpiredStampsPanel";
 
 // --Chakra UI Elements
 import {
@@ -145,8 +137,7 @@ export default function LeaderBoard() {
           HOME PAGE HOME PAGE HOME PAGE HOME PAGE HOME PAGE HOME PAGE HOME PAGE
           HOME PAGE HOME PAGE HOME PAGE HOME PAGE HOME PAGE HOME PAGE HOME PAGE
           HOME PAGE HOME PAGE HOME PAGE HOME PAGE HOME PAGE HOME PAGE HOME PAGE
-          HOME PAGE HOME PAGE HOME PAGE HOME PAGE HOME PAGE
-          END
+          HOME PAGE HOME PAGE HOME PAGE HOME PAGE HOME PAGE END
         </BodyWrapper>
       </HeaderContentFooterGrid>
     </PageRoot>

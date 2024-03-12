@@ -6,6 +6,10 @@ import { EthereumWebAuth, getAccountId } from "@didtools/pkh-ethereum";
 import { DIDSession } from "did-session";
 import { DID } from "dids";
 import axios from "axios";
+
+// Adding the @ts-ignore below because of the following error:
+//    Type error: Could not find a declaration file for module 'caip'. '/Users/nutrina/Projects/gitcoin/id-staking-v2-app/app/node_modules/caip/dist/index.mjs' implicitly has an 'any' type.
+// @ts-ignore
 import { AccountId } from "caip";
 // import { MAX_VALID_DID_SESSION_AGE } from "@gitcoin/passport-identity";
 

@@ -6,15 +6,6 @@ import { datadogRum } from "@datadog/browser-rum";
 import { Cacao } from "@didtools/cacao";
 import { DID } from "dids";
 
-// --- Stamp Data Point Helpers
-export function difference(setA: Set<PROVIDER_ID>, setB: Set<PROVIDER_ID>) {
-  const _difference = new Set(setA);
-  setB.forEach((elem) => {
-    _difference.delete(elem);
-  });
-  return _difference;
-}
-
 export function generateUID(length: number) {
   return window
     .btoa(
@@ -24,19 +15,6 @@ export function generateUID(length: number) {
     )
     .replace(/[+/]/g, "")
     .substring(0, length);
-}
-
-export function reduceStampResponse(providerIDs: PROVIDER_ID[], verifiedCredentials?: CredentialResponseBody[]) {
-  if (!verifiedCredentials) return [];
-  return verifiedCredentials
-    .filter(
-      (credential) =>
-        !credential.error && providerIDs.find((providerId: PROVIDER_ID) => credential?.record?.type === providerId)
-    )
-    .map((credential) => ({
-      provider: credential.record?.type as PROVIDER_ID,
-      credential: credential.credential as VerifiableCredential,
-    }));
 }
 
 export function checkShowOnboard(): boolean {
@@ -50,7 +28,8 @@ export function checkShowOnboard(): boolean {
   const threeMonthsInSeconds = 3 * 30 * 24 * 60 * 60;
   const threeMonthsAgoTimestamp = currentTimestamp - threeMonthsInSeconds;
 
-  const onBoardOlderThanThreeMonths = parseInt(onboardTs) <= threeMonthsAgoTimestamp;
+  const onBoardOlderThanThreeMonths =
+    parseInt(onboardTs) <= threeMonthsAgoTimestamp;
 
   // Check if the given timestamp is within the last 3 months.
   if (onBoardOlderThanThreeMonths) {
@@ -68,15 +47,23 @@ export function checkShowOnboard(): boolean {
  * @param variables - The variables to be used in the query
  * @returns The result of the query
  */
-export const graphql_fetch = async (endpoint: URL, query: string, variables: object = {}) => {
+export const graphql_fetch = async (
+  endpoint: URL,
+  query: string,
+  variables: object = {}
+) => {
   const headers: Record<string, string> = {
     "Content-Type": "application/json",
   };
 
   try {
-    const resp: AxiosResponse<any> = await axios.post(endpoint.toString(), JSON.stringify({ query, variables }), {
-      headers,
-    });
+    const resp: AxiosResponse<any> = await axios.post(
+      endpoint.toString(),
+      JSON.stringify({ query, variables }),
+      {
+        headers,
+      }
+    );
     return Promise.resolve(resp.data);
   } catch (error: any) {
     if (error.response) {
@@ -90,19 +77,6 @@ export const graphql_fetch = async (endpoint: URL, query: string, variables: obj
 };
 
 /**
- * Retrieves the provider specification for a given platform and provider name.
- *
- * @param platform The platform ID.
- * @param provider The provider name.
- * @returns The provider specification if found, or undefined otherwise.
- */
-export const getProviderSpec = (platform: PLATFORM_ID, provider: string): ProviderSpec => {
-  return STAMP_PROVIDERS[platform]
-    ?.find((i) => i.providers.find((p) => p.name == provider))
-    ?.providers.find((p) => p.name == provider) as ProviderSpec;
-};
-
-/**
  * Checks if the server is on maintenance mode.
  *
  * @returns True if the server is on maintenance mode, false otherwise.
@@ -110,7 +84,9 @@ export const getProviderSpec = (platform: PLATFORM_ID, provider: string): Provid
 export const isServerOnMaintenance = () => {
   if (process.env.NEXT_PUBLIC_MAINTENANCE_MODE_ON) {
     try {
-      const maintenancePeriod = JSON.parse(process.env.NEXT_PUBLIC_MAINTENANCE_MODE_ON);
+      const maintenancePeriod = JSON.parse(
+        process.env.NEXT_PUBLIC_MAINTENANCE_MODE_ON
+      );
       const start = new Date(maintenancePeriod[0]);
       const end = new Date(maintenancePeriod[1]);
       const now = new Date();
