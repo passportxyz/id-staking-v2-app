@@ -27,6 +27,7 @@ const walletConnect = walletConnectModule(walletConnectOptions);
 // Exports onboard-core instance (https://github.com/blocknative/web3-onboard)
 // TODO: onboard should be a function, and receive the list of chains as a parameter
 console.log("initializing onboard with chains", chainConfigs);
+
 export const onboard = init({
   wallets: [injected, walletConnect],
   chains: chainConfigs.map(({ id, token, label, rpcUrl, icon }) => ({

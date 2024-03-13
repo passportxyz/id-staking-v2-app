@@ -53,7 +53,7 @@ export const chainConfigs: ChainConfig[] = [
     label: "OP Sepolia",
     rpcUrl: OP_SEPOLIA_RPC_URL,
     gtcContractAddr: '0xB047Da70ACb1690101b165669419d6B8b7A38260', // 
-    stakingContractAddr: '0xc80e07d81828960F613baa57288192E56d417dA5',
+    stakingContractAddr: '0xc80e07d81828960F613baa57288192E56d417dA5', // 
     icon: "./assets/eth-op-logo.svg",
   }
 ];

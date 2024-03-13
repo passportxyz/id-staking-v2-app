@@ -3,6 +3,8 @@ import { Button } from "@/components/Button";
 import { Menu } from "@headlessui/react";
 import { chainConfigs, ChainConfig } from "@/utils/chains";
 import { useBalance } from "wagmi";
+import { useWalletStore } from "@/context/walletStore";
+
 
 const MenuButton = ({ text }: { text: string }) => {
   const [dropDownOpen, setDropDownState] = useState<boolean>(false);
@@ -17,9 +19,8 @@ const MenuButton = ({ text }: { text: string }) => {
     >
       <div>{text}</div>
       <div
-        className={`grid place-items-center ${
-          dropDownOpen ? "transform -rotate-180" : ""
-        }`}
+        className={`grid place-items-center ${dropDownOpen ? "transform -rotate-180" : ""
+          }`}
       >
         <svg
           width="10"
@@ -38,28 +39,38 @@ const MenuButton = ({ text }: { text: string }) => {
   );
 };
 
-const MenuItem = ({ chainCfg }: { chainCfg: ChainConfig }) => {
+const MenuItem = ({ chainCfg, key }: { chainCfg: ChainConfig, key: string }) => {
+  const address = useWalletStore((state) => state.address);
+
   const balance = useBalance({
-    address: chainCfg.gtcContractAddr,
+    address: address,
+    token: chainCfg.gtcContractAddr,
     chainId: chainCfg.id,
   });
+  const calculatedBalance = Number(balance.data?.value || 0) / (10 ** Number(balance.data?.decimals || 1));
 
-  const [chain, setChain] = useState<number>(1);
+  const formattedBalance = calculatedBalance.toLocaleString('en', {
+    // Use period as decimal separator
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  });
+
+  const [selectedChain, setChain] = useState<number>(1);
 
   const handleChainSelect = (chain: number) => {
     console.log("chain - ", chain);
-    setChain(chain); // TODO: ...
+    setChain(chain); 
   };
 
   return (
-    <Menu.Item>
+    <Menu.Item key={key}>
       {({ active }) => (
         <button
           className={`${active ? "bg-blue-500" : ""} grid grid-flow-col m-1`}
           onClick={() => handleChainSelect(chainCfg.id)}
         >
           <img className="mx-2" src={chainCfg.icon} />
-          {chainCfg.label} {balance.data?.value.toString()}
+          {chainCfg.label} {formattedBalance}
         </button>
       )}
     </Menu.Item>
@@ -67,38 +78,14 @@ const MenuItem = ({ chainCfg }: { chainCfg: ChainConfig }) => {
 };
 
 export const NetworkDropdown = () => {
-  const [chain, setChain] = useState<string>("");
 
-  // const result = useBalance({
-  //   address: '0xde30da39c46104798bb5aa3fe8b9e0e1f348163f',
-  //   chainId: chainId
-  // });
-
-  // const getBalance = (id: string) => {
-  //   return useBalance({
-  //       address: '0xde30da39c46104798bb5aa3fe8b9e0e1f348163f',
-  //       chainId: chainId
-  //   });
-  // }
-  // const handleChainSelect = (chain: string) => {
-  //   console.log('chain - ', chain)
-  //   setChain(chain); // TODO: ...
-  // }
   return (
     <div className="col-span-full grid justify-self-end grid-flow-row">
       <Menu>
-        <MenuButton text={chain} />
+        <MenuButton text={`Initial Data here`} />
         <Menu.Items as="div" className="grid grid-flow-row">
           {chainConfigs.map((chain, index) => (
-            <MenuItem chainCfg={chain} />
-            // <Menu.Item key={index}>
-            //   {({ active }) => (
-            //     <button className={`${active ? 'bg-blue-500' : ''} grid grid-flow-col m-1`} onClick={setChain(chain.label)}>
-            //       <img className="mx-2" src={chain.icon} />
-            //       {chain.label} {getBalance(chain.id)}
-            //     </button>
-            //   )}
-            // </Menu.Item>
+            <MenuItem chainCfg={chain} key={index.toString()} />
           ))}
         </Menu.Items>
       </Menu>

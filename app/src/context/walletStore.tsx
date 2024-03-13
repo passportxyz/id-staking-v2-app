@@ -27,7 +27,7 @@ const walletStore = create<{
   provider?: Eip1193Provider;
   error?: any;
   chain?: string;
-  address?: string;
+  address?: `0x${string}`;
 }>((set) => ({
   chain: undefined,
   address: undefined,
