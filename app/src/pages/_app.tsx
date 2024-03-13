@@ -25,6 +25,11 @@ const RenderOnlyOnClient = ({ children }: { children: React.ReactNode }) => {
   return <>{children}</>;
 };
 
+import { QueryClientProvider, QueryClient } from "@tanstack/react-query";
+
+const queryClient = new QueryClient();
+
+
 export default function App({ Component, pageProps }: AppProps) {
   return (
     <>
@@ -37,18 +42,20 @@ export default function App({ Component, pageProps }: AppProps) {
         />
       </Head>
       <WagmiProvider config={wagmiConfig}>
-        <DatastoreConnectionContextProvider>
-          <ManageAccountCenter>
-            <RenderOnlyOnClient>
-              <ThemeWrapper
-                initChakra={true}
-                defaultTheme={themes.LUNARPUNK_DARK_MODE}
-              >
-                <Component {...pageProps} />
-              </ThemeWrapper>
-            </RenderOnlyOnClient>
-          </ManageAccountCenter>
-        </DatastoreConnectionContextProvider>
+        <QueryClientProvider client={queryClient}>
+          <DatastoreConnectionContextProvider>
+            <ManageAccountCenter>
+              <RenderOnlyOnClient>
+                <ThemeWrapper
+                  initChakra={true}
+                  defaultTheme={themes.LUNARPUNK_DARK_MODE}
+                >
+                  <Component {...pageProps} />
+                </ThemeWrapper>
+              </RenderOnlyOnClient>
+            </ManageAccountCenter>
+          </DatastoreConnectionContextProvider>
+        </QueryClientProvider>
       </WagmiProvider>
     </>
   );
