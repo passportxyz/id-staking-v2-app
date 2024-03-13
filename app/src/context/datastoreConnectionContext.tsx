@@ -1,4 +1,11 @@
-import { createContext, useContext, useEffect, useState, useMemo, useCallback } from "react";
+import {
+  createContext,
+  useContext,
+  useEffect,
+  useState,
+  useMemo,
+  useCallback,
+} from "react";
 import { datadogRum } from "@datadog/browser-rum";
 import { useWalletStore } from "./walletStore";
 import { DoneToastContent } from "../components/DoneToastContent";
@@ -24,7 +31,6 @@ export type DbAuthTokenStatus = "idle" | "failed" | "connected" | "connecting";
 
 const CERAMIC_CACHE_ENDPOINT = process.env.NEXT_PUBLIC_CERAMIC_CACHE_ENDPOINT;
 
-
 export type DatastoreConnectionContextState = {
   dbAccessTokenStatus: DbAuthTokenStatus;
   dbAccessToken?: string;
@@ -34,12 +40,13 @@ export type DatastoreConnectionContextState = {
   checkSessionIsValid: () => boolean;
 };
 
-export const DatastoreConnectionContext = createContext<DatastoreConnectionContextState>({
-  dbAccessTokenStatus: "idle",
-  disconnect: async (address: string) => {},
-  connect: async () => {},
-  checkSessionIsValid: () => false,
-});
+export const DatastoreConnectionContext =
+  createContext<DatastoreConnectionContextState>({
+    dbAccessTokenStatus: "idle",
+    disconnect: async (address: string) => {},
+    connect: async () => {},
+    checkSessionIsValid: () => false,
+  });
 
 // In the app, the context hook should be used. This is only exported for testing
 export const useDatastoreConnection = () => {
@@ -48,11 +55,14 @@ export const useDatastoreConnection = () => {
   const disconnectWallet = useWalletStore((state) => state.disconnect);
   const chain = useWalletStore((state) => state.chain);
 
-  const [dbAccessTokenStatus, setDbAccessTokenStatus] = useState<DbAuthTokenStatus>("idle");
+  const [dbAccessTokenStatus, setDbAccessTokenStatus] =
+    useState<DbAuthTokenStatus>("idle");
   const [dbAccessToken, setDbAccessToken] = useState<string | undefined>();
 
   const [did, setDid] = useState<DID>();
-  const [checkSessionIsValid, setCheckSessionIsValid] = useState<() => boolean>(() => false);
+  const [checkSessionIsValid, setCheckSessionIsValid] = useState<() => boolean>(
+    () => false
+  );
 
   useEffect(() => {
     // Clear status when wallet disconnected
@@ -75,7 +85,9 @@ export const useDatastoreConnection = () => {
     let nonce = null;
     try {
       // Get nonce from server
-      const nonceResponse = await axios.get(`${process.env.NEXT_PUBLIC_SCORER_ENDPOINT}/account/nonce`);
+      const nonceResponse = await axios.get(
+        `${process.env.NEXT_PUBLIC_SCORER_ENDPOINT}/account/nonce`
+      );
       nonce = nonceResponse.data.nonce;
     } catch (error) {
       const msg = `Failed to get nonce from server for user with did: ${did.parent}`;
@@ -90,7 +102,10 @@ export const useDatastoreConnection = () => {
     };
 
     try {
-      const authResponse = await axios.post(`${CERAMIC_CACHE_ENDPOINT}/authenticate`, payloadForVerifier);
+      const authResponse = await axios.post(
+        `${CERAMIC_CACHE_ENDPOINT}/authenticate`,
+        payloadForVerifier
+      );
       const accessToken = authResponse.data?.access as string;
       return accessToken;
     } catch (error) {
@@ -131,19 +146,22 @@ export const useDatastoreConnection = () => {
 
   const connect = useCallback(
     async (address: string, provider: Eip1193Provider) => {
-      console.log("geri connect 1")
+      console.log("geri connect 1");
       if (address) {
         let sessionKey = "";
         let dbCacheTokenKey = "";
 
-        console.log("geri connect 2")
+        console.log("geri connect 2");
         try {
-          console.log("geri connect 3")
+          console.log("geri connect 3");
           const accountId = new AccountId({
             chainId: "eip155:1",
             address,
           });
-          const authMethod = await EthereumWebAuth.getAuthMethod(provider, accountId);
+          const authMethod = await EthereumWebAuth.getAuthMethod(
+            provider,
+            accountId
+          );
           // Sessions will be serialized and stored in localhost
           // The sessions are bound to an ETH address, this is why we use the address in the session key
           sessionKey = `didsession-${address}`;
@@ -173,14 +191,17 @@ export const useDatastoreConnection = () => {
           //   // Store the session in localstorage
           //   // window.localStorage.setItem(sessionKey, session.serialize());
           // }
-          console.log("geri connect 4")
+          console.log("geri connect 4");
 
           // Extensions which inject the Buffer library break the
           // did-session library, so we need to remove it
           if (globalThis.Buffer) {
-            datadogLogs.logger.warn("Buffer library is injected, setting to undefined", {
-              buffer: `${globalThis.Buffer}`,
-            });
+            datadogLogs.logger.warn(
+              "Buffer library is injected, setting to undefined",
+              {
+                buffer: `${globalThis.Buffer}`,
+              }
+            );
             globalThis.Buffer = undefined as any;
             console.log(
               "Warning: Buffer library is injected! This will be overwritten in order to avoid conflicts with did-session."
@@ -188,7 +209,11 @@ export const useDatastoreConnection = () => {
           } else {
             console.log("Buffer library is not injected (this is good)");
           }
-          let session: DIDSession = await DIDSession.get(accountId, authMethod, { resources: ["ceramic://*"] });
+          let session: DIDSession = await DIDSession.get(
+            accountId,
+            authMethod,
+            { resources: ["ceramic://*"] }
+          );
 
           if (session) {
             await loadDbAccessToken(address, session.did);
@@ -235,9 +260,19 @@ export const useDatastoreConnection = () => {
   };
 };
 
-export const DatastoreConnectionContextProvider = ({ children }: { children: any }) => {
-  const { dbAccessToken, dbAccessTokenStatus, disconnect, connect, did, checkSessionIsValid } =
-    useDatastoreConnection();
+export const DatastoreConnectionContextProvider = ({
+  children,
+}: {
+  children: any;
+}) => {
+  const {
+    dbAccessToken,
+    dbAccessTokenStatus,
+    disconnect,
+    connect,
+    did,
+    checkSessionIsValid,
+  } = useDatastoreConnection();
 
   const providerProps = useMemo(
     () => ({
@@ -248,10 +283,22 @@ export const DatastoreConnectionContextProvider = ({ children }: { children: any
       dbAccessTokenStatus,
       checkSessionIsValid,
     }),
-    [dbAccessToken, dbAccessTokenStatus, did, connect, disconnect, checkSessionIsValid]
+    [
+      dbAccessToken,
+      dbAccessTokenStatus,
+      did,
+      connect,
+      disconnect,
+      checkSessionIsValid,
+    ]
   );
 
-  return <DatastoreConnectionContext.Provider value={providerProps}>{children}</DatastoreConnectionContext.Provider>;
+  return (
+    <DatastoreConnectionContext.Provider value={providerProps}>
+      {children}
+    </DatastoreConnectionContext.Provider>
+  );
 };
 
-export const useDatastoreConnectionContext = () => useContext(DatastoreConnectionContext);
+export const useDatastoreConnectionContext = () =>
+  useContext(DatastoreConnectionContext);

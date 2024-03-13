@@ -6,7 +6,12 @@ export type LoadingButtonProps = ButtonProps & {
   isLoading?: boolean;
 };
 
-export const LoadButton = ({ isLoading, disabled, children, ...props }: LoadingButtonProps) => {
+export const LoadButton = ({
+  isLoading,
+  disabled,
+  children,
+  ...props
+}: LoadingButtonProps) => {
   return (
     <Button {...props} disabled={disabled || isLoading}>
       {children}

@@ -10,14 +10,19 @@ type RefreshStampsProgressStepsProps = {
   steps: Step[];
 };
 
-export default function RefreshStampsProgressSteps({ steps }: RefreshStampsProgressStepsProps) {
+export default function RefreshStampsProgressSteps({
+  steps,
+}: RefreshStampsProgressStepsProps) {
   return (
     <nav aria-label="Progress">
       <ol role="list" className="overflow-hidden text-color-4">
         {steps.map((step, stepIdx) => (
           <li
             key={step.name}
-            className={classNames(stepIdx !== steps.length - 1 ? "pb-0" : "", "relative text-color-4")}
+            className={classNames(
+              stepIdx !== steps.length - 1 ? "pb-0" : "",
+              "relative text-color-4"
+            )}
           >
             {step.status === Status.SUCCESS ? (
               <>
@@ -30,11 +35,16 @@ export default function RefreshStampsProgressSteps({ steps }: RefreshStampsProgr
                 ;
                 <span className="flex h-0 items-center">
                   <span className="relative z-10 flex h-8 w-8 items-center justify-center rounded-full bg-background-2 group-hover:bg-background-3">
-                    <CheckIcon className="h-5 w-5 text-color-1" aria-hidden="true" />
+                    <CheckIcon
+                      className="h-5 w-5 text-color-1"
+                      aria-hidden="true"
+                    />
                   </span>
                 </span>
                 <span className="-mt-2 ml-12 flex min-w-0 flex-col">
-                  <span className="text-sm font-medium text-color-1">{step.name}</span>
+                  <span className="text-sm font-medium text-color-1">
+                    {step.name}
+                  </span>
                 </span>
               </>
             ) : step.status === Status.IN_PROGRESS ? (
@@ -52,7 +62,9 @@ export default function RefreshStampsProgressSteps({ steps }: RefreshStampsProgr
                   </span>
                 </span>
                 <span className="-mt-2 ml-12 flex min-w-0 flex-col">
-                  <span className="text-sm font-medium text-color-2">{step.name}</span>
+                  <span className="text-sm font-medium text-color-2">
+                    {step.name}
+                  </span>
                 </span>
               </>
             ) : (
@@ -64,13 +76,18 @@ export default function RefreshStampsProgressSteps({ steps }: RefreshStampsProgr
                   />
                 ) : null}
                 ;
-                <span className="flex h-0 items-center text-color-4" aria-hidden="true">
+                <span
+                  className="flex h-0 items-center text-color-4"
+                  aria-hidden="true"
+                >
                   <span className="relative z-10 flex h-8 w-8 items-center justify-center rounded-full border-2 border-foreground-6 bg-background text-color-4 group-hover:border-foreground-3">
                     <span className="h-2.5 w-2.5 rounded-full bg-transparent group-hover:bg-foreground-3" />
                   </span>
                 </span>
                 <span className="-mt-2 ml-12 flex min-w-0 flex-col">
-                  <span className="text-sm font-medium text-color-1">{step.name}</span>
+                  <span className="text-sm font-medium text-color-1">
+                    {step.name}
+                  </span>
                 </span>
               </>
             )}

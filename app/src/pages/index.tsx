@@ -14,15 +14,13 @@ import SIWEButton from "../components/SIWEButton";
 import { useToast } from "@chakra-ui/react";
 import { DoneToastContent } from "../components/DoneToastContent";
 import { WebmVideo } from "../components/WebmVideo";
-import Signin  from "./signin"
-import Home  from "./home"
-import LeaderBoard  from "./leaderboard"
-import FAQ from "./faq"
+import Signin from "./signin";
+import Home from "./home";
+import LeaderBoard from "./leaderboard";
+import FAQ from "./faq";
 
 export default function Index() {
   // const [enableEthBranding, setEnableEthBranding] = useState(false);
-
-
 
   return (
     <div>

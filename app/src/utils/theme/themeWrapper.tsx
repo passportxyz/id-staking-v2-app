@@ -46,7 +46,11 @@ const ThemeWrapper = ({
 
     const transposedColors = transposeColorsToChakraScheme(defaultTheme.colors);
 
-    return extendTheme({ colors: transposedColors, components: { Menu, Modal }, fonts: defaultTheme.fonts });
+    return extendTheme({
+      colors: transposedColors,
+      components: { Menu, Modal },
+      fonts: defaultTheme.fonts,
+    });
   }, [defaultTheme, initChakra]);
 
   if (chakraTheme) {

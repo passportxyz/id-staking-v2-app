@@ -1,6 +1,10 @@
 import React from "react";
 
-export const LoadingCard = ({ className }: { className?: string }): JSX.Element => {
+export const LoadingCard = ({
+  className,
+}: {
+  className?: string;
+}): JSX.Element => {
   return (
     <div className={className} data-testid="loading-card">
       <div className="relative flex animate-pulse flex-col rounded-lg border border-foreground-4 bg-gradient-to-b from-background to-[#06153D] p-0 xl:p-2">

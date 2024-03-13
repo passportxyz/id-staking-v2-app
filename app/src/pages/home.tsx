@@ -32,8 +32,8 @@ export default function LeaderBoard() {
         <Header />
         <BodyWrapper>
           <PageWidthGrid>
-            <NetworkDropdown/>
-            <Stake/>
+            <NetworkDropdown />
+            <Stake />
           </PageWidthGrid>
         </BodyWrapper>
       </HeaderContentFooterGrid>
