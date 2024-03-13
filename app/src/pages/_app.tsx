@@ -8,6 +8,9 @@ import { themes, ThemeWrapper } from "../utils/theme";
 import ManageAccountCenter from "../components/ManageAccountCenter";
 import { DatastoreConnectionContextProvider } from "../context/datastoreConnectionContext";
 
+import { WagmiProvider } from "wagmi";
+import { wagmiConfig } from "@/utils/chains";
+
 const RenderOnlyOnClient = ({ children }: { children: React.ReactNode }) => {
   const [isMounted, setIsMounted] = React.useState(false);
 
@@ -22,6 +25,11 @@ const RenderOnlyOnClient = ({ children }: { children: React.ReactNode }) => {
   return <>{children}</>;
 };
 
+import { QueryClientProvider, QueryClient } from "@tanstack/react-query";
+
+const queryClient = new QueryClient();
+
+
 export default function App({ Component, pageProps }: AppProps) {
   return (
     <>
@@ -33,18 +41,22 @@ export default function App({ Component, pageProps }: AppProps) {
           content="width=device-width, initial-scale=1.0, minimum-scale=1.0"
         />
       </Head>
-      <DatastoreConnectionContextProvider>
-        <ManageAccountCenter>
-          <RenderOnlyOnClient>
-            <ThemeWrapper
-              initChakra={true}
-              defaultTheme={themes.LUNARPUNK_DARK_MODE}
-            >
-              <Component {...pageProps} />
-            </ThemeWrapper>
-          </RenderOnlyOnClient>
-        </ManageAccountCenter>
-      </DatastoreConnectionContextProvider>
+      <WagmiProvider config={wagmiConfig}>
+        <QueryClientProvider client={queryClient}>
+          <DatastoreConnectionContextProvider>
+            <ManageAccountCenter>
+              <RenderOnlyOnClient>
+                <ThemeWrapper
+                  initChakra={true}
+                  defaultTheme={themes.LUNARPUNK_DARK_MODE}
+                >
+                  <Component {...pageProps} />
+                </ThemeWrapper>
+              </RenderOnlyOnClient>
+            </ManageAccountCenter>
+          </DatastoreConnectionContextProvider>
+        </QueryClientProvider>
+      </WagmiProvider>
     </>
   );
 }

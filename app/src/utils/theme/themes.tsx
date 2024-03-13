@@ -7,6 +7,7 @@ export const LUNARPUNK_DARK_MODE: Theme = {
     background2: palette.darkPurple,
     background3: palette.iris,
     background4: palette.nightBlue,
+    background5: palette.lightGreen,
     foreground: palette.white,
     foreground2: palette.iceBlue,
     foreground3: palette.ironGray,
@@ -19,6 +20,7 @@ export const LUNARPUNK_DARK_MODE: Theme = {
     text3: palette.nightBlue,
     text4: palette.black,
     text5: palette.gray,
+    text6: palette.iceBlue,
     focus: palette.red,
   },
   fonts: {

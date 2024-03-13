@@ -20,12 +20,20 @@ export default function Warning({
     >
       {icon || (
         <div className="mr-4 w-4">
-          <ExclamationCircleIcon height={24} color={"rgb(var(--color-background))"} />
+          <ExclamationCircleIcon
+            height={24}
+            color={"rgb(var(--color-background))"}
+          />
         </div>
       )}
       {content}{" "}
       {link && (
-        <a href={link} target="_blank" rel="noreferrer" className="ml-2 underline">
+        <a
+          href={link}
+          target="_blank"
+          rel="noreferrer"
+          className="ml-2 underline"
+        >
           More information.
         </a>
       )}

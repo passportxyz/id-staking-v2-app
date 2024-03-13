@@ -4,6 +4,7 @@ export type Theme = {
     background2: string;
     background3: string;
     background4: string;
+    background5: string;
     foreground: string;
     foreground2: string;
     foreground3: string;
@@ -16,6 +17,7 @@ export type Theme = {
     text3: string;
     text4: string;
     text5: string;
+    text6: string;
     focus: string;
   };
   fonts: {

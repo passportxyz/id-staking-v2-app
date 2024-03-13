@@ -51,9 +51,13 @@ export const InitialWelcome = ({
       subHeaderIconSrc: "./assets/lockIcon.svg",
       body: (
         <ol className="list-none">
-          <ListItem number={1}>Verify your web3 stamps now with one-click verification.</ListItem>
+          <ListItem number={1}>
+            Verify your web3 stamps now with one-click verification.
+          </ListItem>
           <ListItem number={2}>Verify any remaining web2 stamps.</ListItem>
-          <ListItem number={3}>See your Unique Humanity Score increase.</ListItem>
+          <ListItem number={3}>
+            See your Unique Humanity Score increase.
+          </ListItem>
         </ol>
       ),
       stepsConfig: {
@@ -75,7 +79,13 @@ export const InitialWelcome = ({
   return <WelcomeWrapper content={content}>{body}</WelcomeWrapper>;
 };
 
-const ListItem = ({ children, number }: { children: React.ReactNode; number: number }) => (
+const ListItem = ({
+  children,
+  number,
+}: {
+  children: React.ReactNode;
+  number: number;
+}) => (
   <li className="flex items-start gap-2 py-1">
     <ListMarker number={number} />
     <div className="leading-6">{children}</div>
@@ -92,7 +102,13 @@ const ListMarker = ({ number }: { number: number }) => (
         </linearGradient>
       </defs>
       <circle r="11" cx="12" cy="12" stroke="url(#Gradient)" strokeWidth="1" />
-      <text x="50%" y="55%" textAnchor="middle" fill="white" dominantBaseline="middle">
+      <text
+        x="50%"
+        y="55%"
+        textAnchor="middle"
+        fill="white"
+        dominantBaseline="middle"
+      >
         {number}
       </text>
     </svg>

@@ -31,7 +31,10 @@ export const completedIcon = (src: string) => (
 );
 
 const currentIcon = (
-  <span className="step-icon step-icon-current Status flex h-9 items-center" aria-hidden="true">
+  <span
+    className="step-icon step-icon-current Status flex h-9 items-center"
+    aria-hidden="true"
+  >
     <span className="step-icon-outer relative z-10 flex h-8 w-8 items-center justify-center rounded-full border-2 border-indigo-600 bg-white">
       <span className="step-icon-inner rounded-full bg-indigo-600" />
     </span>
@@ -39,7 +42,10 @@ const currentIcon = (
 );
 
 const waitingIcon = (
-  <span className="step-icon step-icon-waiting flex h-9 items-center" aria-hidden="true">
+  <span
+    className="step-icon step-icon-waiting flex h-9 items-center"
+    aria-hidden="true"
+  >
     <span
       // eslint-disable-next-line max-len
       className="relative z-10 flex h-8 w-8 items-center justify-center rounded-full border-2 border-gray-300 bg-white"
@@ -52,7 +58,11 @@ const waitingIcon = (
 const errorIcon = (
   <span className="step-icon step-icon-error flex h-9 items-center">
     <span className="relative z-10 flex h-8 w-8 items-center justify-center rounded-full bg-red-600">
-      <img alt="error icon" className="sticky top-0 h-6" src="./assets/x-icon.svg" />
+      <img
+        alt="error icon"
+        className="sticky top-0 h-6"
+        src="./assets/x-icon.svg"
+      />
     </span>
   </span>
 );
@@ -78,7 +88,10 @@ function StepComponent({ step, isLastStep, error }: StepComponentProps) {
   return (
     <li className="relative m-2" data-testid={`step-${step.name}`}>
       {!isLastStep && (
-        <div className={`absolute left-4 top-4 -ml-px mt-0.5 h-full w-0.5 bg-indigo-600`} aria-hidden="true" />
+        <div
+          className={`absolute left-4 top-4 -ml-px mt-0.5 h-full w-0.5 bg-indigo-600`}
+          aria-hidden="true"
+        />
       )}
 
       <div className="group relative flex items-start">
@@ -105,7 +118,11 @@ export function Progress({ steps, error }: ProgressProps) {
         <nav aria-label="Progress">
           <ol className="overflow-hidden">
             {steps.map((step) => (
-              <StepComponent key={step.name} step={step} isLastStep={step.name === steps[steps.length - 1].name} />
+              <StepComponent
+                key={step.name}
+                step={step}
+                isLastStep={step.name === steps[steps.length - 1].name}
+              />
             ))}
           </ol>
         </nav>

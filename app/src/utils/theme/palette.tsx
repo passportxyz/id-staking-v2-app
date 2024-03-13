@@ -12,13 +12,11 @@ export const palette = Object.entries({
   turquoise: "#074853",
   paleYellow: "#d2dc95",
   red: "#ff5c00",
-}).reduce(
-  (rgbPalette, [name, hex]) => {
-    rgbPalette[name] = hexToRGB(hex);
-    return rgbPalette;
-  },
-  {} as Record<string, string>
-);
+  linghtGreen: "#1A4C47",
+}).reduce((rgbPalette, [name, hex]) => {
+  rgbPalette[name] = hexToRGB(hex);
+  return rgbPalette;
+}, {} as Record<string, string>);
 
 export function hexToRGB(hex: string) {
   var r = parseInt(hex.slice(1, 3), 16) || 0,
