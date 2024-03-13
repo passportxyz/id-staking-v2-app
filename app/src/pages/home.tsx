@@ -30,10 +30,10 @@ export default function LeaderBoard() {
     <PageRoot className="text-color-1">
       <HeaderContentFooterGrid>
         <Header />
-        <BodyWrapper className="mt-4 md:mt-6 z-1">
+        <BodyWrapper>
           <PageWidthGrid>
-            <NetworkDropdown></NetworkDropdown>
-            <Stake></Stake>
+            <NetworkDropdown/>
+            <Stake/>
           </PageWidthGrid>
         </BodyWrapper>
       </HeaderContentFooterGrid>
