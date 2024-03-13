@@ -27,7 +27,7 @@ export default function LeaderBoard() {
     <PageRoot className="text-color-1">
       <HeaderContentFooterGrid>
         <Header />
-        <BodyWrapper className="mt-4 md:mt-6">
+        <BodyWrapper className="">
           BODY OF THE LEADERBOARD PAGE BODY OF THE LEADERBOARD PAGE BODY OF THE
           LEADERBOARD PAGE BODY OF THE LEADERBOARD PAGE BODY OF THE LEADERBOARD
           PAGE BODY OF THE LEADERBOARD PAGE BODY OF THE LEADERBOARD PAGE BODY OF

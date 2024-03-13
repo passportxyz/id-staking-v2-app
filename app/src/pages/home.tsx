@@ -1,29 +1,14 @@
-/* eslint-disable react-hooks/exhaustive-deps */
 // --- React Methods
-import React, { useContext, useEffect, useMemo } from "react";
-import { useRouter } from "next/router";
-import Link from "next/link";
+import React from "react";
 
 // --Components
 import PageRoot from "../components/PageRoot";
 import Header from "../components/Header";
 import BodyWrapper from "../components/BodyWrapper";
 import HeaderContentFooterGrid from "../components/HeaderContentFooterGrid";
-
-// --Chakra UI Elements
-import {
-  Modal,
-  ModalBody,
-  ModalContent,
-  ModalFooter,
-  ModalOverlay,
-  Spinner,
-  useDisclosure,
-  useToast,
-} from "@chakra-ui/react";
-import PageWidthGrid from "@/components/PageWidthGrid";
-import { Stake } from "@/components/components_staking/Stake";
-import { NetworkDropdown } from "@/components/components_staking/NetworkDropdown";
+import PageWidthGrid from "../components/PageWidthGrid";
+import { YourStake } from "../components/components_staking/YourStake";
+import { NetworkDropdown } from "../components/components_staking/NetworkDropdown";
 
 export default function LeaderBoard() {
   return (
@@ -33,7 +18,10 @@ export default function LeaderBoard() {
         <BodyWrapper>
           <PageWidthGrid>
             <NetworkDropdown />
-            <Stake />
+            <YourStake />
+            {/* This is just here for now to make sure
+                everything looks right with multiple sections */}
+            <YourStake />
           </PageWidthGrid>
         </BodyWrapper>
       </HeaderContentFooterGrid>

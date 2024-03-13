@@ -14,10 +14,8 @@ const config: Config = {
     },
     extend: {
       backgroundImage: {
-        "radial-gradient-top":
-          "radial-gradient(farthest-corner at 50% 5%, rgba(8,47,42,1), rgba(0,0,0,0) 80%)",
-        "radial-gradient-side":
-          "radial-gradient(farthest-corner at 90% 80%, rgba(8,47,42,1), rgba(0,0,0,0) 40%)",
+        "radial-gradient-top": "radial-gradient(farthest-corner at 50% 5%, rgba(8,47,42,1), rgba(0,0,0,0) 80%)",
+        "radial-gradient-side": "radial-gradient(farthest-corner at 90% 80%, rgba(8,47,42,1), rgba(0,0,0,0) 40%)",
       },
       colors: {
         background: "rgb(var(--color-background) / <alpha-value>)",
@@ -49,12 +47,9 @@ const config: Config = {
 
         // Set this variable dynamically to allow for customization
         // colors defined by an API call
-        "customization-background-1":
-          "rgb(var(--color-customization-background-1) / <alpha-value>)",
-        "customization-background-2":
-          "rgb(var(--color-customization-background-2) / <alpha-value>)",
-        "customization-foreground-1":
-          "rgb(var(--color-customization-foreground-1) / <alpha-value>)",
+        "customization-background-1": "rgb(var(--color-customization-background-1) / <alpha-value>)",
+        "customization-background-2": "rgb(var(--color-customization-background-2) / <alpha-value>)",
+        "customization-foreground-1": "rgb(var(--color-customization-foreground-1) / <alpha-value>)",
 
         // Temporary, to be removed
         accent: "#000",
@@ -89,8 +84,9 @@ const config: Config = {
       "3xl": ["32px", "1.5em"],
       "4xl": ["36px", "1.5em"],
       "5xl": ["40px", "1.5em"],
-      "6xl": ["64px", "1em"],
-      "7xl": ["80px", "1em"],
+      "6xl": ["48px", "1.5em"],
+      "7xl": ["64px", "1em"],
+      "8xl": ["80px", "1em"],
     },
     fontFamily: {
       body: ["var(--font-body)"],
@@ -98,9 +94,6 @@ const config: Config = {
       alt: ["var(--font-alt)"],
     },
   },
-  plugins: [
-    require("@headlessui/tailwindcss"),
-    require("tailwind-gradient-mask-image"),
-  ],
+  plugins: [require("@headlessui/tailwindcss"), require("tailwind-gradient-mask-image")],
 };
 export default config;

@@ -27,7 +27,7 @@ export default function FAQ() {
     <PageRoot className="text-color-1">
       <HeaderContentFooterGrid>
         <Header />
-        <BodyWrapper className="mt-4 md:mt-6">
+        <BodyWrapper className="">
           FAQ FAQ FAQ FAQ FAQ FAQ FAQ FAQ FAQ FAQ FAQ FAQ FAQ FAQ FAQ FAQ FAQ
           FAQ FAQ FAQ FAQ FAQ FAQ FAQ FAQ FAQ FAQ FAQ FAQ FAQ FAQ FAQ FAQ FAQ
           FAQ FAQ FAQ FAQ FAQ FAQ FAQ FAQ FAQ FAQ FAQ FAQ FAQ FAQ FAQ FAQ FAQ
