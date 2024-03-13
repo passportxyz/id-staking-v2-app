@@ -1,8 +1,9 @@
+import { http, createConfig } from "wagmi";
+import { mainnet, optimism, optimismSepolia } from "wagmi/chains";
 
-import { http, createConfig } from 'wagmi'
-import { mainnet, optimism, optimismSepolia } from 'wagmi/chains'
+const MAINNET_RPC_URL = process.env
+  .NEXT_PUBLIC_PASSPORT_MAINNET_RPC_URL as string;
 
-const MAINNET_RPC_URL = process.env.NEXT_PUBLIC_PASSPORT_MAINNET_RPC_URL as string;
 
 const OP_RPC_URL = process.env.NEXT_PUBLIC_PASSPORT_OP_RPC_URL as string;
 const OP_SEPOLIA_RPC_URL = process.env.NEXT_PUBLIC_PASSPORT_OP_SEPOLIA_RPC_URL as string;
@@ -13,7 +14,7 @@ const hardhatChainId = Number("0x7a69");
 const baseGoerliChainId = Number("0x14a33");
 const pgnChainId = Number("0x1a8");
 const lineaChainId = Number("0xe708");
-const lineaGoerliChainId = "0xe704";
+const lineaGoerliChainId = Number("0xe704");
 const optimismChainId = Number("0xa");
 const sepoliaOPChainId = Number("0xaa37dc");
 
@@ -56,7 +57,6 @@ export const chainConfigs: ChainConfig[] = [
     icon: "./assets/eth-op-logo.svg",
   }
 ];
-
 
 export const wagmiConfig = createConfig({
   chains: [mainnet, optimism, optimismSepolia],

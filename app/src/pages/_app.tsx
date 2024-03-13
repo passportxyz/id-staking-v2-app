@@ -8,7 +8,7 @@ import { themes, ThemeWrapper } from "../utils/theme";
 import ManageAccountCenter from "../components/ManageAccountCenter";
 import { DatastoreConnectionContextProvider } from "../context/datastoreConnectionContext";
 
-import { WagmiProvider } from 'wagmi'
+import { WagmiProvider } from "wagmi";
 import { wagmiConfig } from "@/utils/chains";
 
 const RenderOnlyOnClient = ({ children }: { children: React.ReactNode }) => {
