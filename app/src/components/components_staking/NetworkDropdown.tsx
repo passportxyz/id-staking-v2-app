@@ -90,7 +90,7 @@ export const NetworkDropdown = () => {
         <MenuButton text={chain} />
         <Menu.Items as="div" className="grid grid-flow-row">
           {chainConfigs.map((chain, index) => (
-            <MenuItem chainCfg={chain} />
+            <MenuItem chainCfg={chain} key={index}/>
             // <Menu.Item key={index}>
             //   {({ active }) => (
             //     <button className={`${active ? 'bg-blue-500' : ''} grid grid-flow-col m-1`} onClick={setChain(chain.label)}>
