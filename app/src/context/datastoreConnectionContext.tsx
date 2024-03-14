@@ -146,14 +146,11 @@ export const useDatastoreConnection = () => {
 
   const connect = useCallback(
     async (address: string, provider: Eip1193Provider) => {
-      console.log("geri connect 1");
       if (address) {
         let sessionKey = "";
         let dbCacheTokenKey = "";
 
-        console.log("geri connect 2");
         try {
-          console.log("geri connect 3");
           const accountId = new AccountId({
             chainId: "eip155:1",
             address,
@@ -191,7 +188,6 @@ export const useDatastoreConnection = () => {
           //   // Store the session in localstorage
           //   // window.localStorage.setItem(sessionKey, session.serialize());
           // }
-          console.log("geri connect 4");
 
           // Extensions which inject the Buffer library break the
           // did-session library, so we need to remove it

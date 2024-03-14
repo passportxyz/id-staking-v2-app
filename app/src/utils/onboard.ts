@@ -1,8 +1,6 @@
 import { init } from "@web3-onboard/react";
 import injectedModule from "@web3-onboard/injected-wallets";
-import walletConnectModule, {
-  WalletConnectOptions,
-} from "@web3-onboard/walletconnect";
+import walletConnectModule, { WalletConnectOptions } from "@web3-onboard/walletconnect";
 import { chainConfigs } from "./chains";
 
 // Injected wallet - shows all available injected wallets
@@ -10,17 +8,14 @@ import { chainConfigs } from "./chains";
 const injected = injectedModule();
 
 // web3Onboard modules
-const walletConnectProjectId =
-  (process.env.NEXT_PUBLIC_WALLET_CONNECT_PROJECT_ID as string) ||
-  "default-project-id";
+const walletConnectProjectId = (process.env.NEXT_PUBLIC_WALLET_CONNECT_PROJECT_ID as string) || "default-project-id";
 
 const walletConnectOptions: WalletConnectOptions = {
   projectId: walletConnectProjectId,
 };
 
 const onBoardExploreUrl =
-  (process.env.NEXT_PUBLIC_WEB3_ONBOARD_EXPLORE_URL as string) ||
-  "https://passport.gitcoin.co/";
+  (process.env.NEXT_PUBLIC_WEB3_ONBOARD_EXPLORE_URL as string) || "https://passport.gitcoin.co/";
 
 const walletConnect = walletConnectModule(walletConnectOptions);
 
@@ -29,6 +24,9 @@ const walletConnect = walletConnectModule(walletConnectOptions);
 console.log("initializing onboard with chains", chainConfigs);
 
 export const onboard = init({
+  connect: {
+    autoConnectLastWallet: true,
+  },
   wallets: [injected, walletConnect],
   chains: chainConfigs.map(({ id, token, label, rpcUrl, icon }) => ({
     id,

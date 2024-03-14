@@ -3,6 +3,8 @@ import "@/styles/globals.css";
 import React, { useEffect } from "react";
 import type { AppProps } from "next/app";
 import Head from "next/head";
+import { Web3OnboardProvider } from "@web3-onboard/react";
+
 import { themes, ThemeWrapper } from "../utils/theme";
 
 import ManageAccountCenter from "../components/ManageAccountCenter";
@@ -10,6 +12,8 @@ import { DatastoreConnectionContextProvider } from "../context/datastoreConnecti
 
 import { WagmiProvider } from "wagmi";
 import { wagmiConfig } from "@/utils/chains";
+
+import { onboard } from "../utils/onboard";
 
 const RenderOnlyOnClient = ({ children }: { children: React.ReactNode }) => {
   const [isMounted, setIsMounted] = React.useState(false);
@@ -29,34 +33,29 @@ import { QueryClientProvider, QueryClient } from "@tanstack/react-query";
 
 const queryClient = new QueryClient();
 
-
 export default function App({ Component, pageProps }: AppProps) {
   return (
     <>
       <Head>
         <link rel="shortcut icon" href="/favicon.ico" />
         <title>Gitcoin Passport Identity Staking</title>
-        <meta
-          name="viewport"
-          content="width=device-width, initial-scale=1.0, minimum-scale=1.0"
-        />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0" />
       </Head>
-      <WagmiProvider config={wagmiConfig}>
-        <QueryClientProvider client={queryClient}>
-          <DatastoreConnectionContextProvider>
-            <ManageAccountCenter>
-              <RenderOnlyOnClient>
-                <ThemeWrapper
-                  initChakra={true}
-                  defaultTheme={themes.LUNARPUNK_DARK_MODE}
-                >
-                  <Component {...pageProps} />
-                </ThemeWrapper>
-              </RenderOnlyOnClient>
-            </ManageAccountCenter>
-          </DatastoreConnectionContextProvider>
-        </QueryClientProvider>
-      </WagmiProvider>
+      <Web3OnboardProvider web3Onboard={onboard}>
+        <WagmiProvider config={wagmiConfig}>
+          <QueryClientProvider client={queryClient}>
+            <DatastoreConnectionContextProvider>
+              <ManageAccountCenter>
+                <RenderOnlyOnClient>
+                  <ThemeWrapper initChakra={true} defaultTheme={themes.LUNARPUNK_DARK_MODE}>
+                    <Component {...pageProps} />
+                  </ThemeWrapper>
+                </RenderOnlyOnClient>
+              </ManageAccountCenter>
+            </DatastoreConnectionContextProvider>
+          </QueryClientProvider>
+        </WagmiProvider>
+      </Web3OnboardProvider>
     </>
   );
 }

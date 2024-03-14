@@ -84,7 +84,7 @@ export default function Home() {
                 gradientUnits="userSpaceOnUse"
               >
                 <stop stopColor="#22645C" />
-                <stop offset="1" stop-color="#122B33" stopOpacity="0" />
+                <stop offset="1" stopColor="#122B33" stopOpacity="0" />
               </linearGradient>
             </defs>
           </svg>

@@ -12,13 +12,9 @@ import { create } from "zustand";
 import { WalletState } from "@web3-onboard/core/dist/types";
 import { Eip1193Provider } from "ethers";
 
-const getPreviouslyUsedWalletLabel = () =>
-  window.localStorage.getItem("previouslyUsedWalletLabel") || "";
+const getPreviouslyUsedWalletLabel = () => window.localStorage.getItem("previouslyUsedWalletLabel") || "";
 
-type ConnectCallback = (
-  address: string,
-  provider: Eip1193Provider
-) => Promise<void>;
+type ConnectCallback = (address: string, provider: Eip1193Provider) => Promise<void>;
 
 const walletStore = create<{
   connect: (callback: ConnectCallback) => Promise<void>;
@@ -45,7 +41,6 @@ const walletStore = create<{
               },
             }
           : undefined;
-        
         let wallet = (await onboard.connectWallet(connectOptions))[0];
 
         if (!wallet) {
@@ -59,7 +54,6 @@ const walletStore = create<{
           wallet = (await onboard.connectWallet())[0];
         }
 
-        console.log("geri 3", wallet);
         if (!wallet) {
           throw new Error("No wallet selected");
         }
@@ -67,11 +61,8 @@ const walletStore = create<{
         window.localStorage.setItem("previouslyUsedWalletLabel", wallet.label);
 
         const walletData = parseWeb3OnboardWallet(wallet);
-        console.log("geri 4", wallet);
 
         set({ ...walletData });
-        console.log("geri 5", walletData.address, walletData.provider);
-        console.log("geri 6", callback);
         await callback(walletData.address, walletData.provider);
       } catch (e) {
         console.error("Error connecting wallet", e);
@@ -113,10 +104,7 @@ onboard.state.select("wallets").subscribe((wallets) => {
   if (wallets.length) {
     const walletState = walletStore.getState();
     // Disconnect if the wallet has been changed
-    if (
-      walletState.address &&
-      walletState.address !== wallets?.[0]?.accounts?.[0]?.address
-    ) {
+    if (walletState.address && walletState.address !== wallets?.[0]?.accounts?.[0]?.address) {
       walletState.disconnect();
       return;
     }
