@@ -36,18 +36,20 @@ const MinimalHeader = ({ className }: MinimalHeaderProps): JSX.Element => {
   const assets = useMemo(() => getAssets(), []);
 
   return (
-    <>
-      <div className="absolute flex items-center pt-3">
+    <div className="flex items-center">
+      <div className="flex flex-1 items-center">
         <img className="" src={assets.gitcoinLogo} alt="Gitcoin Logo" />
         <img className="mx-3 md:mx-6" src={assets.logoLine} alt="Logo Line" />
         <img className="h-8" src={assets.passportLogo} alt="Passport Logo" />
-        <div className="ml-3 text-2xl text-color-1 lg:block hidden">Identity Staking</div>
+        <div className="ml-3 text-lg xl:text-2xl text-color-1 lg:block hidden">Identity Staking</div>
       </div>
-      <div className={`h-16 ${className} flex justify-center items-center`}>
+      <div className={`h-16 ${className} flex-1 flex justify-center items-center`}>
         <LinksList className="hidden md:flex" />
         <LinksDropdown className="md:hidden flex" />
       </div>
-    </>
+      {/* Placeholder for wallet UI */}
+      <div className="flex-1" />
+    </div>
   );
 };
 
