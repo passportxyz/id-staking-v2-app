@@ -21,7 +21,7 @@ export default function LeaderBoard() {
             <YourStake />
             {/* This is just here for now to make sure
                 everything looks right with multiple sections */}
-            <YourStake />
+            {/* <YourStake /> */}
           </PageWidthGrid>
         </BodyWrapper>
       </HeaderContentFooterGrid>
