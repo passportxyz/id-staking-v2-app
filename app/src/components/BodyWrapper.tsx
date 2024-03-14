@@ -1,17 +1,8 @@
 import React from "react";
-import {
-  PAGE_PADDING,
-  CONTENT_MAX_WIDTH_INCLUDING_PADDING,
-} from "./PageWidthGrid";
+import { PAGE_PADDING, CONTENT_MAX_WIDTH_INCLUDING_PADDING } from "./PageWidthGrid";
 
 const PassportLogo = () => (
-  <svg
-    width="714"
-    height="318"
-    viewBox="0 0 714 318"
-    fill="none"
-    xmlns="http://www.w3.org/2000/svg"
-  >
+  <svg width="714" height="318" viewBox="0 0 714 318" fill="none" xmlns="http://www.w3.org/2000/svg">
     <path
       d="M344.922 313.784L13.078 123.532C5.60475 119.244 1 111.328 1 102.752V-277.752C1 -286.328 5.60475 -294.244 13.078 -298.532L344.922 -488.784C352.395 -493.072 361.605 -493.072 369.078 -488.784L700.922 -298.532C708.395 -294.244 713 -286.328 713 -277.752V102.752C713 111.328 708.395 119.244 700.922 123.532L369.078 313.784C361.605 318.072 352.395 318.072 344.922 313.784ZM73.4682 88.9143L344.922 244.55C352.395 248.837 361.605 248.837 369.078 244.55L640.532 88.9143C648.005 84.6265 652.61 76.7106 652.61 68.135V-243.12C652.61 -251.696 648.005 -259.612 640.532 -263.9L369.078 -419.535C361.605 -423.822 352.395 -423.822 344.922 -419.535L73.4682 -263.9C65.9949 -259.612 61.3902 -251.696 61.3902 -243.12V68.135C61.3902 76.7106 65.9949 84.6265 73.4682 88.9143Z"
       fill="url(#paint0_linear_7391_2920)"
@@ -79,13 +70,7 @@ const PassportLogo = () => (
   </svg>
 );
 
-const BodyWrapper = ({
-  children,
-  className,
-}: {
-  children: React.ReactNode;
-  className?: string;
-}) => (
+const BodyWrapper = ({ children, className }: { children: React.ReactNode; className?: string }) => (
   <div
     className={`${PAGE_PADDING} ${CONTENT_MAX_WIDTH_INCLUDING_PADDING} grid w-full justify-self-center overflow-x-hidden pb-4 ${className}`}
   >

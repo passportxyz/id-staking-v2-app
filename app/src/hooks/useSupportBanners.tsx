@@ -15,21 +15,17 @@ export const useSupportBanners = (): {
 } => {
   const [banners, setBanners] = useState<SupportBannerProps[]>([]);
 
-  const { dbAccessToken, dbAccessTokenStatus } =
-    useDatastoreConnectionContext();
+  const { dbAccessToken, dbAccessTokenStatus } = useDatastoreConnectionContext();
 
   const loadBanners = useCallback(async () => {
     if (dbAccessTokenStatus === "connected" && dbAccessToken) {
       const banners: {
         data: Omit<SupportBannerProps, "dismiss">[];
-      } = await axios.get(
-        `${process.env.NEXT_PUBLIC_SCORER_ENDPOINT}/passport-admin/banners`,
-        {
-          headers: {
-            Authorization: `Bearer ${dbAccessToken}`,
-          },
-        }
-      );
+      } = await axios.get(`${process.env.NEXT_PUBLIC_SCORER_ENDPOINT}/passport-admin/banners`, {
+        headers: {
+          Authorization: `Bearer ${dbAccessToken}`,
+        },
+      });
 
       setBanners(
         banners.data.map((banner: Omit<SupportBannerProps, "dismiss">) => ({
@@ -52,9 +48,7 @@ export const useSupportBanners = (): {
           },
         }
       );
-      setBanners((oldBanners) =>
-        oldBanners.filter((banner) => banner.banner_id !== banner_id)
-      );
+      setBanners((oldBanners) => oldBanners.filter((banner) => banner.banner_id !== banner_id));
     } catch (err) {
       // datadogRum.addError(err);
     }

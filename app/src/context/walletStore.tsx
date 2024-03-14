@@ -62,7 +62,7 @@ const walletStore = create<{
 
         const walletData = parseWeb3OnboardWallet(wallet);
 
-        set({ ...walletData });
+        set({ ...walletData, address: walletData.address as `0x${string}` });
         await callback(walletData.address, walletData.provider);
       } catch (e) {
         console.error("Error connecting wallet", e);
@@ -109,7 +109,8 @@ onboard.state.select("wallets").subscribe((wallets) => {
       return;
     }
   }
-  walletStore.setState(parseWeb3OnboardWallet(wallets[0]));
+  const walletState = parseWeb3OnboardWallet(wallets[0]);
+  walletStore.setState({ ...walletState, address: walletState.address as `0x${string}` });
 });
 
 // Export as hook

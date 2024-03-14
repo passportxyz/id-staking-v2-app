@@ -41,9 +41,7 @@ const MinimalHeader = ({ className }: MinimalHeaderProps): JSX.Element => {
         <img className="" src={assets.gitcoinLogo} alt="Gitcoin Logo" />
         <img className="mx-3 md:mx-6" src={assets.logoLine} alt="Logo Line" />
         <img className="h-8" src={assets.passportLogo} alt="Passport Logo" />
-        <div className="ml-3 text-2xl text-color-1 lg:block hidden">
-          Identity Staking
-        </div>
+        <div className="ml-3 text-2xl text-color-1 lg:block hidden">Identity Staking</div>
       </div>
       <div className={`h-16 ${className} flex justify-center items-center`}>
         <LinksList className="hidden md:flex" />
@@ -57,9 +55,7 @@ const LinksList = ({ className }: { className: string }) => {
   const location = useLocation();
 
   return (
-    <div
-      className={`justify-center content-center gap-3 lg:gap-8 ${className}`}
-    >
+    <div className={`justify-center content-center gap-3 lg:gap-8 ${className}`}>
       {LINKS.map((link) => (
         <Link
           key={link.to}
@@ -126,11 +122,7 @@ const LinksDropdown = ({ className }: { className: string }) => {
                       <div className="flex items-center justify-center gap-1">
                         <span
                           className={`text-2xl leading-none ${
-                            active
-                              ? "text-color-1"
-                              : idx === currentLinkIndex
-                              ? "text-foreground-4"
-                              : "text-color-5"
+                            active ? "text-color-1" : idx === currentLinkIndex ? "text-foreground-4" : "text-color-5"
                           }`}
                         >
                           •

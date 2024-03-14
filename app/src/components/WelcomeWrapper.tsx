@@ -36,15 +36,9 @@ export const WelcomeWrapper = ({ content, children }: WelcomeWrapperProps) => {
       <div className="row-start-1 row-end-4 p-4 text-lg text-color-1 md:row-start-2 md:row-end-3">
         <div className="flex h-full w-full auto-rows-min flex-col gap-2 md:grid md:grid-cols-2">
           <div className="row-start-2 flex flex-col gap-2">
-            <div className="font-heading text-4xl text-color-1 md:text-5xl lg:text-7xl">
-              {content.header}
-            </div>
+            <div className="font-heading text-4xl text-color-1 md:text-5xl lg:text-7xl">{content.header}</div>
             <div className="flex items-center gap-2 text-xl text-color-2 md:text-2xl lg:text-5xl">
-              <img
-                className="h-9 w-9"
-                src={content.subHeaderIconSrc}
-                alt="Subheader Icon"
-              />
+              <img className="h-9 w-9" src={content.subHeaderIconSrc} alt="Subheader Icon" />
               <p>{content.subHeader}</p>
             </div>
           </div>
@@ -73,11 +67,7 @@ export const WelcomeWrapper = ({ content, children }: WelcomeWrapperProps) => {
   );
 };
 
-const StepIndicator = ({
-  current,
-  total,
-  className,
-}: StepsConfig & { className?: string }) => (
+const StepIndicator = ({ current, total, className }: StepsConfig & { className?: string }) => (
   <div className={`flex items-center gap-2 ${className}`}>
     {Array.from({ length: total }, (_, i) => (
       <svg key={i} className="grid grid-cols-1" width="18" height="18">
@@ -85,9 +75,7 @@ const StepIndicator = ({
           r="9"
           cx="9"
           cy="9"
-          fill={
-            i + 1 === current ? "rgb(var(--color-background-3))" : "transparent"
-          }
+          fill={i + 1 === current ? "rgb(var(--color-background-3))" : "transparent"}
           className="transition-colors duration-1000"
         />
         <circle r="5" cx="9" cy="9" fill="rgb(var(--color-foreground-2))" />
@@ -115,22 +103,14 @@ const WelcomePageButtons = ({
         isLoading={isLoading}
         onClick={() => {
           setIsLoading(true);
-          navigate(
-            `/dashboard${
-              dashboardCustomizationKey ? `/${dashboardCustomizationKey}` : ""
-            }`
-          );
+          navigate(`/dashboard${dashboardCustomizationKey ? `/${dashboardCustomizationKey}` : ""}`);
           onSkip();
           setIsLoading(false);
         }}
       >
         {skipButtonText || "Skip for now"}
       </LoadButton>
-      <Button
-        data-testid="next-button"
-        onClick={onNext}
-        className="col-span-full md:col-span-1"
-      >
+      <Button data-testid="next-button" onClick={onNext} className="col-span-full md:col-span-1">
         {nextButtonText || "Next"}
       </Button>
     </div>

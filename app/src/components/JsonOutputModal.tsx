@@ -36,8 +36,7 @@ export const JsonOutputModal = ({
     const element = document.createElement("a");
     element.setAttribute(
       "href",
-      "data:text/plain;charset=utf-8," +
-        encodeURIComponent(JSON.stringify(jsonOutput, null, "\t"))
+      "data:text/plain;charset=utf-8," + encodeURIComponent(JSON.stringify(jsonOutput, null, "\t"))
     );
     element.setAttribute("download", filename);
 
@@ -51,17 +50,8 @@ export const JsonOutputModal = ({
   return (
     <Modal isOpen={isOpen} onClose={onClose}>
       <ModalOverlay />
-      <ModalContent
-        rounded={"none"}
-        padding={4}
-        maxW="80%"
-        maxH="80%"
-        textColor="inherit"
-      >
-        <ModalHeader
-          borderBottomWidth={2}
-          borderBottomColor="rgb(var(--color-foreground-6))"
-        >
+      <ModalContent rounded={"none"} padding={4} maxW="80%" maxH="80%" textColor="inherit">
+        <ModalHeader borderBottomWidth={2} borderBottomColor="rgb(var(--color-foreground-6))">
           <p className="text-color-1">{title}</p>
           <p className="text-base text-color-1">{subheading}</p>
         </ModalHeader>
@@ -72,23 +62,12 @@ export const JsonOutputModal = ({
           </pre>
         </ModalBody>
 
-        <ModalFooter
-          borderTopWidth={2}
-          borderTopColor="rgb(var(--color-foreground-6))"
-        >
-          <Button
-            data-testid="button-passport-json-download"
-            onClick={onDownload}
-            variant="secondary"
-          >
+        <ModalFooter borderTopWidth={2} borderTopColor="rgb(var(--color-foreground-6))">
+          <Button data-testid="button-passport-json-download" onClick={onDownload} variant="secondary">
             <ArrowDownTrayIcon fill="rgb(var(--color-text-1))" width={16} />
             Download
           </Button>
-          <Button
-            data-testid="button-passport-json-done"
-            onClick={onClose}
-            className="ml-4"
-          >
+          <Button data-testid="button-passport-json-done" onClick={onClose} className="ml-4">
             {closeButtonText || "Done"}
           </Button>
         </ModalFooter>

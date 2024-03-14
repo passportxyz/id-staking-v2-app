@@ -19,12 +19,8 @@ const Toggle = ({ className, ...props }: ToggleProps) => {
       {...props}
     >
       <span className="inline-block h-5 w-5 translate-x-1 transform rounded-full bg-foreground transition group-disabled:opacity-25 ui-checked:translate-x-6">
-        <XMarkIcon
-          className={`block text-foreground-3 ui-checked:hidden ${toggleIconClassName}`}
-        />
-        <CheckIcon
-          className={`hidden text-foreground-6 ui-checked:block ${toggleIconClassName}`}
-        />
+        <XMarkIcon className={`block text-foreground-3 ui-checked:hidden ${toggleIconClassName}`} />
+        <CheckIcon className={`hidden text-foreground-6 ui-checked:block ${toggleIconClassName}`} />
       </span>
     </Switch>
   );

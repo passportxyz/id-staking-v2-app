@@ -5,8 +5,7 @@ import { chainConfigs, ChainConfig } from "@/utils/chains";
 import { useBalance } from "wagmi";
 import { useWalletStore } from "@/context/walletStore";
 
-
-const MenuButton = ({ balance, icon }: { balance: string, icon: string }) => {
+const MenuButton = ({ balance, icon }: { balance: string; icon: string }) => {
   const [dropDownOpen, setDropDownState] = useState<boolean>(false);
   const handleDropDown = () => {
     setDropDownState(!dropDownOpen);
@@ -18,22 +17,15 @@ const MenuButton = ({ balance, icon }: { balance: string, icon: string }) => {
       onClick={handleDropDown}
     >
       <img className="m-2" src={icon} />
-      <div className="m-2" >GTC Balance </div>
+      <div className="m-2">GTC Balance </div>
       <img className="m-2" src="/assets/gitcoinLogoGreen.svg" />
-      <div className="m-2" >{balance}</div>
+      <div className="m-2">{balance}</div>
 
       <div
         className={`m-2 grid place-content-around
-          ${dropDownOpen ? "transform -rotate-180" : ""
-          }`}
+          ${dropDownOpen ? "transform -rotate-180" : ""}`}
       >
-        <svg
-          width="10"
-          height="8"
-          viewBox="0 0 10 8"
-          fill="none"
-          xmlns="http://www.w3.org/2000/svg"
-        >
+        <svg width="10" height="8" viewBox="0 0 10 8" fill="none" xmlns="http://www.w3.org/2000/svg">
           <path
             d="M5.86603 7.5C5.48112 8.16667 4.51887 8.16667 4.13397 7.5L0.669873 1.5C0.284973 0.833333 0.766098 5.89981e-08 1.5359 1.26296e-07L8.4641 7.31979e-07C9.2339 7.99277e-07 9.71503 0.833334 9.33013 1.5L5.86603 7.5Z"
             fill="#C1F6FF"
@@ -48,15 +40,14 @@ export const NetworkDropdown = () => {
   const [selectedChain, setChain] = useState<number>(1);
 
   const handleChainSelect = (chain: ChainConfig) => {
-    // TODO: this is not clear 
+    // TODO: this is not clear
     // setChain(chain.id);
     // setMenuButtonIcon(chain.icon);
   };
 
-
   const initialChain = chainConfigs[0];
-  // TODO: complete initial balance 
-  const [menuButtonBalance, setMenuButtonBalance] = useState<string>(`...`)
+  // TODO: complete initial balance
+  const [menuButtonBalance, setMenuButtonBalance] = useState<string>(`...`);
   const [menuButtonIcon, setMenuButtonIcon] = useState<string>(initialChain.icon);
 
   return (
@@ -67,41 +58,45 @@ export const NetworkDropdown = () => {
           {chainConfigs.map((chain, index) => (
             <Menu.Item key={index}>
               {({ active }) => {
+                // eslint-disable-next-line react-hooks/rules-of-hooks
                 const address = useWalletStore((state) => state.address);
 
+                // eslint-disable-next-line react-hooks/rules-of-hooks
                 const balance = useBalance({
                   address: address,
                   token: chain.gtcContractAddr,
                   chainId: chain.id,
                 });
 
-                const calculatedBalance = Number(balance.data?.value || 0) / (10 ** Number(balance.data?.decimals || 1));
+                const calculatedBalance = Number(balance.data?.value || 0) / 10 ** Number(balance.data?.decimals || 1);
 
-                const formattedBalance = calculatedBalance.toLocaleString('en', {
+                const formattedBalance = calculatedBalance.toLocaleString("en", {
                   // Use period as decimal separator
                   minimumFractionDigits: 2,
                   maximumFractionDigits: 2,
                 });
                 const icon = chain.icon;
+                // eslint-disable-next-line react-hooks/rules-of-hooks
                 useEffect(() => {
                   if (active == true) {
-                    setMenuButtonBalance(formattedBalance)
-                    setMenuButtonIcon(icon)
+                    setMenuButtonBalance(formattedBalance);
+                    setMenuButtonIcon(icon);
                   }
                 }, [balance, icon, active]);
 
                 return (
                   <button
-                    className={` rounded-lg bg-gradient-to-r  from-background to-background-6 place-content-between max-h-30px ${active ? "bg-blue-500" : ""} grid grid-flow-col m-1`}
+                    className={` rounded-lg bg-gradient-to-r  from-background to-background-6 place-content-between max-h-30px ${
+                      active ? "bg-blue-500" : ""
+                    } grid grid-flow-col m-1`}
                     onClick={() => handleChainSelect(chain)}
                   >
                     <img className="m-2" src={icon} />
-                    <div className="m-2" >GTC Balance </div>
+                    <div className="m-2">GTC Balance </div>
                     <img className="m-2" src="/assets/gitcoinLogoGreen.svg" alt="Gitcoin Logo" />
-                    <div className="m-2" >{formattedBalance}</div>
-
+                    <div className="m-2">{formattedBalance}</div>
                   </button>
-                )
+                );
               }}
             </Menu.Item>
           ))}

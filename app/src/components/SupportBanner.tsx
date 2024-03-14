@@ -1,11 +1,7 @@
 import Warning from "./Warning";
 import { SupportBannerProps } from "../hooks/useSupportBanners";
 
-export function SupportBanner({
-  banners,
-}: {
-  banners: SupportBannerProps[];
-}): JSX.Element {
+export function SupportBanner({ banners }: { banners: SupportBannerProps[] }): JSX.Element {
   return (
     <>
       {banners.map((banner) => (

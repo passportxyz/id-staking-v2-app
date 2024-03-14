@@ -13,16 +13,7 @@ export const setCustomizationTheme = ({ colors }: CustomizationTheme) => {
   // and then we can use it in our components...
   // <p className="text-customization-caption-size">Hello world</p>
 
-  r.style.setProperty(
-    "--color-customization-background-1",
-    colors.customizationBackground1
-  );
-  r.style.setProperty(
-    "--color-customization-background-2",
-    colors.customizationBackground2
-  );
-  r.style.setProperty(
-    "--color-customization-foreground-1",
-    colors.customizationForeground1
-  );
+  r.style.setProperty("--color-customization-background-1", colors.customizationBackground1);
+  r.style.setProperty("--color-customization-background-2", colors.customizationBackground2);
+  r.style.setProperty("--color-customization-foreground-1", colors.customizationForeground1);
 };

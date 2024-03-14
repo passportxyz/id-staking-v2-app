@@ -13,12 +13,7 @@ export const Footer = ({ lightMode }: FooterProps): JSX.Element => {
     >
       <div className="col-span-3 grow md:col-span-4">
         Available on{" "}
-        <a
-          href="https://ceramic.network/"
-          target="_blank"
-          rel="noopener noreferrer"
-          className="hover:underline"
-        >
+        <a href="https://ceramic.network/" target="_blank" rel="noopener noreferrer" className="hover:underline">
           Ceramic.
         </a>
       </div>
@@ -55,34 +50,11 @@ export const Footer = ({ lightMode }: FooterProps): JSX.Element => {
         Gitcoin Privacy Policy
       </a>
       <div className="col-start-[-2] col-end-[-1] flex items-center justify-self-end md:col-start-[-3]">
-        <a
-          href="https://github.com/gitcoinco/passport"
-          target="_blank"
-          rel="noopener noreferrer"
-          className="mr-8"
-        >
-          <img
-            src={
-              lightMode
-                ? "./assets/githubLogoLight.svg"
-                : "./assets/githubLogoDark.svg"
-            }
-            alt="Github Logo"
-          />
+        <a href="https://github.com/gitcoinco/passport" target="_blank" rel="noopener noreferrer" className="mr-8">
+          <img src={lightMode ? "./assets/githubLogoLight.svg" : "./assets/githubLogoDark.svg"} alt="Github Logo" />
         </a>
-        <a
-          href="https://docs.passport.gitcoin.co"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <img
-            src={
-              lightMode
-                ? "./assets/docsIconLight.svg"
-                : "./assets/docsIconDark.svg"
-            }
-            alt="Docs Icon"
-          />
+        <a href="https://docs.passport.gitcoin.co" target="_blank" rel="noopener noreferrer">
+          <img src={lightMode ? "./assets/docsIconLight.svg" : "./assets/docsIconDark.svg"} alt="Docs Icon" />
         </a>
       </div>
     </PageWidthGrid>

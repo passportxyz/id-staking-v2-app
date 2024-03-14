@@ -36,7 +36,7 @@ export const YourStakeForm = ({}: any) => {
         />
         <div className="flex gap-2 col-start-2 col-span-3 text-color-4">
           <button className="w-16 rounded-lg bg-background-7" onClick={() => handleAddFixedValue(5)}>
-          5
+            5
           </button>
           <button className="w-16 rounded-lg bg-background-7" onClick={() => handleAddFixedValue(20)}>
             20

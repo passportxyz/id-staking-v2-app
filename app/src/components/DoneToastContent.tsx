@@ -22,18 +22,11 @@ export const DoneToastContent = ({
   testId,
 }: CustomToastProps): JSX.Element => {
   return (
-    <div
-      className="rounded-md bg-color-1 text-background-2"
-      data-testid={`${testId ? testId : "toast-done-toast"}}`}
-    >
+    <div className="rounded-md bg-color-1 text-background-2" data-testid={`${testId ? testId : "toast-done-toast"}}`}>
       <div className="flex p-4">
         <div className="mr-2">
           <div className="mt-1 cursor-not-allowed rounded-full">
-            <img
-              alt="information circle"
-              className="sticky top-0 h-6"
-              src={icon}
-            />
+            <img alt="information circle" className="sticky top-0 h-6" src={icon} />
           </div>
         </div>
         <div className="flex max-w-[200px] flex-col md:max-w-[390px]">
@@ -42,11 +35,7 @@ export const DoneToastContent = ({
         </div>
         <div className="flex flex-grow items-start justify-end">
           <button className="sticky top-0" onClick={result.onClose}>
-            <img
-              alt="close button"
-              className="rounded-lg hover:bg-gray-500"
-              src="./assets/x-icon-black.svg"
-            />
+            <img alt="close button" className="rounded-lg hover:bg-gray-500" src="./assets/x-icon-black.svg" />
           </button>
         </div>
       </div>

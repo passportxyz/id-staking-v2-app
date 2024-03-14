@@ -3,14 +3,8 @@ import { Popover } from "@headlessui/react";
 import { InformationCircleIcon } from "@heroicons/react/24/solid";
 import { usePopper } from "react-popper";
 
-const TextAlignedInfoIcon = ({
-  className,
-}: {
-  className?: string;
-}): JSX.Element => (
-  <InformationCircleIcon
-    className={`relative top-[.125em] h-[1em] w-[1em] text-color-2 ${className}`}
-  />
+const TextAlignedInfoIcon = ({ className }: { className?: string }): JSX.Element => (
+  <InformationCircleIcon className={`relative top-[.125em] h-[1em] w-[1em] text-color-2 ${className}`} />
 );
 
 const TooltipPopover = ({
@@ -41,10 +35,7 @@ const TooltipPopover = ({
   return (
     <Popover className={`group cursor-pointer px-2 ${className}`}>
       {/* ref type stuff is a workaround for the weird way popper needs references */}
-      <Popover.Button
-        as="div"
-        ref={setReferenceElement as unknown as Ref<HTMLButtonElement>}
-      >
+      <Popover.Button as="div" ref={setReferenceElement as unknown as Ref<HTMLButtonElement>}>
         <TextAlignedInfoIcon className={iconClassName} />
       </Popover.Button>
 
