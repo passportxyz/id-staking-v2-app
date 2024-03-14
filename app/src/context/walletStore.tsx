@@ -45,10 +45,9 @@ const walletStore = create<{
               },
             }
           : undefined;
-        console.log("geri 1");
+        
         let wallet = (await onboard.connectWallet(connectOptions))[0];
 
-        console.log("geri 2", wallet);
         if (!wallet) {
           // This error can be caused if the user changed the wallet he is using in the mean time,
           // for example he switched from MM -> Rabby

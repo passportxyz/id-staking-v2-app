@@ -45,13 +45,10 @@ const MenuButton = ({ balance, icon }: { balance: string, icon: string }) => {
 };
 
 export const NetworkDropdown = () => {
-  const address = useWalletStore((state) => state.address);
-
   const [selectedChain, setChain] = useState<number>(1);
 
   const handleChainSelect = (chain: ChainConfig) => {
     // TODO: this is not clear 
-    
     // setChain(chain.id);
     // setMenuButtonIcon(chain.icon);
   };
@@ -70,6 +67,7 @@ export const NetworkDropdown = () => {
           {chainConfigs.map((chain, index) => (
             <Menu.Item key={index}>
               {({ active }) => {
+                const address = useWalletStore((state) => state.address);
 
                 const balance = useBalance({
                   address: address,

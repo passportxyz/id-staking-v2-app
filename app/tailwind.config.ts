@@ -46,6 +46,7 @@ const config: Config = {
         "color-4": "rgb(var(--color-text-4) / <alpha-value>)",
         "color-5": "rgb(var(--color-text-5) / <alpha-value>)",
         "color-6": "rgb(var(--color-text-6) / <alpha-value>)",
+        "color-7": "rgb(var(--color-text-7) / <alpha-value>)",
 
         // Set this variable dynamically to allow for customization
         // colors defined by an API call
