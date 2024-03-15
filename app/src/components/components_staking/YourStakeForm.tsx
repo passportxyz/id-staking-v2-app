@@ -2,19 +2,29 @@ import React, { ChangeEvent, useEffect, useState } from "react";
 import { Button } from "@/components/Button";
 import { PanelDiv } from "./PanelDiv";
 import IdentityStakingAbi from "../../abi/IdentityStaking.json";
+import ERC20 from "../../abi/ERC20.json";
 import { useWaitForTransactionReceipt, useWriteContract } from "wagmi";
 import { ChainConfig } from "@/utils/chains";
+import { makeErrorToastProps, makeSuccessToastProps } from "../DoneToastContent";
+import { useToast } from "@chakra-ui/react";
+import { useQueryClient } from "@tanstack/react-query";
+import { useWalletStore } from "@/context/walletStore";
 
 interface YourStakeFormProps {
   selectedChain: ChainConfig;
 }
 
-
-export const YourStakeForm : React.FC<YourStakeFormProps> = ({ selectedChain }) => {
+export const YourStakeForm: React.FC<YourStakeFormProps> = ({ selectedChain }) => {
+  const toast = useToast();
+  const queryClient = useQueryClient();
+  const address = useWalletStore((state) => state.address);
 
   const [inputValue, setInputValue] = useState<number>();
   const [lockedPeriod, setLockedPeriodState] = useState<number>(3);
   const { data: hash, error, isPending, writeContract } = useWriteContract();
+  const { isLoading: isConfirming, isSuccess: isConfirmed } = useWaitForTransactionReceipt({
+    hash,
+  });
 
   const handleInputChange = (event: ChangeEvent<HTMLInputElement>) => {
     setInputValue(Number(event.target.value));
@@ -29,21 +39,70 @@ export const YourStakeForm : React.FC<YourStakeFormProps> = ({ selectedChain }) 
   };
 
   const handleStake = () => {
-    
-    console.log("address", selectedChain.stakingContractAddr)
-    console.log("amount", BigInt(inputValue || 0))
-    console.log("amount", `${lockedPeriod} months`)
-    
-    // writeContract({
-    //   address: selectedChain.stakingContractAddr,
-    //   abi: IdentityStakingAbi,
-    //   functionName: "selfStake",
-    //   args: [
-    //     BigInt(inputValue),
-    //     `${lockedPeriod} months`
-    //   ], 
-    // })
+    console.log("address", selectedChain.stakingContractAddr);
+    console.log("amount", BigInt(inputValue || 0));
+    console.log("amount", `${lockedPeriod} months`);
+
+
+    const lockedPeriodSeconds = lockedPeriod * 30 * 24 * 60 * 60;
+    console.log("lockedPeriodSeconds", lockedPeriodSeconds);
+    // https://docs.openzeppelin.com/contracts/4.x/erc20
+    // https://docs.openzeppelin.com/contracts/4.x/api/token/erc20#IERC20-approve-address-uint256-
+    // https://sepolia-optimism.etherscan.io/address/0xc80e07d81828960F613baa57288192E56d417dA5#code
+
+    // Check allowance
+
+    const allowedAmount = writeContract({
+      address: "0xc80e07d81828960F613baa57288192E56d417dA5", // TODO: double check this
+      abi: ERC20,
+      functionName: "allowance",
+      args: [address, selectedChain.stakingContractAddr],
+    });
+    console.log("allowedAmount = ", allowedAmount)
+
+    if (allowedAmount >= BigInt(inputValue)){
+      writeContract({
+        address: selectedChain.stakingContractAddr,
+        abi: IdentityStakingAbi,
+        functionName: "selfStake",
+        args: [BigInt(inputValue || 0), BigInt(lockedPeriodSeconds)],
+      });
+    } else {
+      // Allow
+      const approved = writeContract({
+        address: address, // TODO: double check this
+        abi: ERC20,
+        functionName: "approve",
+        args: [selectedChain.stakingContractAddr, BigInt(inputValue || 0)],
+      });
+
+      writeContract({
+        address: selectedChain.stakingContractAddr,
+        abi: IdentityStakingAbi,
+        functionName: "selfStake",
+        args: [BigInt(inputValue || 0), BigInt(lockedPeriodSeconds)],
+      });
+    }
+ 
   };
+
+  useEffect(() => {
+    (async () => {
+      if (isConfirmed) {
+        toast(makeSuccessToastProps("Success", "Stake transaction confirmed"));
+        // delay for indexer
+        await new Promise((resolve) => setTimeout(resolve, 5000));
+        await queryClient.invalidateQueries();
+      }
+    })();
+  }, [isConfirmed, toast, queryClient]);
+
+  useEffect(() => {
+    if (error) {
+      console.error("Stake failed:", error);
+      toast(makeErrorToastProps("Failed", "Stake transaction failed"));
+    }
+  }, [error, toast]);
 
   return (
     <div className="flex flex-col gap-4">
@@ -76,7 +135,7 @@ export const YourStakeForm : React.FC<YourStakeFormProps> = ({ selectedChain }) 
           ))}
         </div>
       </PanelDiv>
-      <Button className="w-full font-bold" onClick={() => handleStake()}>
+      <Button className="w-full font-bold" onClick={() => handleStake()} disabled={isPending || isConfirming}>
         Stake
       </Button>
     </div>
