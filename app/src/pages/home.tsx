@@ -7,6 +7,7 @@ import BodyWrapper from "../components/BodyWrapper";
 import HeaderContentFooterGrid from "../components/HeaderContentFooterGrid";
 import PageWidthGrid from "../components/PageWidthGrid";
 import { YourStake } from "../components/components_staking/YourStake";
+import { StakeForOthers } from "../components/components_staking/StakeForOthers";
 import { NetworkDropdown } from "../components/components_staking/NetworkDropdown";
 import LoggedInPageRoot from "@/components/components_staking/LoggedInPageRoot";
 
@@ -17,8 +18,11 @@ export default function LeaderBoard() {
         <Header />
         <BodyWrapper>
           <PageWidthGrid>
-            <NetworkDropdown />
-            <YourStake />
+            <NetworkDropdown onSelectChain={handleChainChange} />
+            <YourStake selectedChain={currentChain}/>
+            {/* This is just here for now to make sure
+                everything looks right with multiple sections */}
+                <StakeForOthers selectedChain={currentChain}/>
           </PageWidthGrid>
         </BodyWrapper>
       </HeaderContentFooterGrid>

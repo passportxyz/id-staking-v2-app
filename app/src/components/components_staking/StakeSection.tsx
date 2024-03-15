@@ -1,6 +1,5 @@
 import React, { useState } from "react";
 import { Disclosure, Transition } from "@headlessui/react";
-import { StakeData, useStakeHistoryQuery } from "@/utils/stakeHistory";
 import { formatAmount } from "@/utils/helpers";
 import { useAccount } from "wagmi";
 import { DropDownIcon } from "./DropDownIcon";
@@ -11,6 +10,7 @@ export const StakeSection = ({
   heading,
   subheading,
   last,
+  amount,
 }: {
   children: React.ReactNode;
   heading: string;
@@ -20,6 +20,7 @@ export const StakeSection = ({
     alt: string;
   };
   last?: boolean;
+  amount: string;
 }) => {
   const [dropDownOpen, setDropDownState] = useState<boolean>(false);
 
@@ -54,7 +55,7 @@ export const StakeSection = ({
             <div className="text-sm text-left max-w-96 text-pretty">{subheading}</div>
           </div>
           <div className="flex gap-1 flex-col items-center mr-2">
-            <div className="text-right">{formatAmount(stakedAmount)} GTC</div>
+            <div className="text-right">{formatAmount(amount)} GTC</div>
             <div className="text-right">Staked</div>
           </div>
           <DropDownIcon isOpen={dropDownOpen} className="px-4" />
