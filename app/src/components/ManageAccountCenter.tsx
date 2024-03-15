@@ -4,7 +4,7 @@ import React, { useEffect } from "react";
 import { useAccountCenter } from "@web3-onboard/react";
 
 const shouldMinimize = () => {
-  return window.innerWidth < 1060 || window.pageYOffset > 120 || (window.pageYOffset > 50 && window.innerWidth < 1024);
+  return window.innerWidth < 1120 || window.pageYOffset > 120 || (window.pageYOffset > 50 && window.innerWidth < 1024);
 };
 
 const ManageAccountCenter = ({ children }: { children: React.ReactNode }) => {

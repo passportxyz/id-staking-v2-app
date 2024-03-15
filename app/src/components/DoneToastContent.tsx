@@ -12,6 +12,22 @@ export type CustomToastProps = {
   testId?: string;
 };
 
+export const makeErrorToastProps = (title: string, message: string) => ({
+  duration: 6000,
+  isClosable: true,
+  render: (result: any) => (
+    <DoneToastContent title={title} body={message} icon="../assets/verification-failed-bright.svg" result={result} />
+  ),
+});
+
+export const makeSuccessToastProps = (title: string, message: string) => ({
+  duration: 6000,
+  isClosable: true,
+  render: (result: any) => (
+    <DoneToastContent title={title} body={message} icon="../assets/check-icon2.svg" result={result} />
+  ),
+});
+
 // This content overrides Chakra UI Toast style in render function
 export const DoneToastContent = ({
   title,
