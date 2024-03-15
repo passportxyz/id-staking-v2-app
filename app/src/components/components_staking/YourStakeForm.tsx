@@ -1,27 +1,48 @@
-import React, { ChangeEvent, useState } from "react";
+import React, { ChangeEvent, useEffect, useState } from "react";
 import { Button } from "@/components/Button";
 import { PanelDiv } from "./PanelDiv";
+import IdentityStakingAbi from "../../abi/IdentityStaking.json";
+import { useWaitForTransactionReceipt, useWriteContract } from "wagmi";
+import { ChainConfig } from "@/utils/chains";
 
-export const YourStakeForm = ({}: any) => {
-  const [inputValue, setInputValue] = useState<string>("Input a custom amount or choose one from below");
-  const [lockedPeriod, setLockedPeriodState] = useState<string>("");
+interface YourStakeFormProps {
+  selectedChain: ChainConfig;
+}
+
+
+export const YourStakeForm : React.FC<YourStakeFormProps> = ({ selectedChain }) => {
+
+  const [inputValue, setInputValue] = useState<number>();
+  const [lockedPeriod, setLockedPeriodState] = useState<number>(3);
+  const { data: hash, error, isPending, writeContract } = useWriteContract();
 
   const handleInputChange = (event: ChangeEvent<HTMLInputElement>) => {
-    setInputValue(event.target.value);
+    setInputValue(Number(event.target.value));
   };
 
   const handleAddFixedValue = (value: number) => {
-    setInputValue(value.toString());
+    setInputValue(value);
   };
 
   const handleLockedPeriod = (value: number) => {
-    setLockedPeriodState(value.toString());
+    setLockedPeriodState(value);
   };
 
   const handleStake = () => {
-    // TODO:
-    console.log("inputValue - ", inputValue);
-    console.log("lockedPeriod - ", lockedPeriod);
+    
+    console.log("address", selectedChain.stakingContractAddr)
+    console.log("amount", BigInt(inputValue || 0))
+    console.log("amount", `${lockedPeriod} months`)
+    
+    // writeContract({
+    //   address: selectedChain.stakingContractAddr,
+    //   abi: IdentityStakingAbi,
+    //   functionName: "selfStake",
+    //   args: [
+    //     BigInt(inputValue),
+    //     `${lockedPeriod} months`
+    //   ], 
+    // })
   };
 
   return (
@@ -32,6 +53,7 @@ export const YourStakeForm = ({}: any) => {
           className="col-end-[-1] grow col-start-2  rounded-lg border border-foreground-4 bg-black text-s text-color-2"
           type="number"
           value={inputValue}
+          placeholder={`Input a custom amount or choose one from below`}
           onChange={handleInputChange}
         />
         <div className="gap-2 col-start-2 hidden lg:flex col-span-2 text-color-4">

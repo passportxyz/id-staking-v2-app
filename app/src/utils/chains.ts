@@ -22,7 +22,7 @@ export type ChainConfig = {
   label: string;
   rpcUrl: string;
   gtcContractAddr: `0x${string}`;
-  stakingContractAddr?: `0x${string}`;
+  stakingContractAddr: `0x${string}`;
   icon: string;
 };
 
