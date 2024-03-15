@@ -74,10 +74,10 @@ const BodyWrapper = ({ children, className }: { children: React.ReactNode; class
   <div
     className={`${PAGE_PADDING} ${CONTENT_MAX_WIDTH_INCLUDING_PADDING} grid w-full justify-self-center overflow-x-hidden pb-4 ${className}`}
   >
-    <div className="flex col-start-1 row-start-1 justify-center">
+    <div className="flex col-start-1 row-start-1 justify-center overflow-hidden">
       <PassportLogo />
     </div>
-    <div className="mt-20 z-10 col-start-1 row-start-1">{children}</div>
+    <div className="mt-20 col-start-1 row-start-1">{children}</div>
   </div>
 );
 

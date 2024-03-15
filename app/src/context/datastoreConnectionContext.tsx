@@ -56,6 +56,7 @@ export const useDatastoreConnection = () => {
   useEffect(() => {
     // Clear status when wallet disconnected
     if (!chain && dbAccessTokenStatus === "connected") {
+      console.log("Clearing dbAccessTokenStatus");
       setDbAccessTokenStatus("idle");
       setDbAccessToken(undefined);
     }

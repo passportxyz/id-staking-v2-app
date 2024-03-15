@@ -42,10 +42,10 @@ export const StakeSection = ({
           onClick={handleDropDown}
           as="div"
         >
-          <img alt={icon.alt} className="m-2 h-12" src={icon.src} />
+          <img alt={icon.alt} className="mx-4 h-12" src={icon.src} />
           <div className="grow flex flex-col items-start">
-            <div className="text-2xl text-color-6 md:text-xl lg:text-2xl text-left">{heading}</div>
-            <div className="text-sm text-left m-1 text-pretty">{subheading}</div>
+            <div className="text-xl text-color-6 font-bold lg:text-2xl text-left">{heading}</div>
+            <div className="text-sm text-left max-w-96 text-pretty">{subheading}</div>
           </div>
           <div className="flex gap-1 flex-col items-center mr-2">
             <div className="text-right">{stakedAmount} GTC</div>
