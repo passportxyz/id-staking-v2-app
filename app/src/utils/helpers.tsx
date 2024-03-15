@@ -5,6 +5,9 @@ import axios, { AxiosResponse } from "axios";
 import { datadogRum } from "@datadog/browser-rum";
 import { Cacao } from "@didtools/cacao";
 import { DID } from "dids";
+import { ethers } from "ethers";
+import { useMemo } from "react";
+import moment from "moment";
 
 export function generateUID(length: number) {
   return window
@@ -111,4 +114,76 @@ export const createSignedPayload = async (did: DID, data: any) => {
     cacao: Array.from(cacaoBlock ? cacaoBlock : []),
     issuer,
   };
+};
+
+export const formatAmount = (amount: string) => +parseFloat(ethers.formatEther(amount)).toFixed(2);
+
+const addPartToTimeDescriptions = (partName: string, part: number, short: string, long: string) => {
+  let [tempShort, tempLong] = [short, long];
+  if (part > 0) {
+    const formattedPart = part > 1 ? `${part} ${partName}s` : `${part} ${partName}`;
+    if (!tempShort) tempShort = formattedPart;
+    if (tempLong) tempLong += ", ";
+    tempLong += formattedPart;
+  }
+  return [tempShort, tempLong];
+};
+
+// Example
+//   <DisplayDuration seconds={123456789} />
+//     =>  <div title="3 years, 10 months, 2 days">3 years</div>
+export const DisplayDuration = ({ seconds }: { seconds: number }) => {
+  const [short, long] = useMemo(() => {
+    let [tempShort, tempLong] = ["", ""];
+    const duration = moment.duration(seconds, "seconds");
+
+    // Do this first because the "subtract" method mutates the duration
+    const weeks = Math.floor(duration.asWeeks());
+
+    const year = Math.floor(duration.asYears());
+    duration.subtract(year, "years");
+    const month = Math.floor(duration.asMonths());
+    duration.subtract(month, "months");
+    const day = Math.floor(duration.asDays());
+
+    Object.entries({ year, month, day }).forEach(([key, part]) => {
+      [tempShort, tempLong] = addPartToTimeDescriptions(key, part, tempShort, tempLong);
+    });
+
+    if (!year && !month) {
+      duration.subtract(day, "days");
+      const hour = Math.floor(duration.asHours());
+      [tempShort, tempLong] = addPartToTimeDescriptions("hour", hour, tempShort, tempLong);
+      if (!day) {
+        duration.subtract(hour, "hours");
+        const minute = Math.floor(duration.asMinutes());
+        [tempShort, tempLong] = addPartToTimeDescriptions("minute", minute, tempShort, tempLong);
+      }
+    }
+
+    // Override short with weeks
+    // where appropriate
+    if (weeks > 2 && weeks < 13) {
+      tempShort = `${weeks} weeks`;
+    }
+
+    return [tempShort, tempLong];
+  }, [seconds]);
+
+  return <div title={long}>{short}</div>;
+};
+
+export const DisplayAddressOrENS = ({ user }: { user: string }) => {
+  if (user.length <= 12) {
+    return <div>{user}</div>;
+  }
+
+  return (
+    <div title={user} className="flex justify-center flex-nowrap">
+      {user.slice(0, 4)}
+      <span className="hidden md:block">{user.slice(4, 7)}</span>...
+      <span className="hidden md:block">{user.slice(-5, -3)}</span>
+      {user.slice(-3)}
+    </div>
+  );
 };

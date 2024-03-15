@@ -1,15 +1,11 @@
 import React, { ComponentPropsWithRef, useEffect, useMemo } from "react";
 import { PanelDiv } from "./PanelDiv";
-import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { ethers } from "ethers";
+import { useQuery } from "@tanstack/react-query";
 import axios from "axios";
-import moment from "moment";
 import { useWalletStore } from "@/context/walletStore";
-import { makeErrorToastProps, makeSuccessToastProps } from "../DoneToastContent";
-import { useToast } from "@chakra-ui/react";
-import { useWaitForTransactionReceipt, useWriteContract } from "wagmi";
-import IdentityStakingAbi from "../../abi/IdentityStaking.json";
-import { RestakeButton } from "./RestakeButton";
+import { SelfRestakeButton } from "./SelfRestakeButton";
+import { useDatastoreConnectionContext } from "@/context/datastoreConnectionContext";
+import { DisplayAddressOrENS, DisplayDuration, formatAmount } from "@/utils/helpers";
 
 export type StakeData = {
   chain: string;
@@ -17,7 +13,7 @@ export type StakeData = {
   stakee: string;
   amount: string;
   unlock_time: string;
-  lock_duration: string;
+  lock_time: string;
 };
 
 export const useStakeHistoryQueryKey = (address: string | undefined): string[] => {
@@ -25,11 +21,21 @@ export const useStakeHistoryQueryKey = (address: string | undefined): string[] =
 };
 
 const useStakeHistoryQuery = (address: string | undefined) => {
+  const { dbAccessToken, dbAccessTokenStatus } = useDatastoreConnectionContext();
   const queryKey = useStakeHistoryQueryKey(address);
   return useQuery({
     queryKey,
-    queryFn: getStakeHistory,
-    enabled: Boolean(address),
+    queryFn: async (): Promise<StakeData[]> => {
+      // TODO filter by chain here or somewhere else
+      const address = queryKey[1];
+      const response = await axios.get(`${process.env.NEXT_PUBLIC_CERAMIC_CACHE_ENDPOINT}/stake/gtc`, {
+        headers: {
+          Authorization: `Bearer ${dbAccessToken}`,
+        },
+      });
+      return response.data;
+    },
+    enabled: Boolean(address) && dbAccessTokenStatus === "connected",
   });
 };
 
@@ -58,6 +64,8 @@ const UnstakeButton = ({ stake, address, unlocked }: { stake: StakeData; address
 
 const Tbody = () => {
   const address = useWalletStore((state) => state.address);
+  const { dbAccessToken, dbAccessTokenStatus } = useDatastoreConnectionContext();
+  console.log("address", address, dbAccessToken, dbAccessTokenStatus);
   const { isPending, isError, data, error } = useStakeHistoryQuery(address);
   const yourStakeHistory = data?.filter((stake: StakeData) => stake.staker === address);
 
@@ -65,8 +73,9 @@ const Tbody = () => {
     isError && console.error("Error getting StakeHistory:", error);
   }, [error, isError]);
 
+  let tbody_contents;
   if (!isPending && !isError && address && yourStakeHistory && yourStakeHistory.length > 0) {
-    return (
+    tbody_contents = (
       <>
         {yourStakeHistory.map((stake, index) => (
           <StakeLine key={index} stake={stake} address={address} />
@@ -75,7 +84,7 @@ const Tbody = () => {
     );
   } else {
     const status = isError ? "Error loading stakes" : isPending ? "Loading..." : "No stakes found";
-    return (
+    tbody_contents = (
       <tr>
         <Td colSpan={5} className="text-center">
           {status}
@@ -83,76 +92,24 @@ const Tbody = () => {
       </tr>
     );
   }
-};
-
-const DisplayAddressOrENS = ({ user }: { user: string }) => (
-  <div title={user}>{`${user.length > 12 ? `${user.slice(0, 7)}...${user.slice(-5)}` : user}`}</div>
-);
-
-const getStakeHistory = async ({ queryKey }: { queryKey: string[] }): Promise<StakeData[]> => {
-  // TODO filter by chain
-  const address = queryKey[1];
-  const response = await axios.get(`${process.env.NEXT_PUBLIC_SCORER_ENDPOINT}/registry/gtc-stake/${address}`);
-  return response.data;
+  return <tbody>{tbody_contents}</tbody>;
 };
 
 const formatDate = (date: Date): string =>
   Intl.DateTimeFormat("en-US", { month: "2-digit", day: "2-digit", year: "numeric" }).format(date);
 
-const DisplayDuration = ({ seconds }: { seconds: number }) => {
-  const [short, long] = useMemo(() => {
-    const duration = moment.duration(seconds, "seconds");
-
-    const weeks = Math.floor(duration.asWeeks());
-
-    const years = Math.floor(duration.asYears());
-    const durationWithoutYears = duration.subtract(years, "years");
-    const months = Math.floor(durationWithoutYears.asMonths());
-    const durationWithoutMonths = durationWithoutYears.subtract(months, "months");
-    const days = Math.floor(durationWithoutMonths.asDays());
-
-    const parts = {
-      year: years,
-      month: months,
-      day: days,
-    };
-
-    let short = "";
-    let long = "";
-
-    Object.entries(parts).forEach(([key, part]) => {
-      if (part > 0) {
-        const formattedPart = part > 1 ? `${part} ${key}s` : `${part} ${key}`;
-
-        if (!short) short = formattedPart;
-
-        if (long) long += ", ";
-        long += formattedPart;
-      }
-    });
-
-    // Override short with weeks
-    // where appropriate
-    if (weeks > 2 && weeks < 13) {
-      short = `${weeks} weeks`;
-    }
-
-    return [short, long];
-  }, [seconds]);
-
-  return <div title={long}>{short}</div>;
-};
-
 const StakeLine = ({ stake, address }: { stake: StakeData; address: string }) => {
   const unlockTime = new Date(stake.unlock_time);
   const unlockTimeStr = formatDate(unlockTime);
 
-  const lockTime = new Date(unlockTime.getTime() - 1000 * parseInt(stake.lock_duration));
+  const lockTime = new Date(stake.lock_time);
   const lockTimeStr = formatDate(lockTime);
+
+  const lockSeconds = Math.floor((unlockTime.getTime() - lockTime.getTime()) / 1000);
 
   const unlocked = unlockTime < new Date();
 
-  const amount = +parseFloat(ethers.formatEther(stake.amount)).toFixed(2);
+  const amount = formatAmount(stake.amount);
 
   return (
     <tr>
@@ -162,7 +119,7 @@ const StakeLine = ({ stake, address }: { stake: StakeData; address: string }) =>
       <Td>{amount} GTC</Td>
       <Td className="hidden lg:table-cell">{unlocked ? "Unlocked" : "Locked"}</Td>
       <Td className="hidden lg:table-cell">
-        <DisplayDuration seconds={parseInt(stake.lock_duration)} />
+        <DisplayDuration seconds={lockSeconds} />
       </Td>
       <Td className="">
         {lockTimeStr}
@@ -170,7 +127,7 @@ const StakeLine = ({ stake, address }: { stake: StakeData; address: string }) =>
         <span className={unlocked ? "text-color-2" : "text-focus"}>{unlockTimeStr}</span>
       </Td>
       <Td className="pr-8 py-1">
-        <RestakeButton stake={stake} address={address} />
+        <SelfRestakeButton lockSeconds={lockSeconds} amount={stake.amount} address={address} />
         <br />
         <UnstakeButton stake={stake} address={address} unlocked={unlocked} />
       </Td>

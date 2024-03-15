@@ -26,40 +26,32 @@ export const YourStakeForm = ({}: any) => {
 
   return (
     <div className="flex flex-col gap-4">
-      <PanelDiv className="grid gap-4 grid-cols-[min-content_repeat(6,minmax(0,1fr))] py-10 px-14">
+      <PanelDiv className="grid gap-4 grid-cols-[min-content_repeat(3,minmax(0,1fr))] lg:grid-cols-[min-content_repeat(6,minmax(0,1fr))] py-10 px-4 md:px-14">
         <div className="col-span-1 text-color-6 font-bold">Amount</div>
         <input
-          className="col-end-[-1] grow col-start-2  rounded-lg border border-foreground-4 bg-black text-s text-color-2  "
+          className="col-end-[-1] grow col-start-2  rounded-lg border border-foreground-4 bg-black text-s text-color-2"
           type="number"
           value={inputValue}
           onChange={handleInputChange}
         />
-        <div className="flex gap-2 col-start-2 col-span-3 text-color-4">
-          <button className="w-16 rounded-lg bg-background-7" onClick={() => handleAddFixedValue(5)}>
-            5
-          </button>
-          <button className="w-16 rounded-lg bg-background-7" onClick={() => handleAddFixedValue(20)}>
-            20
-          </button>
-          <button className="w-16 rounded-lg bg-background-7" onClick={() => handleAddFixedValue(125)}>
-            125
-          </button>
+        <div className="gap-2 col-start-2 hidden lg:flex col-span-2 text-color-4">
+          {[5, 20, 125].map((amount) => (
+            <FormButton key={amount} onClick={() => handleAddFixedValue(amount)} className="w-12">
+              {amount}
+            </FormButton>
+          ))}
         </div>
-        <div className="flex col-span-3 text-sm gap-2 justify-self-end">
-          <div className="mx-1 text-right font-bold">
-            Lockup
-            <br />
-            period
-          </div>
-          <Button className="text-sm" onClick={() => handleLockedPeriod(3)}>
-            3 months
-          </Button>
-          <Button className="text-sm" onClick={() => handleLockedPeriod(6)}>
-            6 months
-          </Button>
-          <Button className="text-sm" onClick={() => handleLockedPeriod(12)}>
-            12 months
-          </Button>
+        <div className="mx-1 text-right font-bold text-color-6">
+          Lockup
+          <br />
+          period
+        </div>
+        <div className="flex col-span-3 w-full col-end-[-1] text-sm gap-2 justify-self-end">
+          {[3, 6, 12].map((months) => (
+            <FormButton key={months} onClick={() => handleLockedPeriod(months)} className="text-sm w-full">
+              {months} months
+            </FormButton>
+          ))}
         </div>
       </PanelDiv>
       <Button className="w-full font-bold" onClick={() => handleStake()}>
@@ -68,3 +60,17 @@ export const YourStakeForm = ({}: any) => {
     </div>
   );
 };
+
+const FormButton = ({
+  children,
+  onClick,
+  className,
+}: {
+  children: React.ReactNode;
+  onClick: () => void;
+  className?: string;
+}) => (
+  <Button className={`!px-1 rounded-lg leading-none whitespace-nowrap ${className}`} onClick={onClick}>
+    {children}
+  </Button>
+);
