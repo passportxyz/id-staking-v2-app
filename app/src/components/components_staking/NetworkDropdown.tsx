@@ -4,6 +4,7 @@ import { Menu } from "@headlessui/react";
 import { chainConfigs, ChainConfig } from "@/utils/chains";
 import { useBalance } from "wagmi";
 import { useWalletStore } from "@/context/walletStore";
+import { useAppStore } from "@/context/appStore";
 
 interface NetworkDropdownProps {
   onSelectChain: (chain: ChainConfig) => void;
@@ -20,9 +21,13 @@ const MenuButton = ({ balance, icon }: { balance: string; icon: string }) => {
       className="grid grid-flow-col place-content-between  border rounded-lg  border-foreground-4  bg-gradient-to-r  from-background to-background-6"
       onClick={handleDropDown}
     >
-      <div className="m-2"><img src={icon} /></div>
+      <div className="m-2">
+        <img src={icon} />
+      </div>
       <div className="m-2">GTC Balance </div>
-      <div className="m-2"><img className="pt-1" src="/assets/gitcoinLogoGreen.svg" alt="Gitcoin Logo" /></div>
+      <div className="m-2">
+        <img className="pt-1" src="/assets/gitcoinLogoGreen.svg" alt="Gitcoin Logo" />
+      </div>
       <div className="m-2">{balance}</div>
 
       <div
@@ -48,34 +53,46 @@ export const NetworkDropdown: React.FC<NetworkDropdownProps> = ({ onSelectChain 
     onSelectChain(chain);
   };
 
-  const getBalance = (chain: ChainConfig) =>{
-    const address = useWalletStore((state) => state.address);
-    
-    const balance = useBalance({
-      address: address,
-      token: chain.gtcContractAddr,
-      chainId: chain.id,
-    });   
-    const calculatedBalance = Number(balance.data?.value || 0) / 10 ** Number(balance.data?.decimals || 1);
+  const address = useWalletStore((state) => state.address);
 
-    const formattedBalance = calculatedBalance.toLocaleString("en", {
-      // Use period as decimal separator
-      minimumFractionDigits: 2,
-      maximumFractionDigits: 2,
-    });
-    return  formattedBalance
-  }
+  const balance = useBalance({
+    address: address,
+    token: selectedChain.gtcContractAddr,
+    chainId: selectedChain.id,
+  });
+  const calculatedBalance = Number(balance.data?.value || 0) / 10 ** Number(balance.data?.decimals || 1);
 
+  const formattedBalance = calculatedBalance.toLocaleString("en", {
+    // Use period as decimal separator
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  });
 
   return (
     <div className="col-span-full grid justify-self-end grid-flow-row">
       <Menu>
-        <MenuButton balance={getBalance(selectedChain)} icon={selectedChain.icon} />
+        <MenuButton balance={formattedBalance} icon={selectedChain.icon} />
         <Menu.Items as="div" className="grid grid-flow-row">
           {chainConfigs.map((chain, index) => (
             <Menu.Item key={index}>
               {({ active }) => {
-                
+                // eslint-disable-next-line react-hooks/rules-of-hooks
+                const address = useWalletStore((state) => state.address);
+
+                // eslint-disable-next-line react-hooks/rules-of-hooks
+                const balance = useBalance({
+                  address: address,
+                  token: chain.gtcContractAddr,
+                  chainId: chain.id,
+                });
+                const calculatedBalance = Number(balance.data?.value || 0) / 10 ** Number(balance.data?.decimals || 1);
+
+                const formattedBalance = calculatedBalance.toLocaleString("en", {
+                  // Use period as decimal separator
+                  minimumFractionDigits: 2,
+                  maximumFractionDigits: 2,
+                });
+
                 // eslint-disable-next-line react-hooks/rules-of-hooks
                 useEffect(() => {
                   if (active == true) {
@@ -90,10 +107,14 @@ export const NetworkDropdown: React.FC<NetworkDropdownProps> = ({ onSelectChain 
                     } grid grid-flow-col m-1`}
                     onClick={() => handleChainSelect(chain)}
                   >
-                    <div className="m-2"><img src={chain.icon} /></div>
+                    <div className="m-2">
+                      <img src={chain.icon} />
+                    </div>
                     <div className="m-2">GTC Balance </div>
-                    <div className="m-2"><img className="pt-1" src="/assets/gitcoinLogoGreen.svg" alt="Gitcoin Logo" /></div>
-                    <div className="m-2">{getBalance(chain)}</div>
+                    <div className="m-2">
+                      <img className="pt-1" src="/assets/gitcoinLogoGreen.svg" alt="Gitcoin Logo" />
+                    </div>
+                    <div className="m-2">{formattedBalance}</div>
                   </button>
                 );
               }}

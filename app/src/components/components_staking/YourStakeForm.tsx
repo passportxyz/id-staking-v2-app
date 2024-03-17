@@ -1,14 +1,14 @@
-import React, { ChangeEvent, useEffect, useState } from "react";
+import React, { ChangeEvent, useState } from "react";
 import { Button } from "@/components/Button";
 import { PanelDiv } from "./PanelDiv";
 import IdentityStakingAbi from "../../abi/IdentityStaking.json";
 import ERC20 from "../../abi/ERC20.json";
-import { useWaitForTransactionReceipt, useWriteContract } from "wagmi";
+import { useWriteContract, useReadContract } from "wagmi";
 import { ChainConfig } from "@/utils/chains";
 import { makeErrorToastProps, makeSuccessToastProps } from "../DoneToastContent";
 import { useToast } from "@chakra-ui/react";
-import { useQueryClient } from "@tanstack/react-query";
 import { useWalletStore } from "@/context/walletStore";
+import { ethers } from "ethers";
 
 interface YourStakeFormProps {
   selectedChain: ChainConfig;
@@ -16,21 +16,27 @@ interface YourStakeFormProps {
 
 export const YourStakeForm: React.FC<YourStakeFormProps> = ({ selectedChain }) => {
   const toast = useToast();
-  const queryClient = useQueryClient();
   const address = useWalletStore((state) => state.address);
-
-  const [inputValue, setInputValue] = useState<number>();
+  const walletChainId = useWalletStore((state) => state.chain);
+  const setWalletChain = useWalletStore((state) => state.setChain);
+  const [inputValue, setInputValue] = useState<string>();
+  const valueToStake = ethers.parseUnits(inputValue || "0", 18);
   const [lockedPeriod, setLockedPeriodState] = useState<number>(3);
-  const { data: hash, error, isPending, writeContract } = useWriteContract();
-  const { isLoading: isConfirming, isSuccess: isConfirmed } = useWaitForTransactionReceipt({
-    hash,
+  const writeContract = useWriteContract();
+  const allowanceCheck = useReadContract({
+    abi: ERC20,
+    address: selectedChain.gtcContractAddr,
+    functionName: "allowance",
+    chainId: selectedChain.id,
+    args: [address, selectedChain.stakingContractAddr],
   });
+  const isSpendingApproved = allowanceCheck.isSuccess && inputValue && (allowanceCheck.data as bigint) >= valueToStake;
 
   const handleInputChange = (event: ChangeEvent<HTMLInputElement>) => {
-    setInputValue(Number(event.target.value));
+    setInputValue(event.target.value);
   };
 
-  const handleAddFixedValue = (value: number) => {
+  const handleAddFixedValue = (value: string) => {
     setInputValue(value);
   };
 
@@ -38,71 +44,69 @@ export const YourStakeForm: React.FC<YourStakeFormProps> = ({ selectedChain }) =
     setLockedPeriodState(value);
   };
 
-  const handleStake = () => {
-    console.log("address", selectedChain.stakingContractAddr);
-    console.log("amount", BigInt(inputValue || 0));
-    console.log("amount", `${lockedPeriod} months`);
+  const stakeGtc = () => {
+    const lockedPeriodSeconds: BigInt = BigInt(lockedPeriod) * 30n * 24n * 60n * 60n;
+    writeContract.writeContract(
+      {
+        address: selectedChain.stakingContractAddr,
+        abi: IdentityStakingAbi,
+        functionName: "selfStake",
+        chainId: selectedChain.id,
+        args: [valueToStake, lockedPeriodSeconds],
+      },
+      {
+        onSuccess: () => {
+          // on Success
+          toast(makeSuccessToastProps("Success", "Stake transaction confirmed"));
+        },
+        onSettled: () => {
+          // on Settled
+        },
+        onError: (error) => {
+          console.log("staking error: ", error.name, error.message);
+          toast(makeErrorToastProps(error.name, error.message));
+          // on Error
+        },
+      }
+    );
+  };
 
-
-    const lockedPeriodSeconds = lockedPeriod * 30 * 24 * 60 * 60;
-    console.log("lockedPeriodSeconds", lockedPeriodSeconds);
+  const handleStake = async () => {
     // https://docs.openzeppelin.com/contracts/4.x/erc20
     // https://docs.openzeppelin.com/contracts/4.x/api/token/erc20#IERC20-approve-address-uint256-
     // https://sepolia-optimism.etherscan.io/address/0xc80e07d81828960F613baa57288192E56d417dA5#code
 
-    // Check allowance
+    if (walletChainId !== selectedChain.id) {
+      await setWalletChain(selectedChain.id);
+    }
 
-    const allowedAmount = writeContract({
-      address: "0xc80e07d81828960F613baa57288192E56d417dA5", // TODO: double check this
-      abi: ERC20,
-      functionName: "allowance",
-      args: [address, selectedChain.stakingContractAddr],
-    });
-    console.log("allowedAmount = ", allowedAmount)
-
-    if (allowedAmount >= BigInt(inputValue)){
-      writeContract({
-        address: selectedChain.stakingContractAddr,
-        abi: IdentityStakingAbi,
-        functionName: "selfStake",
-        args: [BigInt(inputValue || 0), BigInt(lockedPeriodSeconds)],
-      });
+    if (isSpendingApproved) {
+      stakeGtc();
     } else {
       // Allow
-      const approved = writeContract({
-        address: address, // TODO: double check this
-        abi: ERC20,
-        functionName: "approve",
-        args: [selectedChain.stakingContractAddr, BigInt(inputValue || 0)],
-      });
-
-      writeContract({
-        address: selectedChain.stakingContractAddr,
-        abi: IdentityStakingAbi,
-        functionName: "selfStake",
-        args: [BigInt(inputValue || 0), BigInt(lockedPeriodSeconds)],
-      });
+      const approveSpending = writeContract.writeContract(
+        {
+          address: selectedChain.gtcContractAddr,
+          abi: ERC20,
+          functionName: "approve",
+          chainId: selectedChain.id,
+          args: [selectedChain.stakingContractAddr, valueToStake],
+        },
+        {
+          onSuccess: () => {
+            // on Success
+            // spending is now approved, stake the GTC
+            stakeGtc();
+          },
+          onError: (error) => {
+            // on Error
+            console.log("approving error: ", error.name, error.message);
+            toast(makeErrorToastProps(error.name, error.message));
+          },
+        }
+      );
     }
- 
   };
-
-  useEffect(() => {
-    (async () => {
-      if (isConfirmed) {
-        toast(makeSuccessToastProps("Success", "Stake transaction confirmed"));
-        // delay for indexer
-        await new Promise((resolve) => setTimeout(resolve, 5000));
-        await queryClient.invalidateQueries();
-      }
-    })();
-  }, [isConfirmed, toast, queryClient]);
-
-  useEffect(() => {
-    if (error) {
-      console.error("Stake failed:", error);
-      toast(makeErrorToastProps("Failed", "Stake transaction failed"));
-    }
-  }, [error, toast]);
 
   return (
     <div className="flex flex-col gap-4">
@@ -135,7 +139,11 @@ export const YourStakeForm: React.FC<YourStakeFormProps> = ({ selectedChain }) =
           ))}
         </div>
       </PanelDiv>
-      <Button className="w-full font-bold" onClick={() => handleStake()} disabled={isPending || isConfirming}>
+      <Button
+        className="w-full font-bold"
+        onClick={() => handleStake()}
+        disabled={valueToStake === 0n || !allowanceCheck.isSuccess}
+      >
         Stake
       </Button>
     </div>

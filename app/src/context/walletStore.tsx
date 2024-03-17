@@ -19,10 +19,10 @@ type ConnectCallback = (address: string, provider: Eip1193Provider) => Promise<v
 const walletStore = create<{
   connect: (callback: ConnectCallback) => Promise<void>;
   disconnect: () => Promise<void>;
-  setChain: (chain: string) => Promise<boolean>;
+  setChain: (chain: number) => Promise<boolean>;
   provider?: Eip1193Provider;
   error?: any;
-  chain?: string;
+  chain?: number;
   address?: `0x${string}`;
 }>((set) => ({
   chain: undefined,
@@ -85,7 +85,7 @@ const walletStore = create<{
 
     set({ address: undefined, chain: undefined, provider: undefined, error });
   },
-  setChain: async (chainId: string) => {
+  setChain: async (chainId: number) => {
     const success = await onboard.setChain({ chainId });
     if (success) set({ chain: chainId });
     else console.error("Error setting chain");
@@ -95,7 +95,12 @@ const walletStore = create<{
 
 const parseWeb3OnboardWallet = (wallet: WalletState) => {
   const address = wallet?.accounts?.[0]?.address;
-  const chain = wallet?.chains?.[0]?.id;
+  const chainAsStr = wallet?.chains?.[0]?.id;
+  const chain = chainAsStr
+    ? chainAsStr.startsWith("0x")
+      ? parseInt(chainAsStr.substring(2), 16)
+      : parseInt(chainAsStr.substring(2), 10)
+    : 1;
   const provider = wallet?.provider;
   return { address, chain, provider };
 };
