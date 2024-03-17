@@ -1,10 +1,8 @@
-import React, { ChangeEvent, useContext, useEffect, useState } from "react";
-import { Button } from "@/components/Button";
+import React, { useEffect, useState } from "react";
 import { Menu } from "@headlessui/react";
 import { chainConfigs, ChainConfig } from "@/utils/chains";
 import { useBalance } from "wagmi";
 import { useWalletStore } from "@/context/walletStore";
-import { useAppStore } from "@/context/appStore";
 
 interface NetworkDropdownProps {
   onSelectChain: (chain: ChainConfig) => void;
