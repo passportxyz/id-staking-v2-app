@@ -120,7 +120,7 @@ export const YourStakeForm: React.FC<YourStakeFormProps> = ({ selectedChain }) =
           onChange={handleInputChange}
         />
         <div className="gap-2 col-start-2 hidden lg:flex col-span-2 text-color-4">
-          {[5, 20, 125].map((amount) => (
+          {["5", "20", "125"].map((amount) => (
             <FormButton key={amount} onClick={() => handleAddFixedValue(amount)} className="w-12">
               {amount}
             </FormButton>
