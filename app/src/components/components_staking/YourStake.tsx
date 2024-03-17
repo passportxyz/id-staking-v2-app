@@ -2,8 +2,13 @@ import React from "react";
 import { YourStakeForm } from "./YourStakeForm";
 import { StakeSection } from "./StakeSection";
 import { YourStakeHistory } from "./YourStakeHistory";
+import { ChainConfig } from "@/utils/chains";
 
-export const YourStake = ({}: any) => {
+interface YourStakeProps {
+  selectedChain: ChainConfig;
+}
+
+export const YourStake : React.FC<YourStakeProps> = ({ selectedChain }) =>  {
   return (
     <StakeSection
       icon={{
@@ -14,7 +19,7 @@ export const YourStake = ({}: any) => {
       subheading="Secure your identity by staking GTC. Higher stakes mean more trust in your passport."
       stakedAmount="0"
     >
-      <YourStakeForm />
+      <YourStakeForm selectedChain={selectedChain}/>
       <YourStakeHistory />
     </StakeSection>
   );

@@ -26,6 +26,7 @@ const config: Config = {
         "background-5": "rgb(var(--color-background-5) / <alpha-value>)",
         "background-6": "rgb(var(--color-background-6) / <alpha-value>)",
         "background-7": "rgb(var(--color-background-7) / <alpha-value>)",
+        "background-8": "rgb(var(--color-background-8) / <alpha-value>)",
         foreground: "rgb(var(--color-foreground) / <alpha-value>)",
         "foreground-2": "rgb(var(--color-foreground-2) / <alpha-value>)",
         "foreground-3": "rgb(var(--color-foreground-3) / <alpha-value>)",

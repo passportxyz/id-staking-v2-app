@@ -22,7 +22,7 @@ export type ChainConfig = {
   label: string;
   rpcUrl: string;
   gtcContractAddr: `0x${string}`;
-  stakingContractAddr?: `0x${string}`;
+  stakingContractAddr: `0x${string}`;
   icon: string;
 };
 
@@ -51,8 +51,8 @@ export const chainConfigs: ChainConfig[] = [
     token: "ETH",
     label: "OP Sepolia",
     rpcUrl: OP_SEPOLIA_RPC_URL,
-    gtcContractAddr: "0xB047Da70ACb1690101b165669419d6B8b7A38260", //
-    stakingContractAddr: "0xc80e07d81828960F613baa57288192E56d417dA5", //
+    gtcContractAddr: "0xA4a53A625Ba96CFdFE2d138BeA8D13a167A343E2",
+    stakingContractAddr: "0xc80e07d81828960F613baa57288192E56d417dA5",
     icon: "./assets/eth-op-logo.svg",
   },
 ];

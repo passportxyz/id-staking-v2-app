@@ -4,6 +4,11 @@ import { Menu } from "@headlessui/react";
 import { chainConfigs, ChainConfig } from "@/utils/chains";
 import { useBalance } from "wagmi";
 import { useWalletStore } from "@/context/walletStore";
+import { useAppStore } from "@/context/appStore";
+
+interface NetworkDropdownProps {
+  onSelectChain: (chain: ChainConfig) => void;
+}
 
 const MenuButton = ({ balance, icon }: { balance: string; icon: string }) => {
   const [dropDownOpen, setDropDownState] = useState<boolean>(false);
@@ -16,9 +21,13 @@ const MenuButton = ({ balance, icon }: { balance: string; icon: string }) => {
       className="grid grid-flow-col place-content-between  border rounded-lg  border-foreground-4  bg-gradient-to-r  from-background to-background-6"
       onClick={handleDropDown}
     >
-      <img className="m-2" src={icon} />
+      <div className="m-2">
+        <img src={icon} />
+      </div>
       <div className="m-2">GTC Balance </div>
-      <img className="m-2" src="/assets/gitcoinLogoGreen.svg" />
+      <div className="m-2">
+        <img className="pt-1" src="/assets/gitcoinLogoGreen.svg" alt="Gitcoin Logo" />
+      </div>
       <div className="m-2">{balance}</div>
 
       <div
@@ -36,24 +45,33 @@ const MenuButton = ({ balance, icon }: { balance: string; icon: string }) => {
   );
 };
 
-export const NetworkDropdown = () => {
-  const [selectedChain, setChain] = useState<number>(1);
+export const NetworkDropdown: React.FC<NetworkDropdownProps> = ({ onSelectChain }) => {
+  const [selectedChain, setChain] = useState<ChainConfig>(chainConfigs[0]);
 
   const handleChainSelect = (chain: ChainConfig) => {
-    // TODO: this is not clear
-    // setChain(chain.id);
-    // setMenuButtonIcon(chain.icon);
+    setChain(chain);
+    onSelectChain(chain);
   };
 
-  const initialChain = chainConfigs[0];
-  // TODO: complete initial balance
-  const [menuButtonBalance, setMenuButtonBalance] = useState<string>(`...`);
-  const [menuButtonIcon, setMenuButtonIcon] = useState<string>(initialChain.icon);
+  const address = useWalletStore((state) => state.address);
+
+  const balance = useBalance({
+    address: address,
+    token: selectedChain.gtcContractAddr,
+    chainId: selectedChain.id,
+  });
+  const calculatedBalance = Number(balance.data?.value || 0) / 10 ** Number(balance.data?.decimals || 1);
+
+  const formattedBalance = calculatedBalance.toLocaleString("en", {
+    // Use period as decimal separator
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  });
 
   return (
     <div className="col-span-full grid justify-self-end grid-flow-row">
       <Menu>
-        <MenuButton balance={menuButtonBalance} icon={menuButtonIcon} />
+        <MenuButton balance={formattedBalance} icon={selectedChain.icon} />
         <Menu.Items as="div" className="grid grid-flow-row">
           {chainConfigs.map((chain, index) => (
             <Menu.Item key={index}>
@@ -67,7 +85,6 @@ export const NetworkDropdown = () => {
                   token: chain.gtcContractAddr,
                   chainId: chain.id,
                 });
-
                 const calculatedBalance = Number(balance.data?.value || 0) / 10 ** Number(balance.data?.decimals || 1);
 
                 const formattedBalance = calculatedBalance.toLocaleString("en", {
@@ -75,14 +92,13 @@ export const NetworkDropdown = () => {
                   minimumFractionDigits: 2,
                   maximumFractionDigits: 2,
                 });
-                const icon = chain.icon;
+
                 // eslint-disable-next-line react-hooks/rules-of-hooks
                 useEffect(() => {
                   if (active == true) {
-                    setMenuButtonBalance(formattedBalance);
-                    setMenuButtonIcon(icon);
+                    setChain(chain);
                   }
-                }, [balance, icon, active]);
+                }, [chain, active]);
 
                 return (
                   <button
@@ -91,9 +107,13 @@ export const NetworkDropdown = () => {
                     } grid grid-flow-col m-1`}
                     onClick={() => handleChainSelect(chain)}
                   >
-                    <img className="m-2" src={icon} />
+                    <div className="m-2">
+                      <img src={chain.icon} />
+                    </div>
                     <div className="m-2">GTC Balance </div>
-                    <img className="m-2" src="/assets/gitcoinLogoGreen.svg" alt="Gitcoin Logo" />
+                    <div className="m-2">
+                      <img className="pt-1" src="/assets/gitcoinLogoGreen.svg" alt="Gitcoin Logo" />
+                    </div>
                     <div className="m-2">{formattedBalance}</div>
                   </button>
                 );
