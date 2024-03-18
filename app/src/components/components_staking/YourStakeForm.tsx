@@ -3,8 +3,10 @@ import { Button } from "@/components/Button";
 import { PanelDiv } from "./PanelDiv";
 import IdentityStakingAbi from "../../abi/IdentityStaking.json";
 import ERC20 from "../../abi/ERC20.json";
-import { useWriteContract, useReadContract, useWaitForTransactionReceipt } from "wagmi";
-import { ChainConfig } from "@/utils/chains";
+import { useWriteContract, useReadContract } from "wagmi";
+import { waitForTransactionReceipt } from "@wagmi/core";
+import { switchChain } from "@wagmi/core";
+import { ChainConfig, wagmiConfig } from "@/utils/chains";
 import { makeErrorToastProps, makeSuccessToastProps } from "../DoneToastContent";
 import { useToast } from "@chakra-ui/react";
 import { useWalletStore } from "@/context/walletStore";
@@ -153,7 +155,7 @@ const SelfStakeModal = ({
 
   const stakeGtc = () => {
     const lockedPeriodSeconds: BigInt = BigInt(lockedPeriod) * 30n * 24n * 60n * 60n;
-    
+
     writeContract.writeContract(
       {
         address: selectedChain.stakingContractAddr,
@@ -163,13 +165,25 @@ const SelfStakeModal = ({
         args: [valueToStake, lockedPeriodSeconds],
       },
       {
-        onSuccess: (result) => {
+        onSuccess: async (hash) => {
           // on Success
-          console.log("result = ", result)
-          toast(makeSuccessToastProps("Success", "Stake transaction confirmed"));
-          setIsLoading(false);
 
-          onClose();
+          const transactionReceipt = await waitForTransactionReceipt(wagmiConfig, {
+            hash: hash,
+          });
+
+          if (transactionReceipt.status  === 'success'){
+
+            toast(makeSuccessToastProps("Success", "Stake transaction confirmed"));
+            setIsLoading(false);
+            onClose();
+
+          } else {
+            // toast error 
+            console.log(`Approving error. Transaction hash '${hash}'`, );
+            toast(makeErrorToastProps("Approving error", `Transaction details'${selectedChain.explorer + '/' + hash}'`));
+            setIsLoading(false);
+          }
         },
         onError: (error) => {
           console.log("staking error: ", error.name, error.message);
@@ -186,7 +200,17 @@ const SelfStakeModal = ({
     setIsLoading(true);
 
     if (walletChainId !== selectedChain.id) {
-      await setWalletChain(selectedChain.id);
+      try {
+        const switchResult = await switchChain(wagmiConfig, {
+          chainId: selectedChain.id as (typeof wagmiConfig)["chains"][number]["id"],
+        });
+        console.log("geri switchResult", switchResult);
+      } catch (error: any) {
+        console.log("error switch chain", error);
+        
+        toast(makeErrorToastProps("Failed to switch chain:", error.message));
+        return 
+      }
     }
 
     if (isSpendingApproved) {
@@ -202,10 +226,21 @@ const SelfStakeModal = ({
           args: [selectedChain.stakingContractAddr, valueToStake],
         },
         {
-          onSuccess: () => {
+          onSuccess: async (hash) => {
             // on Success
             // spending is now approved, stake the GTC
-            stakeGtc();
+            const transactionReceipt = await waitForTransactionReceipt(wagmiConfig, {
+              hash: hash,
+            });
+            console.log("transactionReceipt.status - ", transactionReceipt.status) 
+            if (transactionReceipt.status  === 'success'){
+              stakeGtc();
+            } else {
+              // toast error 
+              console.log(`Approving error. Transaction hash '${hash}'`, );
+              toast(makeErrorToastProps("Approving error", `Transaction details'${selectedChain.explorer + '/' + hash}'`));
+              setIsLoading(false);
+            }
           },
           onError: (error) => {
             // on Error
@@ -225,7 +260,7 @@ const SelfStakeModal = ({
       onButtonClick={() => handleStake()}
       buttonLoading={isLoading}
       isOpen={isOpen}
-      onClose={() => { 
+      onClose={() => {
         setIsLoading(false);
         return onClose();
       }}
