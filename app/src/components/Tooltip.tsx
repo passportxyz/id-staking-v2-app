@@ -7,6 +7,7 @@ const TextAlignedInfoIcon = ({ className }: { className?: string }): JSX.Element
   <InformationCircleIcon className={`relative top-[.125em] h-[1em] w-[1em] text-color-2 ${className}`} />
 );
 
+// Provider an info icon that, when hovered, displays a popover with the given content.
 const TooltipPopover = ({
   children,
   className,
@@ -17,7 +18,28 @@ const TooltipPopover = ({
   className?: string;
   panelClassName?: string;
   iconClassName?: string;
-}): JSX.Element => {
+}): JSX.Element => (
+  <ContentTooltip
+    tooltipContent={children}
+    className={`cursor-pointer px-2 ${className}`}
+    panelClassName={panelClassName}
+  >
+    <TextAlignedInfoIcon className={iconClassName} />
+  </ContentTooltip>
+);
+
+// Provides a tooltip wrapper for any component
+export const ContentTooltip = ({
+  children,
+  tooltipContent,
+  className,
+  panelClassName,
+}: {
+  children: React.ReactNode;
+  tooltipContent: React.ReactNode;
+  className?: string;
+  panelClassName?: string;
+}) => {
   const [referenceElement, setReferenceElement] = useState(null);
   const [popperElement, setPopperElement] = useState(null);
 
@@ -33,10 +55,10 @@ const TooltipPopover = ({
   });
 
   return (
-    <Popover className={`group cursor-pointer px-2 ${className}`}>
+    <Popover className={`group ${className}`}>
       {/* ref type stuff is a workaround for the weird way popper needs references */}
       <Popover.Button as="div" ref={setReferenceElement as unknown as Ref<HTMLButtonElement>}>
-        <TextAlignedInfoIcon className={iconClassName} />
+        {children}
       </Popover.Button>
 
       <Popover.Panel
@@ -46,7 +68,7 @@ const TooltipPopover = ({
         {...attributes.popper}
         static
       >
-        <div className="px-4 py-2">{children}</div>
+        <div className="px-4 py-2">{tooltipContent}</div>
       </Popover.Panel>
     </Popover>
   );

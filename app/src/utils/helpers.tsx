@@ -6,7 +6,7 @@ import { datadogRum } from "@datadog/browser-rum";
 import { Cacao } from "@didtools/cacao";
 import { DID } from "dids";
 import { ethers } from "ethers";
-import { useMemo } from "react";
+import React, { useMemo } from "react";
 import moment from "moment";
 
 export function generateUID(length: number) {
@@ -186,4 +186,29 @@ export const DisplayAddressOrENS = ({ user }: { user: string }) => {
       {user.slice(-3)}
     </div>
   );
+};
+
+export const useOutsideClick = <T,>(callback: () => void): React.Ref<T> => {
+  const ref = React.useRef<T>();
+
+  const isOutsideClick = (ref: any, event: any) => {
+    return ref.current && !ref.current.contains?.(event.target);
+  };
+
+  React.useEffect(() => {
+    const handleClick = (event: any) => {
+      if (isOutsideClick(ref, event)) {
+        callback();
+      }
+    };
+
+    document.addEventListener("click", handleClick);
+
+    // Remove event listener on dismount
+    return () => {
+      document.removeEventListener("click", handleClick);
+    };
+  }, []);
+
+  return ref;
 };

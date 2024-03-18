@@ -11,7 +11,7 @@ import { atom, useAtom } from "jotai";
 import { DisplayAddressOrENS, DisplayDuration, formatAmount } from "@/utils/helpers";
 import { Button } from "../Button";
 import { LoadButton } from "../LoadButton";
-import { useBackdropControls } from "./Backdrop";
+import { BackdropEnabler, useBackdropControls } from "./Backdrop";
 
 const DataLine = ({ label, value }: { label: string; value: React.ReactNode }) => (
   <div className="flex justify-between py-2">
@@ -135,23 +135,10 @@ export default function Modal({
   onClose: () => void;
   children: React.ReactNode;
 }) {
-  const { enabled, enableBackdrop, disableBackdrop } = useBackdropControls();
-
-  useEffect(() => {
-    if (isOpen && !enabled) {
-      enableBackdrop();
-    }
-  }, [enableBackdrop, isOpen, enabled]);
-
-  const onCloseWithBackdrop = () => {
-    disableBackdrop();
-    onClose();
-  };
-
   return (
     <>
       <Transition appear show={isOpen} as={Fragment}>
-        <Dialog as="div" className="relative z-10" onClose={onCloseWithBackdrop}>
+        <Dialog as="div" className="relative z-10" onClose={onClose}>
           <Transition.Child
             as={Fragment}
             enter="ease-out duration-300"
@@ -176,6 +163,7 @@ export default function Modal({
                 leaveTo="opacity-0 scale-95"
               >
                 <Dialog.Panel className="w-full max-w-lg overflow-hidden transition-all">
+                  <BackdropEnabler />
                   <PanelDiv className="p-6 text-left text-color-1 align-middle">
                     <Dialog.Title className="text-3xl font-medium leading-6 text-color-6 my-12">{title}</Dialog.Title>
                     <div className="mt-2">{children}</div>
@@ -188,7 +176,7 @@ export default function Modal({
                         variant="custom"
                         className="mt-4 px-8"
                         onClick={() => {
-                          onCloseWithBackdrop();
+                          onClose();
                         }}
                       >
                         Cancel

@@ -63,7 +63,7 @@ const Tbody = () => {
 };
 
 const formatDate = (date: Date): string =>
-  Intl.DateTimeFormat("en-US", { month: "2-digit", day: "2-digit", year: "numeric" }).format(date);
+  Intl.DateTimeFormat("en-US", { month: "short", day: "2-digit", year: "numeric" }).format(date);
 
 const StakeLine = ({ stake, address }: { stake: StakeData; address: string }) => {
   const unlockTime = new Date(stake.unlock_time);

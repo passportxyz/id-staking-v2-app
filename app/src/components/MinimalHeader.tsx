@@ -6,6 +6,7 @@ import { Menu, Transition } from "@headlessui/react";
 import { useAccount } from "wagmi";
 import { useDatastoreConnectionContext } from "../context/datastoreConnectionContext";
 import { useNavigate } from "react-router-dom";
+import { ContentTooltip } from "./Tooltip";
 
 type MinimalHeaderProps = {
   className?: string;
@@ -19,10 +20,12 @@ const LINKS = [
   {
     to: "/leaderboard",
     text: "Leaderboard",
+    comingSoon: true,
   },
   {
     to: "/faq",
     text: "FAQ",
+    comingSoon: true,
   },
 ];
 
@@ -67,23 +70,52 @@ const MinimalHeader = ({ className }: MinimalHeaderProps): JSX.Element => {
   );
 };
 
+const LinkWithComingSoon = ({
+  to,
+  children,
+  className,
+  comingSoon,
+}: {
+  to: string;
+  children: React.ReactNode;
+  className: string;
+  comingSoon?: boolean;
+}) => {
+  if (comingSoon) {
+    return (
+      <button disabled className={`cursor-not-allowed ${className}`}>
+        <ContentTooltip tooltipContent="Coming Soon" panelClassName="w-fit">
+          {children}
+        </ContentTooltip>
+      </button>
+    );
+  }
+
+  return (
+    <Link to={to} className={className}>
+      {children}
+    </Link>
+  );
+};
+
 const LinksList = ({ className }: { className: string }) => {
   const location = useLocation();
 
   return (
     <div className={`justify-center content-center gap-3 lg:gap-8 ${className}`}>
       {LINKS.map((link) => (
-        <Link
+        <LinkWithComingSoon
           key={link.to}
           to={link.to}
-          className={` px-3 ${
+          comingSoon={link.comingSoon}
+          className={`px-3 ${
             location.pathname.startsWith(link.to)
               ? "text-foreground-2 outline-foreground-2 outline outline-2 rounded-lg"
               : "text-foreground outline-none"
           }`}
         >
           {link.text}
-        </Link>
+        </LinkWithComingSoon>
       ))}
     </div>
   );
@@ -124,16 +156,17 @@ const LinksDropdown = ({ className }: { className: string }) => {
           leaveFrom="transform opacity-100 scale-100"
           leaveTo="transform opacity-0 scale-95"
         >
-          <Menu.Items className="absolute top-10 left-1/2 -translate-x-[50%] w-36 origin-top rounded-md bg-background border border-foreground-4 shadow-lg focus:outline-none">
+          <Menu.Items className="absolute z-10 top-10 left-1/2 -translate-x-[50%] w-36 origin-top rounded-md bg-background border border-foreground-4 shadow-lg focus:outline-none">
             <div className="px-1 py-1">
               {LINKS.map((link, idx) => (
                 <Menu.Item key={link.to}>
                   {({ active }) => (
-                    <Link
+                    <LinkWithComingSoon
                       to={link.to}
                       className={`${
                         active ? "bg-foreground-4 text-color-1" : "text-color-1"
                       } group flex w-full items-center rounded-md px-2 py-2 text-sm`}
+                      comingSoon={link.comingSoon}
                     >
                       <div className="flex items-center justify-center gap-1">
                         <span
@@ -145,7 +178,7 @@ const LinksDropdown = ({ className }: { className: string }) => {
                         </span>
                         {link.text}
                       </div>
-                    </Link>
+                    </LinkWithComingSoon>
                   )}
                 </Menu.Item>
               ))}
