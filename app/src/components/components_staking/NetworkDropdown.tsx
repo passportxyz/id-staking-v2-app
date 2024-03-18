@@ -4,7 +4,6 @@ import { Menu } from "@headlessui/react";
 import { chainConfigs, ChainConfig } from "@/utils/chains";
 import { useBalance } from "wagmi";
 import { useWalletStore } from "@/context/walletStore";
-import { useAppStore } from "@/context/appStore";
 
 interface NetworkDropdownProps {
   onSelectChain: (chain: ChainConfig) => void;
