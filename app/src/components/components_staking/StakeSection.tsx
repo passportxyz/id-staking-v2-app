@@ -28,19 +28,6 @@ export const StakeSection = ({
   const handleDropDown = () => {
     setDropDownState(!dropDownOpen);
   };
-  const { address } = useAccount();
-  const { data } = useStakeHistoryQuery(address);
-  // TODO different filter for each section i.e.
-  // self = staker & stakee == address
-  // stake on others = staker == address, stakee != address
-  // stake from others = staker != address, stakee == address
-  // Should probably pass in a filter function as a prop
-  const yourStakeHistory = data?.filter((stake: StakeData) => {
-    return stake.stakee === address?.toLowerCase();
-  });
-  const stakedAmount: string = yourStakeHistory
-    ? yourStakeHistory.reduce((acc, stake) => acc + BigInt(stake.amount), 0n).toString()
-    : "0";
 
   return (
     <div className="col-span-full">

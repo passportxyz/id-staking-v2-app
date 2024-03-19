@@ -2,11 +2,10 @@ import React from "react";
 import { StakeForOthersHistory } from "./StakeForOthersHistory";
 import { StakeForOthersForm } from "./StakeForOthersForm";
 import { StakeSection } from "./StakeSection";
-
 import { StakeData, useStakeHistoryQuery } from "@/utils/stakeHistory";
 import { useAccount } from "wagmi";
 
-export const StakeForOthers = () => {
+export const StakeForOthers = ({}: any) => {
   const { address } = useAccount();
   const { data } = useStakeHistoryQuery(address);
   const yourStakeHistory = data?.filter((stake: StakeData) => {

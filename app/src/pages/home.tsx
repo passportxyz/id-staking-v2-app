@@ -20,8 +20,6 @@ export default function LeaderBoard() {
           <PageWidthGrid>
             <NetworkDropdown />
             <YourStake />
-            {/* This is just here for now to make sure
-                everything looks right with multiple sections */}
             <StakeForOthers />
           </PageWidthGrid>
         </BodyWrapper>
