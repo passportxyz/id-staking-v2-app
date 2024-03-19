@@ -2,14 +2,10 @@ import React from "react";
 import { YourStakeForm } from "./YourStakeForm";
 import { StakeSection } from "./StakeSection";
 import { YourStakeHistory } from "./YourStakeHistory";
-import { ChainConfig } from "@/utils/chains";
 import { StakeData, useStakeHistoryQuery } from "@/utils/stakeHistory";
 import { useAccount } from "wagmi";
-interface YourStakeProps {
-  selectedChain: ChainConfig;
-}
 
-export const YourStake: React.FC<YourStakeProps> = ({ selectedChain }) => {
+export const YourStake = () => {
   const { address } = useAccount();
   const { data } = useStakeHistoryQuery(address);
   const yourStakeHistory = data?.filter((stake: StakeData) => {

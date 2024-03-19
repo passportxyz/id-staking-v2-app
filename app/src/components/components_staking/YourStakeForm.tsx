@@ -177,6 +177,12 @@ const SelfStakeModal = ({
   const handleStake = async () => {
     setIsLoading(true);
 
+    if (connectedChain.stakingContractAddr === "0x0") {
+      toast(makeErrorToastProps("Comming soon", "This chain is not yet supported. Please try OP Sepolia."));
+      setIsLoading(false);
+      return;
+    }
+
     if (isSpendingApproved) {
       stakeGtc();
     } else {

@@ -18,11 +18,11 @@ export default function LeaderBoard() {
         <Header />
         <BodyWrapper>
           <PageWidthGrid>
-            <NetworkDropdown onSelectChain={handleChainChange} />
-            <YourStake selectedChain={currentChain} />
+            <NetworkDropdown />
+            <YourStake />
             {/* This is just here for now to make sure
                 everything looks right with multiple sections */}
-            <StakeForOthers selectedChain={currentChain} />
+            <StakeForOthers />
           </PageWidthGrid>
         </BodyWrapper>
       </HeaderContentFooterGrid>

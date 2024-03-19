@@ -2,14 +2,11 @@ import React from "react";
 import { StakeForOthersHistory } from "./StakeForOthersHistory";
 import { StakeForOthersForm } from "./StakeForOthersForm";
 import { StakeSection } from "./StakeSection";
-import { ChainConfig } from "@/utils/chains";
+
 import { StakeData, useStakeHistoryQuery } from "@/utils/stakeHistory";
 import { useAccount } from "wagmi";
 
-interface YourStakeProps {
-  selectedChain: ChainConfig;
-}
-export const StakeForOthers: React.FC<YourStakeProps> = ({ selectedChain }) => {
+export const StakeForOthers = () => {
   const { address } = useAccount();
   const { data } = useStakeHistoryQuery(address);
   const yourStakeHistory = data?.filter((stake: StakeData) => {
@@ -29,8 +26,8 @@ export const StakeForOthers: React.FC<YourStakeProps> = ({ selectedChain }) => {
       subheading="Vouch for others' trust by staking GTC on them. It strengthens our community's web of trust."
       amount={stakedAmount}
     >
-      <StakeForOthersForm selectedChain={selectedChain} />
-      <StakeForOthersHistory selectedChain={selectedChain} />
+      <StakeForOthersForm />
+      <StakeForOthersHistory />
     </StakeSection>
   );
 };

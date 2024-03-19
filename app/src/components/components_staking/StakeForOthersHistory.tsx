@@ -3,9 +3,8 @@ import { PanelDiv } from "./PanelDiv";
 import { useWalletStore } from "@/context/walletStore";
 import { SelfRestakeButton } from "./SelfRestakeButton";
 import { useDatastoreConnectionContext } from "@/context/datastoreConnectionContext";
-import { DisplayAddressOrENS, DisplayDuration, formatAmount } from "@/utils/helpers";
+import { DisplayAddressOrENS, DisplayDuration, formatAmount, useConnectedChain } from "@/utils/helpers";
 import { StakeData, useStakeHistoryQuery } from "@/utils/stakeHistory";
-import { ChainConfig } from "@/utils/chains";
 
 const Th = ({ className, ...props }: ComponentPropsWithRef<"th">) => (
   <th className={`${className} p-2 pb-4 text-center`} {...props} />
@@ -19,7 +18,7 @@ const UnstakeButton = ({ stake, address, unlocked }: { stake: StakeData; address
   return (
     <button
       onClick={() => {
-        // TODO: .... 
+        // TODO: ....
         console.log("Unstake:", stake);
       }}
       disabled={!unlocked}
@@ -30,12 +29,18 @@ const UnstakeButton = ({ stake, address, unlocked }: { stake: StakeData; address
   );
 };
 
-const Tbody = ({selectedChain}: {selectedChain : ChainConfig}) => {
+const Tbody = () => {
+  const connectedChain = useConnectedChain();
   const address = useWalletStore((state) => state.address);
   const { dbAccessToken, dbAccessTokenStatus } = useDatastoreConnectionContext();
   console.log("address", address, dbAccessToken, dbAccessTokenStatus);
   const { isPending, isError, data, error } = useStakeHistoryQuery(address);
-  const stakeForOthersHistory = data?.filter((stake: StakeData) => stake.staker === address &&  stake.stakee !== address && stake.chain.toLowerCase() === selectedChain.label.toLowerCase() );
+  const stakeForOthersHistory = data?.filter(
+    (stake: StakeData) =>
+      stake.staker === address &&
+      stake.stakee !== address &&
+      stake.chain.toLowerCase() === connectedChain.label.toLowerCase()
+  );
 
   useEffect(() => {
     isError && console.error("Error getting StakeHistory:", error);
@@ -103,7 +108,7 @@ const StakeLine = ({ stake, address }: { stake: StakeData; address: string }) =>
   );
 };
 
-export const StakeForOthersHistory = ({selectedChain}: { selectedChain: ChainConfig}) => {
+export const StakeForOthersHistory = () => {
   return (
     <PanelDiv className="flex flex-col">
       <div className="m-8 text-color-6 font-bold text-xl">Your Stake History</div>
@@ -118,7 +123,7 @@ export const StakeForOthersHistory = ({selectedChain}: { selectedChain: ChainCon
             <Th> </Th>
           </tr>
         </thead>
-        <Tbody selectedChain={selectedChain}/>
+        <Tbody />
       </table>
     </PanelDiv>
   );

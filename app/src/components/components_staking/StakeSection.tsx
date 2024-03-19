@@ -3,6 +3,7 @@ import { Disclosure, Transition } from "@headlessui/react";
 import { formatAmount } from "@/utils/helpers";
 import { useAccount } from "wagmi";
 import { DropDownIcon } from "./DropDownIcon";
+import { useStakeHistoryQuery, StakeData } from "@/utils/stakeHistory";
 
 export const StakeSection = ({
   children,
