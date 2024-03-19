@@ -3,6 +3,9 @@ import React, { Fragment, useMemo } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { ChevronDownIcon } from "@heroicons/react/24/outline";
 import { Menu, Transition } from "@headlessui/react";
+import { useAccount } from "wagmi";
+import { useDatastoreConnectionContext } from "../context/datastoreConnectionContext";
+import { useNavigate } from "react-router-dom";
 
 type MinimalHeaderProps = {
   className?: string;
@@ -35,8 +38,19 @@ const getAssets = () => {
 const MinimalHeader = ({ className }: MinimalHeaderProps): JSX.Element => {
   const assets = useMemo(() => getAssets(), []);
 
+  const { address } = useAccount();
+  const { disconnect } = useDatastoreConnectionContext();
+  const navigate = useNavigate();
+
+  const handleLogoClick = async () => {
+    if (address) {
+      await disconnect(address);
+    }
+    navigate("/");
+  };
+
   return (
-    <div className="flex items-center">
+    <div className="flex items-center" onClick={handleLogoClick}>
       <div className="flex flex-1 items-center">
         <img className="" src={assets.gitcoinLogo} alt="Gitcoin Logo" />
         <img className="mx-3 md:mx-6" src={assets.logoLine} alt="Logo Line" />
