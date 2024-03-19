@@ -5,7 +5,6 @@ import { StakeSection } from "./StakeSection";
 import { ChainConfig } from "@/utils/chains";
 import { StakeData, useStakeHistoryQuery } from "@/utils/stakeHistory";
 import { useAccount } from "wagmi";
-import { ChainConfig } from "@/utils/chains";
 
 interface YourStakeProps {
   selectedChain: ChainConfig;
@@ -31,7 +30,7 @@ export const StakeForOthers: React.FC<YourStakeProps> = ({ selectedChain }) => {
       amount={stakedAmount}
     >
       <StakeForOthersForm selectedChain={selectedChain} />
-      <StakeForOthersHistory />
+      <StakeForOthersHistory selectedChain={selectedChain} />
     </StakeSection>
   );
 };
