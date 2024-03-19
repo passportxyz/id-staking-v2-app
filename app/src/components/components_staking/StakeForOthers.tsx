@@ -1,15 +1,16 @@
 import React from "react";
-import { YourStakeForm } from "./YourStakeForm";
+import { StakeForOthersHistory } from "./StakeForOthersHistory";
+import { StakeForOthersForm } from "./StakeForOthersForm";
 import { StakeSection } from "./StakeSection";
-import { YourStakeHistory } from "./YourStakeHistory";
+
 import { StakeData, useStakeHistoryQuery } from "@/utils/stakeHistory";
 import { useAccount } from "wagmi";
 
-export const YourStake = () => {
+export const StakeForOthers = () => {
   const { address } = useAccount();
   const { data } = useStakeHistoryQuery(address);
   const yourStakeHistory = data?.filter((stake: StakeData) => {
-    return stake.stakee === address?.toLowerCase();
+    return stake.stakee !== address?.toLowerCase();
   });
   const stakedAmount: string = yourStakeHistory
     ? yourStakeHistory.reduce((acc, stake) => acc + BigInt(stake.amount), 0n).toString()
@@ -18,15 +19,15 @@ export const YourStake = () => {
   return (
     <StakeSection
       icon={{
-        src: "/assets/personIcon.svg",
+        src: "/assets/multi-person-icon.svg",
         alt: "Person Icon",
       }}
-      heading="Your Stake"
-      subheading="Secure your identity by staking GTC. Higher stakes mean more trust in your passport."
+      heading="Stake for Others"
+      subheading="Vouch for others' trust by staking GTC on them. It strengthens our community's web of trust."
       amount={stakedAmount}
     >
-      <YourStakeForm />
-      <YourStakeHistory />
+      <StakeForOthersForm />
+      <StakeForOthersHistory />
     </StakeSection>
   );
 };
