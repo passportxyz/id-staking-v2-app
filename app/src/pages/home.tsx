@@ -19,10 +19,10 @@ export default function LeaderBoard() {
         <BodyWrapper>
           <PageWidthGrid>
             <NetworkDropdown onSelectChain={handleChainChange} />
-            <YourStake selectedChain={currentChain}/>
+            <YourStake selectedChain={currentChain} />
             {/* This is just here for now to make sure
                 everything looks right with multiple sections */}
-                <StakeForOthers selectedChain={currentChain}/>
+            <StakeForOthers selectedChain={currentChain} />
           </PageWidthGrid>
         </BodyWrapper>
       </HeaderContentFooterGrid>
