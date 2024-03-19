@@ -8,7 +8,7 @@ interface YourStakeProps {
   selectedChain: ChainConfig;
 }
 
-export const YourStake : React.FC<YourStakeProps> = ({ selectedChain }) =>  {
+export const YourStake: React.FC<YourStakeProps> = ({ selectedChain }) => {
   return (
     <StakeSection
       icon={{
@@ -17,9 +17,8 @@ export const YourStake : React.FC<YourStakeProps> = ({ selectedChain }) =>  {
       }}
       heading="Your Stake"
       subheading="Secure your identity by staking GTC. Higher stakes mean more trust in your passport."
-      stakedAmount="0"
     >
-      <YourStakeForm selectedChain={selectedChain}/>
+      <YourStakeForm selectedChain={selectedChain} />
       <YourStakeHistory />
     </StakeSection>
   );
