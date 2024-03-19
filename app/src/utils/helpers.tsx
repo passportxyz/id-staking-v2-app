@@ -8,6 +8,11 @@ import { DID } from "dids";
 import { ethers } from "ethers";
 import React, { useMemo } from "react";
 import moment from "moment";
+import { useToast } from "@chakra-ui/react";
+import { ChainConfig, chainConfigs, wagmiConfig } from "./chains";
+import { useChainId } from "wagmi";
+import { switchChain } from "@wagmi/core";
+import { makeErrorToastProps } from "@/components/DoneToastContent";
 
 export function generateUID(length: number) {
   return window
@@ -188,9 +193,7 @@ export const DisplayAddressOrENS = ({ user }: { user: string }) => {
   );
 };
 
-export const useOutsideClick = <T,>(callback: () => void): React.Ref<T> => {
-  const ref = React.useRef<T>();
-
+export const useOutsideClick = <T,>(ref: React.Ref<T>, callback: () => void) => {
   const isOutsideClick = (ref: any, event: any) => {
     return ref.current && !ref.current.contains?.(event.target);
   };
@@ -208,7 +211,15 @@ export const useOutsideClick = <T,>(callback: () => void): React.Ref<T> => {
     return () => {
       document.removeEventListener("click", handleClick);
     };
-  }, []);
+  }, [ref, callback]);
+};
 
-  return ref;
+export const useConnectedChain = () => {
+  const chainId = useChainId();
+  const chain = chainConfigs.find((chain) => chain.id === chainId);
+  if (!chain) {
+    // Chain not supported modal or something ?
+    throw new Error("Chain not supported");
+  }
+  return chain;
 };

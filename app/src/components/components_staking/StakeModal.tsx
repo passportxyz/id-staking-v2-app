@@ -1,9 +1,9 @@
-import React, { useEffect, Fragment } from "react";
+import React, { Fragment } from "react";
 import { Dialog, Transition } from "@headlessui/react";
 import { PanelDiv } from "./PanelDiv";
 import { Button } from "../Button";
 import { LoadButton } from "../LoadButton";
-import { BackdropEnabler, useBackdropControls } from "./Backdrop";
+import { BackdropEnabler } from "./Backdrop";
 
 export default function Modal({
   title,
@@ -73,4 +73,3 @@ export default function Modal({
     </>
   );
 }
-
