@@ -1,11 +1,11 @@
-import React, { ComponentPropsWithRef, useEffect, useMemo } from "react";
+import React, { useMemo } from "react";
 import { useDatastoreConnectionContext } from "@/context/datastoreConnectionContext";
 
 import { useQuery } from "@tanstack/react-query";
 import axios from "axios";
 
 export type StakeData = {
-  chain: string;
+  chain: number;
   staker: string;
   stakee: string;
   amount: string;
@@ -23,8 +23,6 @@ export const useStakeHistoryQuery = (address: string | undefined) => {
   return useQuery({
     queryKey,
     queryFn: async (): Promise<StakeData[]> => {
-      // TODO filter by chain here or somewhere else
-      const address = queryKey[1];
       const response = await axios.get(`${process.env.NEXT_PUBLIC_CERAMIC_CACHE_ENDPOINT}/stake/gtc`, {
         headers: {
           Authorization: `Bearer ${dbAccessToken}`,

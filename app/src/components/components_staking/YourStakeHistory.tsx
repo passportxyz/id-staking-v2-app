@@ -1,10 +1,10 @@
-import React, { ComponentPropsWithRef, useEffect, useMemo } from "react";
+import React, { ComponentPropsWithRef, useEffect } from "react";
 import { PanelDiv } from "./PanelDiv";
 import { useWalletStore } from "@/context/walletStore";
 import { SelfRestakeButton } from "./SelfRestakeButton";
-import { useDatastoreConnectionContext } from "@/context/datastoreConnectionContext";
 import { DisplayAddressOrENS, DisplayDuration, formatAmount } from "@/utils/helpers";
 import { StakeData, useStakeHistoryQuery } from "@/utils/stakeHistory";
+import { useChainId } from "wagmi";
 
 const Th = ({ className, ...props }: ComponentPropsWithRef<"th">) => (
   <th className={`${className} p-2 pb-4 text-center`} {...props} />
@@ -31,10 +31,9 @@ const UnstakeButton = ({ stake, address, unlocked }: { stake: StakeData; address
 
 const Tbody = () => {
   const address = useWalletStore((state) => state.address);
-  const { dbAccessToken, dbAccessTokenStatus } = useDatastoreConnectionContext();
-  console.log("address", address, dbAccessToken, dbAccessTokenStatus);
+  const chainId = useChainId();
   const { isPending, isError, data, error } = useStakeHistoryQuery(address);
-  const yourStakeHistory = data?.filter((stake: StakeData) => stake.staker === address);
+  const yourStakeHistory = data?.filter((stake: StakeData) => stake.staker === address && stake.chain === chainId);
 
   useEffect(() => {
     isError && console.error("Error getting StakeHistory:", error);
