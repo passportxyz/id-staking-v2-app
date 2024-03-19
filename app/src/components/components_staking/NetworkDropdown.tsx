@@ -1,4 +1,4 @@
-import React, { useCallback, useMemo, useRef, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { chainConfigs, ChainConfig, wagmiConfig } from "@/utils/chains";
 import { useBalance } from "wagmi";
 import { useWalletStore } from "@/context/walletStore";
@@ -62,31 +62,26 @@ const ChainMenuItem = ({
 };
 
 export const NetworkDropdown: React.FC = ({}) => {
-  const toast = useToast();
   const selectedChain = useConnectedChain();
+  // Facilitates optimistically updating the chain in the UI, but
+  // rolling back if the chain switch fails or is cancelled
+  const [tempSelectedChain, setTempSelectedChain] = useState<ChainConfig>(selectedChain);
   const [menuIsOpen, setMenuIsOpen] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
   useOutsideClick(ref, () => setMenuIsOpen(false));
 
-  const setChain = useCallback(async (newChain: ChainConfig) => {
-    try {
-      await switchChain(wagmiConfig, {
-        chainId: newChain.id as (typeof wagmiConfig)["chains"][number]["id"],
-      });
-    } catch (error: any) {
-      console.log("error switch chain", error);
-      toast(makeErrorToastProps("Failed to switch chain:", error.message));
-    }
-  }, []);
+  useEffect(() => {
+    setTempSelectedChain(selectedChain);
+  }, [selectedChain]);
 
   const nonSelectedChainConfigs = useMemo(
-    () => chainConfigs.filter(({ id }) => id !== selectedChain.id),
-    [selectedChain.id]
+    () => chainConfigs.filter(({ id }) => id !== tempSelectedChain.id),
+    [tempSelectedChain.id]
   );
 
   const sortedChainConfigs = useMemo(
-    () => [selectedChain, ...nonSelectedChainConfigs],
-    [selectedChain, nonSelectedChainConfigs]
+    () => [tempSelectedChain, ...nonSelectedChainConfigs],
+    [tempSelectedChain, nonSelectedChainConfigs]
   );
 
   return (
@@ -105,9 +100,19 @@ export const NetworkDropdown: React.FC = ({}) => {
               isSelected={!idx}
               menuIsOpen={menuIsOpen}
               onMenuOpen={() => idx || setMenuIsOpen(true)}
-              onMenuItemSelect={() => {
-                idx && setChain(chain);
+              onMenuItemSelect={async () => {
+                const oldChain = selectedChain;
+                setTempSelectedChain(chain);
                 setMenuIsOpen(false);
+                if (idx) {
+                  try {
+                    await switchChain(wagmiConfig, {
+                      chainId: chain.id as (typeof wagmiConfig)["chains"][number]["id"],
+                    });
+                  } catch (e) {
+                    setTempSelectedChain(oldChain);
+                  }
+                }
               }}
             />
           ))}
