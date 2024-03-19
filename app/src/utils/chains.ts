@@ -24,6 +24,7 @@ export type ChainConfig = {
   gtcContractAddr: `0x${string}`;
   stakingContractAddr: `0x${string}`;
   icon: string;
+  explorer: string;
 };
 
 export const chainConfigs: ChainConfig[] = [
@@ -35,6 +36,7 @@ export const chainConfigs: ChainConfig[] = [
     gtcContractAddr: "0xde30da39c46104798bb5aa3fe8b9e0e1f348163f",
     stakingContractAddr: "0x0",
     icon: "./assets/eth-network-logo-white.svg",
+    explorer:"https://etherscan.io/"
   },
   {
     id: optimismChainId,
@@ -44,6 +46,7 @@ export const chainConfigs: ChainConfig[] = [
     gtcContractAddr: "0x1EBA7a6a72c894026Cd654AC5CDCF83A46445B08",
     stakingContractAddr: "0x0",
     icon: "./assets/eth-op-logo.svg",
+    explorer: "https://optimistic.etherscan.io/"
   },
   {
     // test net chains
@@ -54,6 +57,7 @@ export const chainConfigs: ChainConfig[] = [
     gtcContractAddr: "0xA4a53A625Ba96CFdFE2d138BeA8D13a167A343E2",
     stakingContractAddr: "0xc80e07d81828960F613baa57288192E56d417dA5",
     icon: "./assets/eth-op-logo.svg",
+    explorer: "https://sepolia-optimism.etherscan.io/"
   },
 ];
 
