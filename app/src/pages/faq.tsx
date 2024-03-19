@@ -5,7 +5,7 @@ import { useRouter } from "next/router";
 import Link from "next/link";
 
 // --Components
-import PageRoot from "../components/PageRoot";
+import LoggedInPageRoot from "@/components/components_staking/LoggedInPageRoot";
 import Header from "../components/Header";
 import BodyWrapper from "../components/BodyWrapper";
 import HeaderContentFooterGrid from "../components/HeaderContentFooterGrid";
@@ -24,7 +24,7 @@ import {
 
 export default function FAQ() {
   return (
-    <PageRoot className="text-color-1">
+    <LoggedInPageRoot className="text-color-1">
       <HeaderContentFooterGrid>
         <Header />
         <BodyWrapper className="">
@@ -64,6 +64,6 @@ export default function FAQ() {
           FAQ FAQ FAQ FAQ FAQ
         </BodyWrapper>
       </HeaderContentFooterGrid>
-    </PageRoot>
+    </LoggedInPageRoot>
   );
 }
