@@ -5,7 +5,14 @@ import { Button } from "../Button";
 import { LoadButton } from "../LoadButton";
 import { BackdropEnabler } from "./Backdrop";
 
-export default function Modal({
+export const DataLine = ({ label, value }: { label: string; value: React.ReactNode }) => (
+  <div className="flex justify-between py-2">
+    <span className="text-color-6 text-xl font-bold">{label}</span>
+    <span>{value}</span>
+  </div>
+);
+
+export const StakeModal = ({
   title,
   buttonText,
   onButtonClick,
@@ -21,7 +28,7 @@ export default function Modal({
   isOpen: boolean;
   onClose: () => void;
   children: React.ReactNode;
-}) {
+}) => {
   return (
     <>
       <Transition appear show={isOpen} as={Fragment}>
@@ -72,4 +79,4 @@ export default function Modal({
       </Transition>
     </>
   );
-}
+};

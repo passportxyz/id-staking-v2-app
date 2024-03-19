@@ -123,6 +123,9 @@ export const createSignedPayload = async (did: DID, data: any) => {
 
 export const formatAmount = (amount: string) => +parseFloat(ethers.formatEther(amount)).toFixed(2);
 
+export const formatDate = (date: Date): string =>
+  Intl.DateTimeFormat("en-US", { month: "short", day: "2-digit", year: "numeric" }).format(date);
+
 const addPartToTimeDescriptions = (partName: string, part: number, short: string, long: string) => {
   let [tempShort, tempLong] = [short, long];
   if (part > 0) {
@@ -178,16 +181,28 @@ export const DisplayDuration = ({ seconds }: { seconds: number }) => {
   return <div title={long}>{short}</div>;
 };
 
-export const DisplayAddressOrENS = ({ user }: { user: string }) => {
-  if (user.length <= 12) {
+// Provide custom max, or use defaults which scale with the screen size
+export const DisplayAddressOrENS = ({ user, max }: { user: string; max?: number }) => {
+  const maxLen = max || 12;
+
+  if (user.length <= maxLen) {
     return <div>{user}</div>;
+  }
+
+  if (max) {
+    const middle = Math.floor(max / 2);
+    return (
+      <div title={user}>
+        {user.slice(0, middle)}...{user.slice(-middle)}
+      </div>
+    );
   }
 
   return (
     <div title={user} className="flex justify-center flex-nowrap">
       {user.slice(0, 4)}
-      <span className="hidden md:block">{user.slice(4, 7)}</span>...
-      <span className="hidden md:block">{user.slice(-5, -3)}</span>
+      <span className="hidden md:flex">{user.slice(4, 7)}</span>...
+      <span className="hidden md:flex">{user.slice(-5, -3)}</span>
       {user.slice(-3)}
     </div>
   );
