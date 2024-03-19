@@ -4,7 +4,7 @@ import { makeErrorToastProps, makeSuccessToastProps } from "../DoneToastContent"
 import { useToast } from "@chakra-ui/react";
 import { useWaitForTransactionReceipt, useWriteContract } from "wagmi";
 import IdentityStakingAbi from "../../abi/IdentityStaking.json";
-import { useStakeHistoryQueryKey } from "./YourStakeHistory";
+import { useStakeHistoryQueryKey } from "@/utils/stakeHistory";
 import { Dialog, Transition } from "@headlessui/react";
 import { PanelDiv } from "./PanelDiv";
 import { atom, useAtom } from "jotai";

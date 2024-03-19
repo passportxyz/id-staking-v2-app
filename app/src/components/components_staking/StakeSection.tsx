@@ -1,5 +1,8 @@
 import React, { useState } from "react";
 import { Disclosure, Transition } from "@headlessui/react";
+import { StakeData, useStakeHistoryQuery } from "@/utils/stakeHistory";
+import { formatAmount } from "@/utils/helpers";
+import { useAccount } from "wagmi";
 
 const svgDropDownIcon = (
   <svg width="14" height="12" viewBox="0 0 14 12" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -15,13 +18,11 @@ export const StakeSection = ({
   icon,
   heading,
   subheading,
-  stakedAmount,
   last,
 }: {
   children: React.ReactNode;
   heading: string;
   subheading: string;
-  stakedAmount: string;
   icon: {
     src: string;
     alt: string;
@@ -33,6 +34,14 @@ export const StakeSection = ({
   const handleDropDown = () => {
     setDropDownState(!dropDownOpen);
   };
+  const { address } = useAccount();
+  const { data } = useStakeHistoryQuery(address);
+  const yourStakeHistory = data?.filter((stake: StakeData) => {
+    return stake.stakee === address?.toLowerCase();
+  });
+  const stakedAmount: string = yourStakeHistory
+    ? yourStakeHistory.reduce((acc, stake) => acc + BigInt(stake.amount), 0n).toString()
+    : "0";
 
   return (
     <div className="col-span-full">
@@ -48,10 +57,10 @@ export const StakeSection = ({
             <div className="text-sm text-left max-w-96 text-pretty">{subheading}</div>
           </div>
           <div className="flex gap-1 flex-col items-center mr-2">
-            <div className="text-right">{stakedAmount} GTC</div>
+            <div className="text-right">{formatAmount(stakedAmount)} GTC</div>
             <div className="text-right">Staked</div>
           </div>
-          <div className={`p-4 transition-transform ${dropDownOpen ? "rotate-180" : ""}`}>{svgDropDownIcon}</div>
+          <div className={`p-4 transition-transform ${dropDownOpen ? "" : "rotate-180"}`}>{svgDropDownIcon}</div>
         </Disclosure.Button>
         <Transition
           enter="transition duration-150 ease-out"

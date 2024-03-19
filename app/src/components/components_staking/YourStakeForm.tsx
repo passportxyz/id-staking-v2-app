@@ -1,4 +1,4 @@
-import React, { ChangeEvent, useState } from "react";
+import React, { ButtonHTMLAttributes, ChangeEvent, useState, useMemo } from "react";
 import { Button } from "@/components/Button";
 import { PanelDiv } from "./PanelDiv";
 import IdentityStakingAbi from "../../abi/IdentityStaking.json";
@@ -71,9 +71,8 @@ export const YourStakeForm: React.FC<YourStakeFormProps> = ({ selectedChain }) =
             <FormButton
               key={amount}
               onClick={() => handleAddFixedValue(amount)}
-              className={`w-12 bg-gradient-to-r from-foreground-2 to-foreground-4 ${
-                inputValue === amount ? "font-bold" : ""
-              } `}
+              className="w-12"
+              variant={amount === inputValue ? "active" : "inactive"}
             >
               {amount}
             </FormButton>
@@ -89,7 +88,8 @@ export const YourStakeForm: React.FC<YourStakeFormProps> = ({ selectedChain }) =
             <FormButton
               key={months}
               onClick={() => handleLockedPeriod(months)}
-              className={`text-sm w-full ${lockedPeriod === months ? "font-bold" : ""}`}
+              className="text-sm w-full"
+              variant={lockedPeriod === months ? "active" : "inactive"}
             >
               {months} months
             </FormButton>
@@ -107,20 +107,6 @@ export const YourStakeForm: React.FC<YourStakeFormProps> = ({ selectedChain }) =
     </div>
   );
 };
-
-const FormButton = ({
-  children,
-  onClick,
-  className,
-}: {
-  children: React.ReactNode;
-  onClick: () => void;
-  className?: string;
-}) => (
-  <Button className={`!px-1 rounded-lg leading-none whitespace-nowrap ${className}`} onClick={onClick}>
-    {children}
-  </Button>
-);
 
 const SelfStakeModal = ({
   address,
@@ -172,16 +158,16 @@ const SelfStakeModal = ({
             hash: hash,
           });
 
-          if (transactionReceipt.status  === 'success'){
-
+          if (transactionReceipt.status === "success") {
             toast(makeSuccessToastProps("Success", "Stake transaction confirmed"));
             setIsLoading(false);
             onClose();
-
           } else {
-            // toast error 
-            console.log(`Approving error. Transaction hash '${hash}'`, );
-            toast(makeErrorToastProps("Approving error", `Transaction details'${selectedChain.explorer + '/' + hash}'`));
+            // toast error
+            console.log(`Approving error. Transaction hash '${hash}'`);
+            toast(
+              makeErrorToastProps("Approving error", `Transaction details'${selectedChain.explorer + "/" + hash}'`)
+            );
             setIsLoading(false);
           }
         },
@@ -207,9 +193,9 @@ const SelfStakeModal = ({
         console.log("geri switchResult", switchResult);
       } catch (error: any) {
         console.log("error switch chain", error);
-        
+
         toast(makeErrorToastProps("Failed to switch chain:", error.message));
-        return 
+        return;
       }
     }
 
@@ -232,13 +218,15 @@ const SelfStakeModal = ({
             const transactionReceipt = await waitForTransactionReceipt(wagmiConfig, {
               hash: hash,
             });
-            console.log("transactionReceipt.status - ", transactionReceipt.status) 
-            if (transactionReceipt.status  === 'success'){
+            console.log("transactionReceipt.status - ", transactionReceipt.status);
+            if (transactionReceipt.status === "success") {
               stakeGtc();
             } else {
-              // toast error 
-              console.log(`Approving error. Transaction hash '${hash}'`, );
-              toast(makeErrorToastProps("Approving error", `Transaction details'${selectedChain.explorer + '/' + hash}'`));
+              // toast error
+              console.log(`Approving error. Transaction hash '${hash}'`);
+              toast(
+                makeErrorToastProps("Approving error", `Transaction details'${selectedChain.explorer + "/" + hash}'`)
+              );
               setIsLoading(false);
             }
           },
@@ -273,5 +261,29 @@ const SelfStakeModal = ({
         <DataLine label="Lockup" value={<div>{lockedPeriod} months</div>} />
       </div>
     </Modal>
+  );
+};
+
+export type FormButtonProps = ButtonHTMLAttributes<HTMLButtonElement> & {
+  variant?: "active" | "inactive";
+};
+
+export const FormButton = ({ variant, className, ...props }: FormButtonProps) => {
+  const variantClassName = useMemo(() => {
+    if (variant === "active") {
+      return "text-color-4 bg-gradient-to-r from-foreground-2 to-foreground-2 hover:to-foreground-4";
+    } else {
+      return "text-color-4 bg-gradient-to-r from-foreground-4 to-foreground-4 hover:to-foreground-2";
+    }
+  }, [variant]);
+
+  return (
+    <button
+      className={`group flex items-center justify-center gap-4 rounded-md px-5 py-2 text-base text-color-1
+        disabled:cursor-not-allowed disabled:bg-foreground-3 disabled:brightness-75 
+        !px-1 rounded-lg leading-none whitespace-nowrap
+        ${variantClassName} focus:border-transparent focus:outline focus:outline-1 focus:outline-focus ${className}`}
+      {...props}
+    />
   );
 };
