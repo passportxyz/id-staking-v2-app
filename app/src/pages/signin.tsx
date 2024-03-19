@@ -18,7 +18,7 @@ export default function Home() {
   const address = useWalletStore((state) => state.address);
   const connectWallet = useWalletStore((state) => state.connect);
   const connectError = useWalletStore((state) => state.error);
-  const { connect: connectDatastore } = useDatastoreConnectionContext();
+  const { connect: connectDatastore, dbAccessTokenStatus } = useDatastoreConnectionContext();
   const toast = useToast();
   const [enableEthBranding, setEnableEthBranding] = useState(true);
 
@@ -26,10 +26,10 @@ export default function Home() {
 
   // Route user to dashboard when wallet is connected
   useEffect(() => {
-    if (address) {
+    if (address && dbAccessTokenStatus === "connected") {
       navigate("/home");
     }
-  }, [address]);
+  }, [address, dbAccessTokenStatus]);
 
   useEffect(() => {
     if (connectError) {
@@ -49,6 +49,10 @@ export default function Home() {
       });
     }
   }, [connectError]);
+
+  const signIn = async () => {
+    await connectWallet(connectDatastore);
+  };
 
   return (
     <PageRoot className="text-color-2" backgroundGradientStyle="top-only">
@@ -107,7 +111,7 @@ export default function Home() {
               <SIWEButton
                 enableEthBranding={enableEthBranding}
                 data-testid="connectWalletButton"
-                onClick={() => connectWallet(connectDatastore)}
+                onClick={signIn}
                 className="col-span-2 mt-4 lg:w-3/4"
               />
             </div>

@@ -10,6 +10,7 @@ import PageWidthGrid from "../components/PageWidthGrid";
 import { YourStake } from "../components/components_staking/YourStake";
 import { NetworkDropdown } from "../components/components_staking/NetworkDropdown";
 import { ChainConfig, chainConfigs } from "@/utils/chains";
+import LoggedInPageRoot from "@/components/components_staking/LoggedInPageRoot";
 
 export default function LeaderBoard() {
   const [currentChain, setChain] = useState<ChainConfig>(chainConfigs[0]);
@@ -19,7 +20,7 @@ export default function LeaderBoard() {
   };
 
   return (
-    <PageRoot className="text-color-1">
+    <LoggedInPageRoot className="text-color-1">
       <HeaderContentFooterGrid>
         <Header />
         <BodyWrapper>
@@ -31,6 +32,6 @@ export default function LeaderBoard() {
           </PageWidthGrid>
         </BodyWrapper>
       </HeaderContentFooterGrid>
-    </PageRoot>
+    </LoggedInPageRoot>
   );
 }
