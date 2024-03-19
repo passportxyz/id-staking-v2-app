@@ -3,15 +3,7 @@ import { Disclosure, Transition } from "@headlessui/react";
 import { StakeData, useStakeHistoryQuery } from "@/utils/stakeHistory";
 import { formatAmount } from "@/utils/helpers";
 import { useAccount } from "wagmi";
-
-const svgDropDownIcon = (
-  <svg width="14" height="12" viewBox="0 0 14 12" fill="none" xmlns="http://www.w3.org/2000/svg">
-    <path
-      d="M5.26795 0.999997C6.03775 -0.333336 7.96225 -0.333333 8.73205 1L13.0622 8.5C13.832 9.83334 12.8697 11.5 11.3301 11.5L2.66987 11.5C1.13027 11.5 0.168022 9.83333 0.937822 8.5L5.26795 0.999997Z"
-      fill="#C1F6FF"
-    />
-  </svg>
-);
+import { DropDownIcon } from "./DropDownIcon";
 
 export const StakeSection = ({
   children,
@@ -36,6 +28,11 @@ export const StakeSection = ({
   };
   const { address } = useAccount();
   const { data } = useStakeHistoryQuery(address);
+  // TODO different filter for each section i.e.
+  // self = staker & stakee == address
+  // stake on others = staker == address, stakee != address
+  // stake from others = staker != address, stakee == address
+  // Should probably pass in a filter function as a prop
   const yourStakeHistory = data?.filter((stake: StakeData) => {
     return stake.stakee === address?.toLowerCase();
   });
@@ -52,7 +49,7 @@ export const StakeSection = ({
           as="div"
         >
           <img alt={icon.alt} className="mx-4 h-12" src={icon.src} />
-          <div className="grow flex flex-col items-start">
+          <div className="grow flex flex-col items-start mr-1">
             <div className="text-xl text-color-6 font-bold lg:text-2xl text-left">{heading}</div>
             <div className="text-sm text-left max-w-96 text-pretty">{subheading}</div>
           </div>
@@ -60,7 +57,7 @@ export const StakeSection = ({
             <div className="text-right">{formatAmount(stakedAmount)} GTC</div>
             <div className="text-right">Staked</div>
           </div>
-          <div className={`p-4 transition-transform ${dropDownOpen ? "" : "rotate-180"}`}>{svgDropDownIcon}</div>
+          <DropDownIcon isOpen={dropDownOpen} className="px-4" />
         </Disclosure.Button>
         <Transition
           enter="transition duration-150 ease-out"

@@ -60,7 +60,7 @@ export const YourStakeForm: React.FC<YourStakeFormProps> = ({ selectedChain }) =
       <PanelDiv className="grid gap-4 grid-cols-[min-content_repeat(3,minmax(0,1fr))] lg:grid-cols-[min-content_repeat(6,minmax(0,1fr))] py-10 px-4 md:px-14">
         <div className="col-span-1 text-color-6 font-bold">Amount</div>
         <input
-          className="px-2 col-end-[-1] grow col-start-2  rounded-lg border border-foreground-4 bg-black text-s text-color-2"
+          className="col-end-[-1] grow col-start-2 px-4 py-1 rounded-lg border border-foreground-4 bg-black text-s text-color-2"
           type="number"
           value={inputValue}
           placeholder={`Input a custom amount or choose one from below`}
@@ -78,7 +78,7 @@ export const YourStakeForm: React.FC<YourStakeFormProps> = ({ selectedChain }) =
             </FormButton>
           ))}
         </div>
-        <div className="mx-1 text-right font-bold text-color-6">
+        <div className="mx-1 text-sm leading-none text-right font-bold text-color-6">
           Lockup
           <br />
           period
@@ -129,7 +129,6 @@ const SelfStakeModal = ({
   const walletChainId = useWalletStore((state) => state.chain);
   const valueToStake = ethers.parseUnits(inputValue || "0", 18);
 
-  const setWalletChain = useWalletStore((state) => state.setChain);
   const allowanceCheck = useReadContract({
     abi: ERC20,
     address: selectedChain.gtcContractAddr,
@@ -279,7 +278,7 @@ export const FormButton = ({ variant, className, ...props }: FormButtonProps) =>
 
   return (
     <button
-      className={`group flex items-center justify-center gap-4 rounded-md px-5 py-2 text-base text-color-1
+      className={`group flex items-center justify-center gap-4 py-2 text-base text-color-1
         disabled:cursor-not-allowed disabled:bg-foreground-3 disabled:brightness-75 
         !px-1 rounded-lg leading-none whitespace-nowrap
         ${variantClassName} focus:border-transparent focus:outline focus:outline-1 focus:outline-focus ${className}`}
