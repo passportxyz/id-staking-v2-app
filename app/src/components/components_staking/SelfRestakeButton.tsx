@@ -7,11 +7,10 @@ import IdentityStakingAbi from "../../abi/IdentityStaking.json";
 import { useStakeHistoryQueryKey } from "@/utils/stakeHistory";
 import { Dialog, Transition } from "@headlessui/react";
 import { PanelDiv } from "./PanelDiv";
-import { atom, useAtom } from "jotai";
 import { DisplayAddressOrENS, DisplayDuration, formatAmount } from "@/utils/helpers";
 import { Button } from "../Button";
 import { LoadButton } from "../LoadButton";
-import { BackdropEnabler, useBackdropControls } from "./Backdrop";
+import { BackdropEnabler } from "./Backdrop";
 
 const DataLine = ({ label, value }: { label: string; value: React.ReactNode }) => (
   <div className="flex justify-between py-2">

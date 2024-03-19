@@ -53,9 +53,9 @@ const MinimalHeader = ({ className }: MinimalHeaderProps): JSX.Element => {
   };
 
   return (
-    <div className="flex items-center" onClick={handleLogoClick}>
-      <div className="flex flex-1 items-center">
-        <img className="" src={assets.gitcoinLogo} alt="Gitcoin Logo" />
+    <div className="flex items-center">
+      <div className="flex flex-1 items-center cursor-pointer" onClick={handleLogoClick}>
+        <img src={assets.gitcoinLogo} alt="Gitcoin Logo" />
         <img className="mx-3 md:mx-6" src={assets.logoLine} alt="Logo Line" />
         <img className="h-8" src={assets.passportLogo} alt="Passport Logo" />
         <div className="ml-3 xl:text-2xl text-color-1 lg:block hidden">Identity Staking</div>

@@ -1,14 +1,12 @@
-import React, { useMemo, useState } from "react";
-import { chainConfigs, ChainConfig } from "@/utils/chains";
+import React, { useCallback, useMemo, useRef, useState } from "react";
+import { chainConfigs, ChainConfig, wagmiConfig } from "@/utils/chains";
 import { useBalance } from "wagmi";
 import { useWalletStore } from "@/context/walletStore";
 import { DropDownIcon } from "./DropDownIcon";
-import { useOutsideClick } from "@/utils/helpers";
-
-interface NetworkDropdownProps {
-  onSelectChain: (chain: ChainConfig) => void;
-  selectedChain: ChainConfig;
-}
+import { useConnectedChain, useOutsideClick } from "@/utils/helpers";
+import { switchChain } from "@wagmi/core";
+import { useToast } from "@chakra-ui/react";
+import { makeErrorToastProps } from "../DoneToastContent";
 
 const ChainMenuItem = ({
   chain,
@@ -63,10 +61,23 @@ const ChainMenuItem = ({
   );
 };
 
-export const NetworkDropdown: React.FC<NetworkDropdownProps> = ({ onSelectChain, selectedChain }) => {
+export const NetworkDropdown: React.FC = ({}) => {
+  const toast = useToast();
+  const selectedChain = useConnectedChain();
   const [menuIsOpen, setMenuIsOpen] = useState(false);
+  const ref = useRef<HTMLDivElement>(null);
+  useOutsideClick(ref, () => setMenuIsOpen(false));
 
-  const ref = useOutsideClick<HTMLDivElement>(() => setMenuIsOpen(false));
+  const setChain = useCallback(async (newChain: ChainConfig) => {
+    try {
+      await switchChain(wagmiConfig, {
+        chainId: newChain.id as (typeof wagmiConfig)["chains"][number]["id"],
+      });
+    } catch (error: any) {
+      console.log("error switch chain", error);
+      toast(makeErrorToastProps("Failed to switch chain:", error.message));
+    }
+  }, []);
 
   const nonSelectedChainConfigs = useMemo(
     () => chainConfigs.filter(({ id }) => id !== selectedChain.id),
@@ -95,7 +106,7 @@ export const NetworkDropdown: React.FC<NetworkDropdownProps> = ({ onSelectChain,
               menuIsOpen={menuIsOpen}
               onMenuOpen={() => idx || setMenuIsOpen(true)}
               onMenuItemSelect={() => {
-                idx && onSelectChain(chain);
+                idx && setChain(chain);
                 setMenuIsOpen(false);
               }}
             />

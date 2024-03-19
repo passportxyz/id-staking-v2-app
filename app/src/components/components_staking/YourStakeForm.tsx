@@ -5,18 +5,13 @@ import IdentityStakingAbi from "../../abi/IdentityStaking.json";
 import ERC20 from "../../abi/ERC20.json";
 import { useWriteContract, useReadContract } from "wagmi";
 import { waitForTransactionReceipt } from "@wagmi/core";
-import { switchChain } from "@wagmi/core";
-import { ChainConfig, wagmiConfig } from "@/utils/chains";
+import { wagmiConfig } from "@/utils/chains";
 import { makeErrorToastProps, makeSuccessToastProps } from "../DoneToastContent";
 import { useToast } from "@chakra-ui/react";
 import { useWalletStore } from "@/context/walletStore";
 import { ethers } from "ethers";
 import Modal from "./StakeModal";
-import { DisplayAddressOrENS, DisplayDuration, formatAmount } from "@/utils/helpers";
-
-interface YourStakeFormProps {
-  selectedChain: ChainConfig;
-}
+import { DisplayAddressOrENS, useConnectedChain } from "@/utils/helpers";
 
 const DataLine = ({ label, value }: { label: string; value: React.ReactNode }) => (
   <div className="flex justify-between py-2">
@@ -25,7 +20,7 @@ const DataLine = ({ label, value }: { label: string; value: React.ReactNode }) =
   </div>
 );
 
-export const YourStakeForm: React.FC<YourStakeFormProps> = ({ selectedChain }) => {
+export const YourStakeForm: React.FC = ({}) => {
   const address = useWalletStore((state) => state.address);
   const [inputValue, setInputValue] = useState<string>("");
   const [lockedPeriod, setLockedPeriodState] = useState<number>(3);
@@ -49,7 +44,6 @@ export const YourStakeForm: React.FC<YourStakeFormProps> = ({ selectedChain }) =
         address={address}
         inputValue={inputValue}
         lockedPeriod={lockedPeriod}
-        selectedChain={selectedChain}
         isOpen={modalIsOpen}
         onClose={() => setModalIsOpen(false)}
       />
@@ -112,29 +106,28 @@ const SelfStakeModal = ({
   address,
   inputValue,
   lockedPeriod,
-  selectedChain,
   isOpen,
   onClose,
 }: {
   address: `0x${string}`;
   inputValue: string;
   lockedPeriod: number;
-  selectedChain: ChainConfig;
   isOpen: boolean;
   onClose: () => void;
 }) => {
   const toast = useToast();
+  const connectedChain = useConnectedChain();
+
   const [isLoading, setIsLoading] = useState(false);
   const writeContract = useWriteContract();
-  const walletChainId = useWalletStore((state) => state.chain);
   const valueToStake = ethers.parseUnits(inputValue || "0", 18);
 
   const allowanceCheck = useReadContract({
     abi: ERC20,
-    address: selectedChain.gtcContractAddr,
+    address: connectedChain.gtcContractAddr,
     functionName: "allowance",
-    chainId: selectedChain.id,
-    args: [address, selectedChain.stakingContractAddr],
+    chainId: connectedChain.id,
+    args: [address, connectedChain.stakingContractAddr],
   });
   const isSpendingApproved = allowanceCheck.isSuccess && inputValue && (allowanceCheck.data as bigint) >= valueToStake;
 
@@ -143,10 +136,10 @@ const SelfStakeModal = ({
 
     writeContract.writeContract(
       {
-        address: selectedChain.stakingContractAddr,
+        address: connectedChain.stakingContractAddr,
         abi: IdentityStakingAbi,
         functionName: "selfStake",
-        chainId: selectedChain.id,
+        chainId: connectedChain.id,
         args: [valueToStake, lockedPeriodSeconds],
       },
       {
@@ -165,7 +158,7 @@ const SelfStakeModal = ({
             // toast error
             console.log(`Approving error. Transaction hash '${hash}'`);
             toast(
-              makeErrorToastProps("Approving error", `Transaction details'${selectedChain.explorer + "/" + hash}'`)
+              makeErrorToastProps("Approving error", `Transaction details'${connectedChain.explorer + "/" + hash}'`)
             );
             setIsLoading(false);
           }
@@ -184,31 +177,17 @@ const SelfStakeModal = ({
   const handleStake = async () => {
     setIsLoading(true);
 
-    if (walletChainId !== selectedChain.id) {
-      try {
-        const switchResult = await switchChain(wagmiConfig, {
-          chainId: selectedChain.id as (typeof wagmiConfig)["chains"][number]["id"],
-        });
-        console.log("geri switchResult", switchResult);
-      } catch (error: any) {
-        console.log("error switch chain", error);
-
-        toast(makeErrorToastProps("Failed to switch chain:", error.message));
-        return;
-      }
-    }
-
     if (isSpendingApproved) {
       stakeGtc();
     } else {
       // Allow
       const approveSpending = writeContract.writeContract(
         {
-          address: selectedChain.gtcContractAddr,
+          address: connectedChain.gtcContractAddr,
           abi: ERC20,
           functionName: "approve",
-          chainId: selectedChain.id,
-          args: [selectedChain.stakingContractAddr, valueToStake],
+          chainId: connectedChain.id,
+          args: [connectedChain.stakingContractAddr, valueToStake],
         },
         {
           onSuccess: async (hash) => {
@@ -224,7 +203,7 @@ const SelfStakeModal = ({
               // toast error
               console.log(`Approving error. Transaction hash '${hash}'`);
               toast(
-                makeErrorToastProps("Approving error", `Transaction details'${selectedChain.explorer + "/" + hash}'`)
+                makeErrorToastProps("Approving error", `Transaction details'${connectedChain.explorer + "/" + hash}'`)
               );
               setIsLoading(false);
             }
@@ -239,6 +218,7 @@ const SelfStakeModal = ({
       );
     }
   };
+
   // const lockedPeriodSeconds: BigInt = BigInt(lockedPeriod) * 30n * 24n * 60n * 60n;
   return (
     <Modal
