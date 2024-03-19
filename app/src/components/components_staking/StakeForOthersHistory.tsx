@@ -1,7 +1,7 @@
-import React, { ComponentPropsWithRef, useEffect, useMemo } from "react";
+import React, { ComponentPropsWithRef, useEffect, useState } from "react";
 import { PanelDiv } from "./PanelDiv";
 import { useWalletStore } from "@/context/walletStore";
-import { SelfRestakeButton } from "./SelfRestakeButton";
+import { SelfRestakeModal } from "./SelfRestakeModal";
 import { useDatastoreConnectionContext } from "@/context/datastoreConnectionContext";
 import { DisplayAddressOrENS, DisplayDuration, formatAmount, useConnectedChain } from "@/utils/helpers";
 import { StakeData, useStakeHistoryQuery } from "@/utils/stakeHistory";
@@ -13,6 +13,31 @@ const Th = ({ className, ...props }: ComponentPropsWithRef<"th">) => (
 const Td = ({ className, ...props }: ComponentPropsWithRef<"td">) => (
   <td className={`${className} p-2 py-4 text-center`} {...props} />
 );
+
+const SelfRestakeButton = ({
+  lockSeconds,
+  address,
+  amount,
+}: {
+  lockSeconds: number;
+  address: string;
+  amount: string;
+}) => {
+  const [modalIsOpen, setModalIsOpen] = useState(false);
+
+  return (
+    <>
+      <SelfRestakeModal
+        address={address}
+        amount={amount}
+        lockSeconds={lockSeconds}
+        isOpen={modalIsOpen}
+        onClose={() => setModalIsOpen(false)}
+      />
+      <button onClick={() => setModalIsOpen(true)}>Restake</button>
+    </>
+  );
+};
 
 const UnstakeButton = ({ stake, address, unlocked }: { stake: StakeData; address: string; unlocked: boolean }) => {
   return (
@@ -36,10 +61,7 @@ const Tbody = () => {
   console.log("address", address, dbAccessToken, dbAccessTokenStatus);
   const { isPending, isError, data, error } = useStakeHistoryQuery(address);
   const stakeForOthersHistory = data?.filter(
-    (stake: StakeData) =>
-      stake.staker === address &&
-      stake.stakee !== address &&
-      stake.chain.toLowerCase() === connectedChain.label.toLowerCase()
+    (stake: StakeData) => stake.staker === address && stake.stakee !== address && stake.chain === connectedChain.id
   );
 
   useEffect(() => {

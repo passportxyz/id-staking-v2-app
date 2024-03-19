@@ -11,17 +11,9 @@ import { makeErrorToastProps, makeSuccessToastProps } from "../DoneToastContent"
 import { useToast } from "@chakra-ui/react";
 import { useWalletStore } from "@/context/walletStore";
 import { ethers } from "ethers";
-import Modal from "./StakeModal";
+import { StakeModal, DataLine } from "./StakeModal";
 import { DisplayAddressOrENS, useConnectedChain } from "@/utils/helpers";
 import { YourStakeForm, FormButton } from "./YourStakeForm";
-
-
-const DataLine = ({ label, value }: { label: string; value: React.ReactNode }) => (
-  <div className="flex justify-between py-2">
-    <span className="text-color-6 text-xl font-bold">{label}</span>
-    <span>{value}</span>
-  </div>
-);
 
 const StakeForOthersFormSection = () => {
   const [stakeeAddress, setStakeeAddress] = useState<string>("");
@@ -116,10 +108,7 @@ export const StakeForOthersForm = () => {
   console.log("stakeSections", stakeSections);
   const addStakeSelection = (event: MouseEvent<HTMLAnchorElement>) => {
     console.log("addStakeSelection");
-    setStakeSections([
-      ...stakeSections,
-      <StakeForOthersFormSection key={stakeSections.length} />,
-    ]);
+    setStakeSections([...stakeSections, <StakeForOthersFormSection key={stakeSections.length} />]);
     event.preventDefault();
   };
   return (
@@ -166,7 +155,7 @@ const CommunityStakeModal = ({
   const connectedChain = useConnectedChain();
 
   return (
-    <Modal
+    <StakeModal
       title="Stake on yourself"
       buttonText="Stake"
       onButtonClick={async () => {
@@ -183,7 +172,7 @@ const CommunityStakeModal = ({
       <div>
         <DataLine label="Stay tuned ..." value={"... comming soon"} />
       </div>
-    </Modal>
+    </StakeModal>
   );
 
   const toast = useToast();
@@ -304,7 +293,7 @@ const CommunityStakeModal = ({
   };
   // const lockedPeriodSeconds: BigInt = BigInt(lockedPeriod) * 30n * 24n * 60n * 60n;
   return (
-    <Modal
+    <StakeModal
       title="Stake on yourself"
       buttonText="Stake"
       onButtonClick={() => handleStake()}
@@ -322,6 +311,6 @@ const CommunityStakeModal = ({
         <hr className="border-foreground-4" />
         <DataLine label="Lockup" value={<div>{lockedPeriod} months</div>} />
       </div>
-    </Modal>
+    </StakeModal>
   );
 };

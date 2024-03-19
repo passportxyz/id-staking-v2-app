@@ -15,7 +15,7 @@ const Td = ({ className, ...props }: ComponentPropsWithRef<"td">) => (
   <td className={`${className} p-2 py-4 text-center`} {...props} />
 );
 
-export const SelfRestakeButton = ({
+const SelfRestakeButton = ({
   lockSeconds,
   address,
   amount,
