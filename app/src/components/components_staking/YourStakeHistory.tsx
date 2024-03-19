@@ -1,10 +1,11 @@
-import React, { ComponentPropsWithRef, useEffect } from "react";
+import React, { ComponentPropsWithRef, useEffect, useState } from "react";
 import { PanelDiv } from "./PanelDiv";
 import { useWalletStore } from "@/context/walletStore";
-import { SelfRestakeButton } from "./SelfRestakeButton";
-import { DisplayAddressOrENS, DisplayDuration, formatAmount } from "@/utils/helpers";
+import { SelfRestakeModal } from "./SelfRestakeModal";
+import { DisplayAddressOrENS, DisplayDuration, formatAmount, formatDate } from "@/utils/helpers";
 import { StakeData, useStakeHistoryQuery } from "@/utils/stakeHistory";
 import { useChainId } from "wagmi";
+import { SelfUnstakeModal } from "./SelfUnstakeModal";
 
 const Th = ({ className, ...props }: ComponentPropsWithRef<"th">) => (
   <th className={`${className} p-2 pb-4 text-center`} {...props} />
@@ -14,18 +15,45 @@ const Td = ({ className, ...props }: ComponentPropsWithRef<"td">) => (
   <td className={`${className} p-2 py-4 text-center`} {...props} />
 );
 
-const UnstakeButton = ({ stake, address, unlocked }: { stake: StakeData; address: string; unlocked: boolean }) => {
+export const SelfRestakeButton = ({
+  lockSeconds,
+  address,
+  amount,
+}: {
+  lockSeconds: number;
+  address: string;
+  amount: string;
+}) => {
+  const [modalIsOpen, setModalIsOpen] = useState(false);
+
   return (
-    <button
-      onClick={() => {
-        // TODO
-        console.log("Unstake:", stake);
-      }}
-      disabled={!unlocked}
-      className="disabled:text-color-5 disabled:cursor-not-allowed"
-    >
-      Unstake
-    </button>
+    <>
+      <SelfRestakeModal
+        address={address}
+        amount={amount}
+        lockSeconds={lockSeconds}
+        isOpen={modalIsOpen}
+        onClose={() => setModalIsOpen(false)}
+      />
+      <button onClick={() => setModalIsOpen(true)}>Restake</button>
+    </>
+  );
+};
+
+const SelfUnstakeButton = ({ address, unlocked, amount }: { address: string; unlocked: boolean; amount: string }) => {
+  const [modalIsOpen, setModalIsOpen] = useState(false);
+
+  return (
+    <>
+      <SelfUnstakeModal address={address} amount={amount} isOpen={modalIsOpen} onClose={() => setModalIsOpen(false)} />
+      <button
+        onClick={() => setModalIsOpen(true)}
+        disabled={!unlocked}
+        className="disabled:text-color-5 disabled:cursor-not-allowed"
+      >
+        Unstake
+      </button>
+    </>
   );
 };
 
@@ -61,9 +89,6 @@ const Tbody = () => {
   return <tbody>{tbody_contents}</tbody>;
 };
 
-const formatDate = (date: Date): string =>
-  Intl.DateTimeFormat("en-US", { month: "short", day: "2-digit", year: "numeric" }).format(date);
-
 const StakeLine = ({ stake, address }: { stake: StakeData; address: string }) => {
   const unlockTime = new Date(stake.unlock_time);
   const unlockTimeStr = formatDate(unlockTime);
@@ -95,7 +120,7 @@ const StakeLine = ({ stake, address }: { stake: StakeData; address: string }) =>
       <Td className="pr-8 py-1">
         <SelfRestakeButton lockSeconds={lockSeconds} amount={stake.amount} address={address} />
         <br />
-        <UnstakeButton stake={stake} address={address} unlocked={unlocked} />
+        <SelfUnstakeButton address={address} unlocked={unlocked} amount={stake.amount} />
       </Td>
     </tr>
   );

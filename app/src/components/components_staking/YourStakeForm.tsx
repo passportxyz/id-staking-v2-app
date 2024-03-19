@@ -10,15 +10,8 @@ import { makeErrorToastProps, makeSuccessToastProps } from "../DoneToastContent"
 import { useToast } from "@chakra-ui/react";
 import { useWalletStore } from "@/context/walletStore";
 import { ethers } from "ethers";
-import Modal from "./StakeModal";
+import { StakeModal, DataLine } from "./StakeModal";
 import { DisplayAddressOrENS, useConnectedChain } from "@/utils/helpers";
-
-const DataLine = ({ label, value }: { label: string; value: React.ReactNode }) => (
-  <div className="flex justify-between py-2">
-    <span className="text-color-6 text-xl font-bold">{label}</span>
-    <span>{value}</span>
-  </div>
-);
 
 export const YourStakeForm: React.FC = ({}) => {
   const address = useWalletStore((state) => state.address);
@@ -227,7 +220,7 @@ const SelfStakeModal = ({
 
   // const lockedPeriodSeconds: BigInt = BigInt(lockedPeriod) * 30n * 24n * 60n * 60n;
   return (
-    <Modal
+    <StakeModal
       title="Stake on yourself"
       buttonText="Stake"
       onButtonClick={() => handleStake()}
@@ -245,7 +238,7 @@ const SelfStakeModal = ({
         <hr className="border-foreground-4" />
         <DataLine label="Lockup" value={<div>{lockedPeriod} months</div>} />
       </div>
-    </Modal>
+    </StakeModal>
   );
 };
 
