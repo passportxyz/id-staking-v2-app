@@ -1,21 +1,11 @@
-import React, { ComponentPropsWithRef, useContext, useEffect, useMemo } from "react";
+import React, { ComponentPropsWithRef, useEffect, useMemo } from "react";
 import { PanelDiv } from "./PanelDiv";
-import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { ethers } from "ethers";
-import axios from "axios";
-import moment from "moment";
 import { useWalletStore } from "@/context/walletStore";
-import { makeErrorToastProps, makeSuccessToastProps } from "../DoneToastContent";
-import { useToast } from "@chakra-ui/react";
-import { useWaitForTransactionReceipt, useWriteContract } from "wagmi";
-import IdentityStakingAbi from "../../abi/IdentityStaking.json";
-// import { RestakeButton } from "./RestakeButton";
-import { formatDate } from "./utils";
-// import { useStakingHistoryStore, StakeData, StakingHistoryContext } from "@/utils/stakingHistory";
-
-export const useStakeHistoryQueryKey = (address: string | undefined): string[] => {
-  return useMemo(() => ["stakeHistory", address || ""], [address]);
-};
+import { SelfRestakeButton } from "./SelfRestakeButton";
+import { useDatastoreConnectionContext } from "@/context/datastoreConnectionContext";
+import { DisplayAddressOrENS, DisplayDuration, formatAmount } from "@/utils/helpers";
+import { StakeData, useStakeHistoryQuery } from "@/utils/stakeHistory";
+import { ChainConfig } from "@/utils/chains";
 
 const Th = ({ className, ...props }: ComponentPropsWithRef<"th">) => (
   <th className={`${className} p-2 pb-4 text-center`} {...props} />
@@ -29,7 +19,7 @@ const UnstakeButton = ({ stake, address, unlocked }: { stake: StakeData; address
   return (
     <button
       onClick={() => {
-        // TODO
+        // TODO: .... 
         console.log("Unstake:", stake);
       }}
       disabled={!unlocked}
@@ -40,31 +30,29 @@ const UnstakeButton = ({ stake, address, unlocked }: { stake: StakeData; address
   );
 };
 
-const Tbody = () => {
+const Tbody = ({selectedChain}: {selectedChain : ChainConfig}) => {
   const address = useWalletStore((state) => state.address);
-  // const { isPending, isError, data, error } = useStakeHistoryQuery(address);
-  // const yourStakeHistory = data?.filter((stake: StakeData) => stake.staker === address);
-  const { isPending, isError, error } = { isPending: false, isError: false, error: null };
-  // const { stakeData, pullData } = useContext(StakingHistoryContext).getState();
+  const { dbAccessToken, dbAccessTokenStatus } = useDatastoreConnectionContext();
+  console.log("address", address, dbAccessToken, dbAccessTokenStatus);
+  const { isPending, isError, data, error } = useStakeHistoryQuery(address);
+  const stakeForOthersHistory = data?.filter((stake: StakeData) => stake.staker === address &&  stake.stakee !== address && stake.chain.toLowerCase() === selectedChain.label.toLowerCase() );
 
-  // pullData();
-  
   useEffect(() => {
     isError && console.error("Error getting StakeHistory:", error);
   }, [error, isError]);
 
-  return <></>
-  if (!isPending && !isError && address && stakeData && stakeData.length > 0) {
-    return (
+  let tbody_contents;
+  if (!isPending && !isError && address && stakeForOthersHistory && stakeForOthersHistory.length > 0) {
+    tbody_contents = (
       <>
-        {stakeData.map((stake, index) => (
+        {stakeForOthersHistory.map((stake, index) => (
           <StakeLine key={index} stake={stake} address={address} />
         ))}
       </>
     );
   } else {
     const status = isError ? "Error loading stakes" : isPending ? "Loading..." : "No stakes found";
-    return (
+    tbody_contents = (
       <tr>
         <Td colSpan={5} className="text-center">
           {status}
@@ -72,124 +60,34 @@ const Tbody = () => {
       </tr>
     );
   }
+  return <tbody>{tbody_contents}</tbody>;
 };
 
-const DisplayAddressOrENS = ({ user }: { user: string }) => (
-  <div title={user}>{`${user.length > 12 ? `${user.slice(0, 7)}...${user.slice(-5)}` : user}`}</div>
-);
-
-const DisplayDuration = ({ seconds }: { seconds: number }) => {
-  const [short, long] = useMemo(() => {
-    const duration = moment.duration(seconds, "seconds");
-
-    const weeks = Math.floor(duration.asWeeks());
-
-    const years = Math.floor(duration.asYears());
-    const durationWithoutYears = duration.subtract(years, "years");
-    const months = Math.floor(durationWithoutYears.asMonths());
-    const durationWithoutMonths = durationWithoutYears.subtract(months, "months");
-    const days = Math.floor(durationWithoutMonths.asDays());
-
-    const parts = {
-      year: years,
-      month: months,
-      day: days,
-    };
-
-    let short = "";
-    let long = "";
-
-    Object.entries(parts).forEach(([key, part]) => {
-      if (part > 0) {
-        const formattedPart = part > 1 ? `${part} ${key}s` : `${part} ${key}`;
-
-        if (!short) short = formattedPart;
-
-        if (long) long += ", ";
-        long += formattedPart;
-      }
-    });
-
-    // Override short with weeks
-    // where appropriate
-    if (weeks > 2 && weeks < 13) {
-      short = `${weeks} weeks`;
-    }
-
-    return [short, long];
-  }, [seconds]);
-
-  return <div title={long}>{short}</div>;
-};
-
-// export const RestakeAllButton = ({ stake, address }: { stake: StakeData; address: string }) => {
-//   const toast = useToast();
-//   const queryClient = useQueryClient();
-//   const queryKey = useStakeHistoryQueryKey(address);
-
-//   const { data: hash, error, isPending, writeContract } = useWriteContract();
-//   const { isLoading: isConfirming, isSuccess: isConfirmed } = useWaitForTransactionReceipt({
-//     hash,
-//   });
-
-//   useEffect(() => {
-//     (async () => {
-//       if (isConfirmed) {
-//         toast(makeSuccessToastProps("Success", "Restake transaction confirmed"));
-//         // delay for indexer
-//         await new Promise((resolve) => setTimeout(resolve, 5000));
-//         await queryClient.invalidateQueries({ queryKey });
-//       }
-//     })();
-//   }, [isConfirmed, toast, queryClient, queryKey]);
-
-//   useEffect(() => {
-//     if (error) {
-//       console.error("Restake failed:", error);
-//       toast(makeErrorToastProps("Failed", "Restake transaction failed"));
-//     }
-//   }, [error, toast]);
-
-//   return (
-//     <button
-//       onClick={() =>
-//         writeContract({
-//           address: "0xc80e07d81828960F613baa57288192E56d417dA5",
-//           abi: IdentityStakingAbi,
-//           functionName: "extendSelfStake",
-//           args: [BigInt(stake.lock_duration)],
-//         })
-//       }
-//       disabled={isPending || isConfirming}
-//     >
-//       Restake All
-//     </button>
-//   );
-// };
+const formatDate = (date: Date): string =>
+  Intl.DateTimeFormat("en-US", { month: "2-digit", day: "2-digit", year: "numeric" }).format(date);
 
 const StakeLine = ({ stake, address }: { stake: StakeData; address: string }) => {
   const unlockTime = new Date(stake.unlock_time);
   const unlockTimeStr = formatDate(unlockTime);
-  console.log("geri stake.unlock_time", stake.unlock_time);
-  console.log("geri unlockTime", unlockTime);
-  console.log("geri unlockTimeStr", unlockTimeStr);
 
-  const lockTime = new Date(unlockTime.getTime() - 1000 * parseInt(stake.lock_duration));
+  const lockTime = new Date(stake.lock_time);
   const lockTimeStr = formatDate(lockTime);
+
+  const lockSeconds = Math.floor((unlockTime.getTime() - lockTime.getTime()) / 1000);
 
   const unlocked = unlockTime < new Date();
 
-  const amount = +parseFloat(ethers.formatEther(stake.amount)).toFixed(2);
+  const amount = formatAmount(stake.amount);
 
   return (
     <tr>
       <Td>
-        <DisplayAddressOrENS user={stake.staker} />
+        <DisplayAddressOrENS user={stake.stakee} />
       </Td>
       <Td>{amount} GTC</Td>
       <Td className="hidden lg:table-cell">{unlocked ? "Unlocked" : "Locked"}</Td>
       <Td className="hidden lg:table-cell">
-        <DisplayDuration seconds={parseInt(stake.lock_duration)} />
+        <DisplayDuration seconds={lockSeconds} />
       </Td>
       <Td className="">
         {lockTimeStr}
@@ -197,7 +95,7 @@ const StakeLine = ({ stake, address }: { stake: StakeData; address: string }) =>
         <span className={unlocked ? "text-color-2" : "text-focus"}>{unlockTimeStr}</span>
       </Td>
       <Td className="pr-8 py-1">
-        <RestakeButton stake={stake} address={address} />
+        <SelfRestakeButton lockSeconds={lockSeconds} amount={stake.amount} address={stake.stakee} />
         <br />
         <UnstakeButton stake={stake} address={address} unlocked={unlocked} />
       </Td>
@@ -205,10 +103,10 @@ const StakeLine = ({ stake, address }: { stake: StakeData; address: string }) =>
   );
 };
 
-export const StakeForOthersHistory = ({}: any) => {
+export const StakeForOthersHistory = ({selectedChain}: { selectedChain: ChainConfig}) => {
   return (
     <PanelDiv className="flex flex-col">
-      <div className="m-8 text-color-6 font-bold text-xl">Stake for Others</div>
+      <div className="m-8 text-color-6 font-bold text-xl">Your Stake History</div>
       <table className="w-full">
         <thead>
           <tr className="border-b pb-6 border-foreground-4">
@@ -220,7 +118,7 @@ export const StakeForOthersHistory = ({}: any) => {
             <Th> </Th>
           </tr>
         </thead>
-        <Tbody />
+        <Tbody selectedChain={selectedChain}/>
       </table>
     </PanelDiv>
   );
