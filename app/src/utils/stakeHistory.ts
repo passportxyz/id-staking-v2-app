@@ -3,6 +3,7 @@ import { useDatastoreConnectionContext } from "@/context/datastoreConnectionCont
 
 import { useQuery } from "@tanstack/react-query";
 import axios from "axios";
+import { useChainId } from "wagmi";
 
 export type StakeData = {
   chain: number;
@@ -32,4 +33,18 @@ export const useStakeHistoryQuery = (address: string | undefined) => {
     },
     enabled: Boolean(address) && dbAccessTokenStatus === "connected",
   });
+};
+
+export const useYourStakeHistoryQuery = (address: string | undefined) => {
+  const { data, ...rest } = useStakeHistoryQuery(address);
+  const chainId = useChainId();
+  const filteredData = useMemo(
+    () => data?.filter((stake) => stake.staker === address && stake.stakee === address && stake.chain === chainId),
+    [data, address, chainId]
+  );
+
+  return {
+    ...rest,
+    data: filteredData,
+  };
 };

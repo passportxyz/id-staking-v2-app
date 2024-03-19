@@ -23,7 +23,7 @@ export const StakeModal = ({
 }: {
   title: string;
   buttonText: string;
-  onButtonClick: () => Promise<void>;
+  onButtonClick: () => void;
   buttonLoading: boolean;
   isOpen: boolean;
   onClose: () => void;

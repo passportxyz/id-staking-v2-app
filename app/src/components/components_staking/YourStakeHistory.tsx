@@ -3,7 +3,7 @@ import { PanelDiv } from "./PanelDiv";
 import { useWalletStore } from "@/context/walletStore";
 import { SelfRestakeModal } from "./SelfRestakeModal";
 import { DisplayAddressOrENS, DisplayDuration, formatAmount, formatDate } from "@/utils/helpers";
-import { StakeData, useStakeHistoryQuery } from "@/utils/stakeHistory";
+import { StakeData, useYourStakeHistoryQuery } from "@/utils/stakeHistory";
 import { useChainId } from "wagmi";
 import { SelfUnstakeModal } from "./SelfUnstakeModal";
 
@@ -59,19 +59,17 @@ const SelfUnstakeButton = ({ address, unlocked, amount }: { address: string; unl
 
 const Tbody = () => {
   const address = useWalletStore((state) => state.address);
-  const chainId = useChainId();
-  const { isPending, isError, data, error } = useStakeHistoryQuery(address);
-  const yourStakeHistory = data?.filter((stake: StakeData) => stake.staker === address && stake.chain === chainId);
+  const { isPending, isError, data, error } = useYourStakeHistoryQuery(address);
 
   useEffect(() => {
     isError && console.error("Error getting StakeHistory:", error);
   }, [error, isError]);
 
   let tbody_contents;
-  if (!isPending && !isError && address && yourStakeHistory && yourStakeHistory.length > 0) {
+  if (!isPending && !isError && address && data && data.length > 0) {
     tbody_contents = (
       <>
-        {yourStakeHistory.map((stake, index) => (
+        {data.map((stake, index) => (
           <StakeLine key={index} stake={stake} address={address} />
         ))}
       </>

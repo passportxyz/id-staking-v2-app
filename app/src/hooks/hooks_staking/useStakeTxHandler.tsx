@@ -3,16 +3,18 @@ import { useQueryClient } from "@tanstack/react-query";
 import { makeErrorToastProps, makeSuccessToastProps } from "../../components/DoneToastContent";
 import { useToast } from "@chakra-ui/react";
 import { useWaitForTransactionReceipt, useWriteContract } from "wagmi";
+import { useConnectedChain } from "@/utils/helpers";
 
 export const useStakeTxHandler = ({
-  queryKey,
   onConfirm,
   txTitle,
+  queryKey,
 }: {
-  queryKey: string[];
   onConfirm: () => void;
   txTitle: string;
+  queryKey?: string[];
 }) => {
+  const connectedChain = useConnectedChain();
   const toast = useToast();
   const queryClient = useQueryClient();
 
@@ -31,9 +33,11 @@ export const useStakeTxHandler = ({
       if (isConfirmed) {
         toast(makeSuccessToastProps("Success", `${txTitle} transaction confirmed`));
         onConfirm();
-        // delay for indexer
-        await new Promise((resolve) => setTimeout(resolve, 5000));
-        await queryClient.invalidateQueries({ queryKey });
+        if (queryKey) {
+          // delay for indexer
+          await new Promise((resolve) => setTimeout(resolve, 5000));
+          await queryClient.invalidateQueries({ queryKey });
+        }
       }
     })();
   }, [isConfirmed, toast, queryClient, queryKey]);
@@ -41,14 +45,34 @@ export const useStakeTxHandler = ({
   useEffect(() => {
     if (isError) {
       console.error(`${txTitle} failed:`, error);
-      toast(makeErrorToastProps("Failed", `${txTitle} transaction failed`));
+      toast(
+        makeErrorToastProps(
+          "Failed",
+          <div>
+            <p>{txTitle} transaction failed</p>
+            <p>
+              Error: {error?.name}, Details: {error?.message}
+            </p>
+          </div>
+        )
+      );
     }
   }, [error, toast]);
 
   useEffect(() => {
     if (isReceiptError) {
-      console.error(`${txTitle} receipt failed:`, receiptError);
-      toast(makeErrorToastProps("Error", `${txTitle} transaction failed to confirm`));
+      console.error(`${txTitle} receipt failed, tx hash =`, hash, " error:", receiptError);
+      toast(
+        makeErrorToastProps(
+          "Error",
+          <div>
+            <p>{txTitle} transaction failed to confirm</p>
+            <p>
+              See <a href={connectedChain.explorer + "/" + hash}>details</a> on the block explorer
+            </p>
+          </div>
+        )
+      );
     }
   }, [isReceiptError, receiptError, toast]);
 
