@@ -5,9 +5,12 @@ import { SelfRestakeModal } from "./SelfRestakeModal";
 import { useDatastoreConnectionContext } from "@/context/datastoreConnectionContext";
 import { DisplayAddressOrENS, DisplayDuration, formatAmount, useConnectedChain } from "@/utils/helpers";
 import { StakeData, useStakeHistoryQuery } from "@/utils/stakeHistory";
+import { OnOthersUpdateButton } from "./OnOthersUpdateButton";
 
-const Th = ({ className, ...props }: ComponentPropsWithRef<"th">) => (
-  <th className={`${className} p-2 pb-4 text-center`} {...props} />
+const Th = ({ className, children, ...props }: ComponentPropsWithRef<"th">  & { children: React.ReactNode }) => (
+  <th className={`${className} p-2 pb-4 text-center`} {...props} >
+    {children}
+  </th>
 );
 
 const Td = ({ className, ...props }: ComponentPropsWithRef<"td">) => (
@@ -58,7 +61,7 @@ const Tbody = () => {
   const connectedChain = useConnectedChain();
   const address = useWalletStore((state) => state.address);
   const { dbAccessToken, dbAccessTokenStatus } = useDatastoreConnectionContext();
-  console.log("address", address, dbAccessToken, dbAccessTokenStatus);
+
   const { isPending, isError, data, error } = useStakeHistoryQuery(address);
   const stakeForOthersHistory = data?.filter(
     (stake: StakeData) => stake.staker === address && stake.stakee !== address && stake.chain === connectedChain.id
@@ -122,18 +125,19 @@ const StakeLine = ({ stake, address }: { stake: StakeData; address: string }) =>
         <span className={unlocked ? "text-color-2" : "text-focus"}>{unlockTimeStr}</span>
       </Td>
       <Td className="pr-8 py-1">
-        <SelfRestakeButton lockSeconds={lockSeconds} amount={stake.amount} address={stake.stakee} />
+        <OnOthersUpdateButton lockSeconds={lockSeconds} amount={stake.amount} address={stake.stakee} />
+        {/* <SelfRestakeButton lockSeconds={lockSeconds} amount={stake.amount} address={stake.stakee} />
         <br />
-        <UnstakeButton stake={stake} address={address} unlocked={unlocked} />
+        <UnstakeButton stake={stake} address={address} unlocked={unlocked} /> */}
       </Td>
     </tr>
   );
 };
 
-export const StakeForOthersHistory = () => {
+export const StakeForOthersHistory = ({}: any) => {
   return (
     <PanelDiv className="flex flex-col">
-      <div className="m-8 text-color-6 font-bold text-xl">Your Stake History</div>
+      <div className="m-8 text-color-6 font-bold text-xl">Stake for Others</div>
       <table className="w-full">
         <thead>
           <tr className="border-b pb-6 border-foreground-4">
@@ -142,7 +146,7 @@ export const StakeForOthersHistory = () => {
             <Th className="hidden lg:table-cell">Status</Th>
             <Th className="hidden lg:table-cell">Lockup</Th>
             <Th>Start/End</Th>
-            <Th> </Th>
+            <Th> <button className="px-1 border rounded text-color-6 font-bold">TODO: Restake all </button> </Th>
           </tr>
         </thead>
         <Tbody />
