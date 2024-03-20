@@ -5,14 +5,14 @@ export type CustomToastProps = {
   // platformId?: PLATFORM_ID | undefined;    TODO - this was removed in staking app
   // providerId?: PROVIDER_ID;
   title: string;
-  body?: string | JSX.Element;
+  body?: React.ReactNode;
   icon: string;
   result: any;
   message?: boolean | string;
   testId?: string;
 };
 
-export const makeErrorToastProps = (title: string, message: string) => ({
+export const makeErrorToastProps = (title: string, message: React.ReactNode) => ({
   duration: 6000,
   isClosable: true,
   render: (result: any) => (
@@ -20,7 +20,7 @@ export const makeErrorToastProps = (title: string, message: string) => ({
   ),
 });
 
-export const makeSuccessToastProps = (title: string, message: string) => ({
+export const makeSuccessToastProps = (title: string, message: React.ReactNode) => ({
   duration: 6000,
   isClosable: true,
   render: (result: any) => (
