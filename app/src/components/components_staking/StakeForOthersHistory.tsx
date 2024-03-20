@@ -6,7 +6,7 @@ import { useDatastoreConnectionContext } from "@/context/datastoreConnectionCont
 import { DisplayAddressOrENS, DisplayDuration, formatAmount, useConnectedChain } from "@/utils/helpers";
 import { StakeData, useStakeHistoryQuery } from "@/utils/stakeHistory";
 
-const Th = ({ className, children, ...props }: ComponentPropsWithRef<"th">  & { children: ReactNode }) => (
+const Th = ({ className, children, ...props }: ComponentPropsWithRef<"th">  & { children: React.ReactNode }) => (
   <th className={`${className} p-2 pb-4 text-center`} {...props} >
     {children}
   </th>
