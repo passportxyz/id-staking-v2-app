@@ -1,15 +1,9 @@
-import React, { ButtonHTMLAttributes, ChangeEvent, useState, useMemo, useCallback, useEffect } from "react";
+import React, { ButtonHTMLAttributes, ChangeEvent, useState, useMemo, useEffect } from "react";
 import { Button } from "@/components/Button";
 import { PanelDiv } from "./PanelDiv";
-import IdentityStakingAbi from "../../abi/IdentityStaking.json";
-import ERC20 from "../../abi/ERC20.json";
-import { useReadContract } from "wagmi";
 import { useWalletStore } from "@/context/walletStore";
-import { ethers } from "ethers";
-import { StakeModal, DataLine } from "./StakeModal";
-import { DisplayAddressOrENS, useConnectedChain } from "@/utils/helpers";
-import { useStakeTxHandler } from "@/hooks/hooks_staking/useStakeTxHandler";
-import { useStakeHistoryQueryKey, useYourStakeHistoryQuery } from "@/utils/stakeHistory";
+import { useYourStakeHistoryQuery } from "@/utils/stakeHistory";
+import { SelfStakeModal } from "./SelfStakeModal";
 
 const TWELVE_MONTHS_IN_SECONDS = 12 * 30 * 24 * 60 * 60;
 const SIX_MONTHS_IN_SECONDS = 6 * 30 * 24 * 60 * 60;
@@ -17,7 +11,8 @@ const SIX_MONTHS_IN_SECONDS = 6 * 30 * 24 * 60 * 60;
 export const YourStakeForm: React.FC = ({}) => {
   const address = useWalletStore((state) => state.address);
   const { data, isLoading } = useYourStakeHistoryQuery(address);
-  const [isUpdate, setIsUpdate] = useState(false);
+  const [previousUnlockTime, setPreviousUnlockTime] = useState<Date | undefined>();
+  const isUpdate = previousUnlockTime !== undefined;
 
   const [inputValue, setInputValue] = useState<string>("");
   const [lockedPeriod, setLockedPeriodState] = useState<number>(3);
@@ -37,9 +32,9 @@ export const YourStakeForm: React.FC = ({}) => {
       } else {
         setLockedPeriodState(3);
       }
-      setIsUpdate(true);
+      setPreviousUnlockTime(unlockTime);
     } else {
-      setIsUpdate(false);
+      setPreviousUnlockTime(undefined);
     }
   }, [data]);
 
@@ -55,16 +50,16 @@ export const YourStakeForm: React.FC = ({}) => {
     setLockedPeriodState(value);
   };
 
-  const selfStakeModal =
-    address && inputValue ? (
-      <SelfStakeModal
-        address={address}
-        inputValue={inputValue}
-        lockedPeriodMonths={lockedPeriod}
-        isOpen={modalIsOpen}
-        onClose={() => setModalIsOpen(false)}
-      />
-    ) : null;
+  const selfStakeModal = address ? (
+    <SelfStakeModal
+      address={address}
+      inputValue={inputValue}
+      lockedPeriodMonths={lockedPeriod}
+      isOpen={modalIsOpen}
+      onClose={() => setModalIsOpen(false)}
+      stakeToUpdate={isUpdate ? data?.[0] : undefined}
+    />
+  ) : null;
 
   return (
     <div className="flex flex-col gap-4">
@@ -82,7 +77,7 @@ export const YourStakeForm: React.FC = ({}) => {
             disabled={isLoading}
           />
           {isUpdate && (
-            <div className="col-start-1 row-start-1 flex items-center justify-center w-6 h-full rounded-l-lg pl-1 bg-background-8 border-r border-foreground-4 pointer-events-none">
+            <div className="col-start-1 row-start-1 flex items-center justify-center w-6 h-full rounded-l-lg pl-1 bg-background-7 text-color-4 pointer-events-none">
               +
             </div>
           )}
@@ -113,7 +108,10 @@ export const YourStakeForm: React.FC = ({}) => {
               onClick={() => handleLockedPeriod(months)}
               className="text-sm w-full"
               variant={lockedPeriod === months ? "active" : "inactive"}
-              disabled={isLoading}
+              disabled={
+                isLoading ||
+                (isUpdate && new Date().getTime() + months * 30 * 24 * 60 * 60 * 1000 < previousUnlockTime?.getTime())
+              }
             >
               {months} months
             </FormButton>
@@ -129,113 +127,6 @@ export const YourStakeForm: React.FC = ({}) => {
         {isUpdate && "Update "}Stake
       </Button>
     </div>
-  );
-};
-
-const useSelfStakeTx = ({
-  address,
-  valueToStake,
-  lockedPeriodSeconds,
-  onConfirm,
-}: {
-  address: `0x${string}`;
-  valueToStake: bigint;
-  lockedPeriodSeconds: bigint;
-  onConfirm: () => void;
-}) => {
-  const connectedChain = useConnectedChain();
-  const queryKey = useStakeHistoryQueryKey(address);
-
-  const allowanceCheck = useReadContract({
-    abi: ERC20,
-    address: connectedChain.gtcContractAddr,
-    functionName: "allowance",
-    chainId: connectedChain.id,
-    args: [address, connectedChain.stakingContractAddr],
-  });
-
-  const stakingHandler = useStakeTxHandler({ queryKey, txTitle: "Stake", onConfirm });
-
-  const submitStakeTx = () => {
-    stakingHandler.writeContract({
-      address: connectedChain.stakingContractAddr,
-      abi: IdentityStakingAbi,
-      functionName: "selfStake",
-      chainId: connectedChain.id,
-      args: [valueToStake, lockedPeriodSeconds],
-    });
-  };
-
-  // Automatically call stakeTx once confirmed
-  const approvalHandler = useStakeTxHandler({ txTitle: "Spending approval", onConfirm: submitStakeTx });
-
-  const submitApprovalTx = () => {
-    approvalHandler.writeContract({
-      address: connectedChain.gtcContractAddr,
-      abi: ERC20,
-      functionName: "approve",
-      chainId: connectedChain.id,
-      args: [connectedChain.stakingContractAddr, valueToStake],
-    });
-  };
-
-  const selfStake = useCallback(() => {
-    const isSpendingApproved = allowanceCheck.isSuccess && (allowanceCheck.data as bigint) >= valueToStake;
-
-    if (!isSpendingApproved) {
-      // The staking tx will automatically trigger once the approval tx is confirmed
-      // due to the onConfirm callback in the approvalHandler
-      submitApprovalTx();
-    } else {
-      submitStakeTx();
-    }
-  }, [submitApprovalTx, submitStakeTx, address, connectedChain, valueToStake]);
-
-  const isLoading = approvalHandler.isLoading || stakingHandler.isLoading || allowanceCheck.isLoading;
-
-  return { selfStake, isLoading };
-};
-
-const SelfStakeModal = ({
-  address,
-  inputValue,
-  lockedPeriodMonths,
-  isOpen,
-  onClose,
-}: {
-  address: `0x${string}`;
-  inputValue: string;
-  lockedPeriodMonths: number;
-  isOpen: boolean;
-  onClose: () => void;
-}) => {
-  const valueToStake = ethers.parseUnits(inputValue || "0", 18);
-  const lockedPeriodSeconds = BigInt(lockedPeriodMonths) * 30n * 24n * 60n * 60n;
-
-  const { selfStake, isLoading } = useSelfStakeTx({
-    address,
-    valueToStake,
-    lockedPeriodSeconds,
-    onConfirm: onClose,
-  });
-
-  return (
-    <StakeModal
-      title="Stake on yourself"
-      buttonText="Stake"
-      onButtonClick={selfStake}
-      buttonLoading={isLoading}
-      isOpen={isOpen}
-      onClose={onClose}
-    >
-      <div>
-        <DataLine label="Address" value={<DisplayAddressOrENS user={address} />} />
-        <hr className="border-foreground-4" />
-        <DataLine label="Amount" value={`${inputValue} GTC`} />
-        <hr className="border-foreground-4" />
-        <DataLine label="Lockup" value={<div>{lockedPeriodMonths} months</div>} />
-      </div>
-    </StakeModal>
   );
 };
 

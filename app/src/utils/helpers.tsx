@@ -8,11 +8,8 @@ import { DID } from "dids";
 import { ethers } from "ethers";
 import React, { useMemo } from "react";
 import moment from "moment";
-import { useToast } from "@chakra-ui/react";
-import { ChainConfig, chainConfigs, wagmiConfig } from "./chains";
+import { chainConfigs } from "./chains";
 import { useChainId } from "wagmi";
-import { switchChain } from "@wagmi/core";
-import { makeErrorToastProps } from "@/components/DoneToastContent";
 
 export function generateUID(length: number) {
   return window
