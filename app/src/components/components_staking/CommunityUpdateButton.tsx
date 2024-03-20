@@ -99,14 +99,14 @@ const CommunityUpdateModalPreview = ({
 }) => {
   const { isLoading, extendCommunityStake } = useExtendCommunityStake({ onConfirm: onClose, address });
   const [updatedAmount, setUpdatedAmountValue] = useState<number>(formatAmount(amount));
- 
+
   const handleAddValue = (added: number) => {
-    setUpdatedAmountValue(updatedAmount + added)
+    setUpdatedAmountValue(updatedAmount + added);
   };
   const handleInputChange = (event: ChangeEvent<HTMLInputElement>) => {
     setUpdatedAmountValue(Number(event.target.value));
   };
-  
+
   return (
     <Modal
       title="Update stake on others"
@@ -124,12 +124,7 @@ const CommunityUpdateModalPreview = ({
         <br />
         <div className="row-span-1 text-color-2">Amount</div>
         <div className="border rounded text-color-2 bg-background">
-          <input
-            className="pl-5 w-full bg-background"
-            type="text"
-            value={updatedAmount}
-            onChange={handleInputChange}
-          />
+          <input className="pl-5 w-full bg-background" type="text" value={updatedAmount} onChange={handleInputChange} />
         </div>
 
         <br />
