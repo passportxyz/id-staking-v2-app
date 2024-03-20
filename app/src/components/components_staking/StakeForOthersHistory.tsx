@@ -5,6 +5,7 @@ import { SelfRestakeModal } from "./SelfRestakeModal";
 import { useDatastoreConnectionContext } from "@/context/datastoreConnectionContext";
 import { DisplayAddressOrENS, DisplayDuration, formatAmount, useConnectedChain } from "@/utils/helpers";
 import { StakeData, useStakeHistoryQuery } from "@/utils/stakeHistory";
+import { OnOthersUpdateButton } from "./OnOthersUpdateButton";
 
 const Th = ({ className, children, ...props }: ComponentPropsWithRef<"th">  & { children: React.ReactNode }) => (
   <th className={`${className} p-2 pb-4 text-center`} {...props} >
@@ -124,9 +125,10 @@ const StakeLine = ({ stake, address }: { stake: StakeData; address: string }) =>
         <span className={unlocked ? "text-color-2" : "text-focus"}>{unlockTimeStr}</span>
       </Td>
       <Td className="pr-8 py-1">
-        <SelfRestakeButton lockSeconds={lockSeconds} amount={stake.amount} address={stake.stakee} />
+        <OnOthersUpdateButton lockSeconds={lockSeconds} amount={stake.amount} address={stake.stakee} />
+        {/* <SelfRestakeButton lockSeconds={lockSeconds} amount={stake.amount} address={stake.stakee} />
         <br />
-        <UnstakeButton stake={stake} address={address} unlocked={unlocked} />
+        <UnstakeButton stake={stake} address={address} unlocked={unlocked} /> */}
       </Td>
     </tr>
   );
