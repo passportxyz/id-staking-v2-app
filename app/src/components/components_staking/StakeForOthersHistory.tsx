@@ -6,8 +6,10 @@ import { useDatastoreConnectionContext } from "@/context/datastoreConnectionCont
 import { DisplayAddressOrENS, DisplayDuration, formatAmount, useConnectedChain } from "@/utils/helpers";
 import { StakeData, useStakeHistoryQuery } from "@/utils/stakeHistory";
 
-const Th = ({ className, ...props }: ComponentPropsWithRef<"th">) => (
-  <th className={`${className} p-2 pb-4 text-center`} {...props} />
+const Th = ({ className, children, ...props }: ComponentPropsWithRef<"th">  & { children: ReactNode }) => (
+  <th className={`${className} p-2 pb-4 text-center`} {...props} >
+    {children}
+  </th>
 );
 
 const Td = ({ className, ...props }: ComponentPropsWithRef<"td">) => (
@@ -142,7 +144,7 @@ export const StakeForOthersHistory = ({}: any) => {
             <Th className="hidden lg:table-cell">Status</Th>
             <Th className="hidden lg:table-cell">Lockup</Th>
             <Th>Start/End</Th>
-            <Th> </Th>
+            <Th> <button className="px-1 border rounded text-color-6 font-bold">TODO: Restake all </button> </Th>
           </tr>
         </thead>
         <Tbody />
