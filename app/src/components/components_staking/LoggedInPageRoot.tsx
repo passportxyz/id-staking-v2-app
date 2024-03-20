@@ -24,7 +24,7 @@ const LoggedInPageRoot = ({
     if (!isConnected || dbAccessTokenStatus !== "connected") {
       navigate("/");
     }
-  }, [isConnected, dbAccessTokenStatus]);
+  }, [isConnected, dbAccessTokenStatus, navigate]);
 
   return (
     <div className={`bg-background font-body ${className}`}>

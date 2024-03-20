@@ -1,13 +1,9 @@
-import React, { useCallback } from "react";
-import IdentityStakingAbi from "../../abi/IdentityStaking.json";
-import ERC20 from "../../abi/ERC20.json";
-import { useReadContract } from "wagmi";
+import React, { useMemo } from "react";
 import { StakeModal, DataLine } from "./StakeModal";
-import { DisplayAddressOrENS, DisplayDuration, formatAmount, formatDate, useConnectedChain } from "@/utils/helpers";
-import { useStakeTxHandler } from "@/hooks/hooks_staking/useStakeTxHandler";
-import { useStakeHistoryQueryKey } from "@/utils/stakeHistory";
+import { DisplayAddressOrENS, DisplayDuration, formatAmount, formatDate } from "@/utils/helpers";
 import { StakeData } from "@/utils/stakeHistory";
 import { parseEther } from "viem";
+import { useStakeTxWithApprovalCheck } from "@/hooks/hooks_staking/useStakeTxWithApprovalCheck";
 
 const useSelfStakeTx = ({
   address,
@@ -20,64 +16,25 @@ const useSelfStakeTx = ({
   lockedPeriodSeconds: bigint;
   onConfirm: () => void;
 }) => {
-  const connectedChain = useConnectedChain();
-  const queryKey = useStakeHistoryQueryKey(address);
   const valueToStake = parseEther(inputValue);
 
-  const allowanceCheck = useReadContract({
-    abi: ERC20,
-    address: connectedChain.gtcContractAddr,
-    functionName: "allowance",
-    chainId: connectedChain.id,
-    args: [address, connectedChain.stakingContractAddr],
-  });
-
-  const stakingHandler = useStakeTxHandler({ queryKey, txTitle: "Stake", onConfirm });
-
-  const submitStakeTx = () => {
+  const [functionName, functionArgs] = useMemo(() => {
     let functionName = "extendSelfStake";
     const args = [lockedPeriodSeconds];
     if (valueToStake > 0n) {
       functionName = "selfStake";
       args.unshift(valueToStake);
     }
-    stakingHandler.writeContract({
-      address: connectedChain.stakingContractAddr,
-      abi: IdentityStakingAbi,
-      chainId: connectedChain.id,
-      functionName,
-      args,
-    });
-  };
+    return [functionName, args];
+  }, [valueToStake, lockedPeriodSeconds]);
 
-  // Automatically call stakeTx once confirmed
-  const approvalHandler = useStakeTxHandler({ txTitle: "Spending approval", onConfirm: submitStakeTx });
-
-  const submitApprovalTx = () => {
-    approvalHandler.writeContract({
-      address: connectedChain.gtcContractAddr,
-      abi: ERC20,
-      functionName: "approve",
-      chainId: connectedChain.id,
-      args: [connectedChain.stakingContractAddr, valueToStake],
-    });
-  };
-
-  const selfStake = useCallback(() => {
-    const isSpendingApproved = allowanceCheck.isSuccess && (allowanceCheck.data as bigint) >= valueToStake;
-
-    if (!isSpendingApproved) {
-      // The staking tx will automatically trigger once the approval tx is confirmed
-      // due to the onConfirm callback in the approvalHandler
-      submitApprovalTx();
-    } else {
-      submitStakeTx();
-    }
-  }, [submitApprovalTx, submitStakeTx, address, connectedChain, valueToStake]);
-
-  const isLoading = approvalHandler.isLoading || stakingHandler.isLoading || allowanceCheck.isLoading;
-
-  return { selfStake, isLoading };
+  return useStakeTxWithApprovalCheck({
+    address,
+    requiredApprovalAmount: valueToStake,
+    functionName,
+    functionArgs,
+    onConfirm,
+  });
 };
 
 const UpdateModalDataLine = ({
@@ -171,7 +128,7 @@ export const SelfStakeModal = ({
 }) => {
   const lockedPeriodSeconds = BigInt(lockedPeriodMonths) * 30n * 24n * 60n * 60n;
 
-  const { selfStake, isLoading } = useSelfStakeTx({
+  const { stake, isLoading } = useSelfStakeTx({
     address,
     inputValue,
     lockedPeriodSeconds,
@@ -182,7 +139,7 @@ export const SelfStakeModal = ({
     <StakeModal
       title={stakeToUpdate ? "Update self stake" : "Stake on yourself"}
       buttonText={stakeToUpdate ? "Update stake" : "Stake"}
-      onButtonClick={selfStake}
+      onButtonClick={stake}
       buttonLoading={isLoading}
       isOpen={isOpen}
       onClose={onClose}

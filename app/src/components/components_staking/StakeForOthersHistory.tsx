@@ -1,4 +1,4 @@
-import React, { ComponentPropsWithRef, useEffect, useState } from "react";
+import React, { ComponentPropsWithRef, useCallback, useEffect, useState } from "react";
 import { PanelDiv } from "./PanelDiv";
 import { useWalletStore } from "@/context/walletStore";
 import { SelfRestakeModal } from "./SelfRestakeModal";
@@ -22,13 +22,15 @@ const Td = ({ className, ...props }: ComponentPropsWithRef<"td">) => (
 
 const CommunityRestakeButton = ({ stake, address }: { stake: StakeData; address: string }) => {
   const [modalIsOpen, setModalIsOpen] = useState(false);
+  const onClose = useCallback(() => setModalIsOpen(false), []);
+
   return (
     <>
       <CommunityRestakeModal
         address={address}
         stakedData={[stake]}
         isOpen={modalIsOpen}
-        onClose={() => setModalIsOpen(false)}
+        onClose={onClose}
       />
       <button onClick={() => setModalIsOpen(true)}>Restake</button>
     </>
