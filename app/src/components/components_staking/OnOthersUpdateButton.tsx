@@ -62,17 +62,17 @@ const useExtendCommunityStake = ({ onConfirm, address }: { onConfirm: () => void
     }
   }, [isReceiptError, receiptError, toast]);
 
-  // const extendCommunityStake = useCallback(
-  //   async (comunityAddress: string, lockSeconds: number) => {
-  //     writeContract({
-  //       address: "0xc80e07d81828960F613baa57288192E56d417dA5",
-  //       abi: IdentityStakingAbi,
-  //       functionName: "extendCommunityStake",
-  //       args: [comunityAddress, BigInt(lockSeconds)],
-  //     });
-  //   },
-  //   [writeContract]
-  // );
+  const extendCommunityStake = useCallback(
+    async (comunityAddress: string, lockSeconds: number) => {
+      writeContract({
+        address: "0xc80e07d81828960F613baa57288192E56d417dA5",
+        abi: IdentityStakingAbi,
+        functionName: "extendCommunityStake",
+        args: [comunityAddress, BigInt(lockSeconds)],
+      });
+    },
+    [writeContract]
+  );
 
   const isLoading = isPending || isConfirming;
 
