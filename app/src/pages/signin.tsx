@@ -12,7 +12,7 @@ import SIWEButton from "../components/SIWEButton";
 import { useDatastoreConnectionContext } from "../context/datastoreConnectionContext";
 import { useToast } from "@chakra-ui/react";
 import { DoneToastContent } from "../components/DoneToastContent";
-import { WebmVideo } from "../components/WebmVideo";
+import { PlatformCard, PlatformScoreSpec } from "../components/components_staking/PlatformCard";
 
 export default function Home() {
   const address = useWalletStore((state) => state.address);
@@ -20,7 +20,16 @@ export default function Home() {
   const connectError = useWalletStore((state) => state.error);
   const { connect: connectDatastore, dbAccessTokenStatus } = useDatastoreConnectionContext();
   const toast = useToast();
-  const [enableEthBranding, setEnableEthBranding] = useState(true);
+  const [enableEthBranding, setEnableEthBranding] = useState(false);
+
+  const gtcStakingStampPlatform: PlatformScoreSpec = {
+    name: "GTC Staking",
+    description: "Stake GTC to boost your trust in the Gitcoin ecosystem.",
+    possiblePoints: 7.57,
+    earnedPoints: 0,
+    icon: "./assets/gtcStakingLogoIcon.svg",
+    connectMessage: "Connect Wallet",
+  };
 
   const navigate = useNavigate();
 
@@ -53,6 +62,8 @@ export default function Home() {
   const signIn = async () => {
     await connectWallet(connectDatastore);
   };
+
+  const notificationClass = "flex items-center justify-between h-14 rounded-lg border w-1/3 bg-gradient-to-t from-background-6 to-background";
 
   return (
     <PageRoot className="text-color-2" backgroundGradientStyle="top-only">
@@ -96,14 +107,14 @@ export default function Home() {
 
         <div className="grid grid-cols-1">
           <div className="z-10 grid grid-flow-row grid-cols-2 gap-4 lg:grid-flow-col">
-            <div>
-              <div className="col-span-2 font-heading text-6xl lg:row-start-2">
-                BOOST YOUR
+            <div className="pr-16">
+              <div className="col-span-2 font-heading text-6xl lg:row-start-2 text-foreground-2">
+                Boost Your
                 <br />
-                PASSPORT SCORE
+                Passport Score
               </div>
               <div className="col-span-2 mb-4 text-2xl leading-none text-foreground-2 md:text-5xl"></div>
-              <div className="col-span-2 max-w-md text-lg lg:max-w-sm">
+              <div className="col-span-2 max-w-md text-lg lg:max-w-sm text-foreground">
                 Solidify your Passport identity with the GTC Staking Stamp. By staking GTC, you not only contribute to
                 the ecosystem&amp;s security but also enhance your Passport Score, gaining recognition and trust within
                 the community.
@@ -115,11 +126,14 @@ export default function Home() {
                 className="col-span-2 mt-4 lg:w-3/4"
               />
             </div>
-            <div>Right panel - TO BE DONE</div>
+            {/* <div>Right panel - TO BE DONE</div> */}
+            <div className="flex justify-center">
+              <PlatformCard platform={gtcStakingStampPlatform} className="ml-24 mt-12" />
+            </div>
           </div>
-          <div className="z-10 flex gap-8 justify-between pt-32">
-            <div className={`flex items-center justify-between h-14 rounded-lg border w-1/3`}>
-              <span className="px-8 text-xl">GTC Staked</span>
+          <div className="z-10 flex gap-8 justify-between pt-32 text-foreground-2">
+            <div className={notificationClass}>
+              <span className="px-8 text-l">GTC Staked</span>
               <div className="flex items-center rounded-lg border text-2xl h-full px-4 w-1/3">
                 <svg width="18" height="22" viewBox="0 0 18 22" fill="none" xmlns="http://www.w3.org/2000/svg">
                   <path
@@ -134,8 +148,8 @@ export default function Home() {
                 <span className="pl-2">1.5M</span>
               </div>
             </div>
-            <div className={`flex items-center justify-between h-14 rounded-lg border w-1/3`}>
-              <span className="px-8 text-xl">Stakers</span>
+            <div className={notificationClass}>
+              <span className="px-8 text-l">Stakers</span>
               <div className="flex items-center rounded-lg border text-2xl h-full px-4 w-1/3">
                 <svg width="24" height="20" viewBox="0 0 24 20" fill="none" xmlns="http://www.w3.org/2000/svg">
                   <path
@@ -155,8 +169,8 @@ export default function Home() {
                 <span className="pl-2">123K</span>
               </div>
             </div>
-            <div className={`flex items-center justify-between h-14 rounded-lg border w-1/3`}>
-              <span className="px-8 text-xl">Passport Stamps</span>
+            <div className={notificationClass}>
+              <span className="px-8 text-l">Passport Stamps</span>
               <div className="flex items-center rounded-lg border text-2xl h-full px-4 w-1/3">
                 <svg width="19" height="21" viewBox="0 0 19 21" fill="none" xmlns="http://www.w3.org/2000/svg">
                   <path
