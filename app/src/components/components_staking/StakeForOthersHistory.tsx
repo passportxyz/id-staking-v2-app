@@ -20,9 +20,7 @@ const Td = ({ className, ...props }: ComponentPropsWithRef<"td">) => (
   <td className={`${className} p-2 py-4 text-center`} {...props} />
 );
 
-const CommunityRestakeButton = (
-  { stake, address }: { stake: StakeData; address: string }
-) => {
+const CommunityRestakeButton = ({ stake, address }: { stake: StakeData; address: string }) => {
   const [modalIsOpen, setModalIsOpen] = useState(false);
   return (
     <>
@@ -37,7 +35,15 @@ const CommunityRestakeButton = (
   );
 };
 
-const CommunityUnstakeButton = ({ stake, address, unlocked }: { stake: StakeData; address: string; unlocked:boolean }) => {
+const CommunityUnstakeButton = ({
+  stake,
+  address,
+  unlocked,
+}: {
+  stake: StakeData;
+  address: string;
+  unlocked: boolean;
+}) => {
   const [modalIsOpen, setModalIsOpen] = useState(false);
   return (
     <>
@@ -47,7 +53,9 @@ const CommunityUnstakeButton = ({ stake, address, unlocked }: { stake: StakeData
         isOpen={modalIsOpen}
         onClose={() => setModalIsOpen(false)}
       />
-      <button onClick={() => setModalIsOpen(true)} disabled={unlocked}>Unstake</button>
+      <button onClick={() => setModalIsOpen(true)} disabled={unlocked}>
+        Unstake
+      </button>
     </>
   );
   return (
@@ -141,11 +149,8 @@ const StakeLine = ({ stake, address }: { stake: StakeData; address: string }) =>
 
           <Popover.Panel className="absolute z-10 inline-block">
             <div className="grid grid-rows-2 mx-10 border rounded p-1 border border-foreground-4 bg-gradient-to-b from-background to-background-6">
-              <CommunityRestakeButton
-                address={address}
-                stake={stake}
-              ></CommunityRestakeButton>
-              <CommunityUnstakeButton address={address} unlocked={unlocked} amount={stake.amount} />
+              <CommunityRestakeButton address={address} stake={stake} />
+              <CommunityUnstakeButton address={address} stake={stake} unlocked={unlocked}/>
             </div>
           </Popover.Panel>
         </Popover>

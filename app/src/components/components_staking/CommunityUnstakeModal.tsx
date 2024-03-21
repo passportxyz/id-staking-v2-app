@@ -115,7 +115,7 @@ export const CommunityUnstakeModal = ({
                   <BackdropEnabler />
                   <PanelDiv className="p-6 text-left text-color-1 align-middle">
                     <Dialog.Title className="text-3xl font-medium leading-6 text-color-6 my-12">
-                      Restake on others
+                      Unstake on others
                     </Dialog.Title>
                     <div className="mt-2">
                       <table className="w-full">
@@ -141,7 +141,7 @@ export const CommunityUnstakeModal = ({
                         onClick={() => unstakeCommunityStake(stakedData)}
                         isLoading={isLoading}
                       >
-                        Stake
+                        Unstake
                       </LoadButton>
                       <Button variant="custom" className="mt-4 px-8" onClick={onClose}>
                         Cancel
