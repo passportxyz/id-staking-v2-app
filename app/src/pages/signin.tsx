@@ -114,7 +114,7 @@ export default function Home() {
                 Passport Score
               </div>
               <div className="col-span-2 mb-4 text-2xl leading-none text-foreground-2 md:text-5xl"></div>
-              <div className="col-span-2 max-w-md text-lg lg:max-w-sm text-foreground">
+              <div className="col-span-2 max-w-md text-sm lg:max-w-sm text-foreground">
                 Solidify your Passport identity with the GTC Staking Stamp. By staking GTC, you not only contribute to
                 the ecosystem&amp;s security but also enhance your Passport Score, gaining recognition and trust within
                 the community.
