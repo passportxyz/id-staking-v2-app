@@ -85,7 +85,7 @@ const useExtendCommunityStake = ({ onConfirm, address }: { onConfirm: () => void
   );
 };
 
-const OnOthersUpdateModalPreview = ({
+const CommunityUpdateModalPreview = ({
   address,
   amount,
   lockSeconds,
@@ -230,7 +230,7 @@ export default function Modal({
   );
 }
 
-export const OnOthersUpdateButton = ({
+export const CommunityUpdateButton = ({
   lockSeconds,
   address,
   amount,
@@ -244,7 +244,7 @@ export const OnOthersUpdateButton = ({
 
   return (
     <>
-      <OnOthersUpdateModalPreview
+      <CommunityUpdateModalPreview
         address={address}
         amount={amount}
         lockSeconds={lockSeconds}

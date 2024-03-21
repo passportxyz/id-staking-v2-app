@@ -179,7 +179,7 @@ export const DisplayDuration = ({ seconds }: { seconds: number }) => {
 };
 
 // Provide custom max, or use defaults which scale with the screen size
-export const DisplayAddressOrENS = ({ user, max }: { user: string; max?: number }) => {
+export const DisplayAddressOrENS = ({ user, max, className }: { user: string; max?: number; className?:string }) => {
   const maxLen = max || 12;
 
   if (user.length <= maxLen) {
@@ -196,7 +196,7 @@ export const DisplayAddressOrENS = ({ user, max }: { user: string; max?: number 
   }
 
   return (
-    <div title={user} className="flex justify-center flex-nowrap">
+    <div title={user} className={` ${className} justify-center flex flex-nowrap `}>
       {user.slice(0, 4)}
       <span className="hidden md:flex">{user.slice(4, 7)}</span>...
       <span className="hidden md:flex">{user.slice(-5, -3)}</span>

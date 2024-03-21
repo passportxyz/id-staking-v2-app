@@ -5,10 +5,13 @@ import { SelfRestakeModal } from "./SelfRestakeModal";
 import { useDatastoreConnectionContext } from "@/context/datastoreConnectionContext";
 import { DisplayAddressOrENS, DisplayDuration, formatAmount, useConnectedChain } from "@/utils/helpers";
 import { StakeData, useStakeHistoryQuery } from "@/utils/stakeHistory";
-import { OnOthersUpdateButton } from "./OnOthersUpdateButton";
+import { CommunityUpdateButton } from "./CommunityUpdateButton";
+import { Popover } from "@headlessui/react";
+import { CommunityRestakeModal } from "./CommunityRestakeModal";
+import { CommunityUnstakeModal } from "./CommunityUnstakeModal";
 
-const Th = ({ className, children, ...props }: ComponentPropsWithRef<"th">  & { children: React.ReactNode }) => (
-  <th className={`${className} p-2 pb-4 text-center`} {...props} >
+const Th = ({ className, children, ...props }: ComponentPropsWithRef<"th"> & { children: React.ReactNode }) => (
+  <th className={`${className} p-2 pb-4 text-center`} {...props}>
     {children}
   </th>
 );
@@ -17,23 +20,15 @@ const Td = ({ className, ...props }: ComponentPropsWithRef<"td">) => (
   <td className={`${className} p-2 py-4 text-center`} {...props} />
 );
 
-const SelfRestakeButton = ({
-  lockSeconds,
-  address,
-  amount,
-}: {
-  lockSeconds: number;
-  address: string;
-  amount: string;
-}) => {
+const CommunityRestakeButton = (
+  { stake, address }: { stake: StakeData; address: string }
+) => {
   const [modalIsOpen, setModalIsOpen] = useState(false);
-
   return (
     <>
-      <SelfRestakeModal
+      <CommunityRestakeModal
         address={address}
-        amount={amount}
-        lockSeconds={lockSeconds}
+        stakedData={[stake]}
         isOpen={modalIsOpen}
         onClose={() => setModalIsOpen(false)}
       />
@@ -42,14 +37,26 @@ const SelfRestakeButton = ({
   );
 };
 
-const UnstakeButton = ({ stake, address, unlocked }: { stake: StakeData; address: string; unlocked: boolean }) => {
+const CommunityUnstakeButton = ({ stake, address, unlocked }: { stake: StakeData; address: string; unlocked:boolean }) => {
+  const [modalIsOpen, setModalIsOpen] = useState(false);
+  return (
+    <>
+      <CommunityUnstakeModal
+        address={address}
+        stakedData={[stake]}
+        isOpen={modalIsOpen}
+        onClose={() => setModalIsOpen(false)}
+      />
+      <button onClick={() => setModalIsOpen(true)} disabled={unlocked}>Unstake</button>
+    </>
+  );
   return (
     <button
       onClick={() => {
         // TODO: ....
-        console.log("Unstake:", stake);
+        console.log("Unstake:....");
       }}
-      disabled={!unlocked}
+      disabled={unlocked}
       className="disabled:text-color-5 disabled:cursor-not-allowed"
     >
       Unstake
@@ -104,7 +111,6 @@ const StakeLine = ({ stake, address }: { stake: StakeData; address: string }) =>
   const lockTimeStr = formatDate(lockTime);
 
   const lockSeconds = Math.floor((unlockTime.getTime() - lockTime.getTime()) / 1000);
-
   const unlocked = unlockTime < new Date();
 
   const amount = formatAmount(stake.amount);
@@ -125,10 +131,24 @@ const StakeLine = ({ stake, address }: { stake: StakeData; address: string }) =>
         <span className={unlocked ? "text-color-2" : "text-focus"}>{unlockTimeStr}</span>
       </Td>
       <Td className="pr-8 py-1">
-        <OnOthersUpdateButton lockSeconds={lockSeconds} amount={stake.amount} address={stake.stakee} />
-        {/* <SelfRestakeButton lockSeconds={lockSeconds} amount={stake.amount} address={stake.stakee} />
-        <br />
-        <UnstakeButton stake={stake} address={address} unlocked={unlocked} /> */}
+        <CommunityUpdateButton lockSeconds={lockSeconds} amount={stake.amount} address={stake.stakee} />
+      </Td>
+      <Td>
+        <Popover className="flex ">
+          <Popover.Button className={"h-5 w-5"}>
+            <img src="/assets/vertical-submenu.svg" />
+          </Popover.Button>
+
+          <Popover.Panel className="absolute z-10 inline-block">
+            <div className="grid grid-rows-2 mx-10 border rounded p-1 border border-foreground-4 bg-gradient-to-b from-background to-background-6">
+              <CommunityRestakeButton
+                address={address}
+                stake={stake}
+              ></CommunityRestakeButton>
+              <CommunityUnstakeButton address={address} unlocked={unlocked} amount={stake.amount} />
+            </div>
+          </Popover.Panel>
+        </Popover>
       </Td>
     </tr>
   );
@@ -146,7 +166,9 @@ export const StakeForOthersHistory = ({}: any) => {
             <Th className="hidden lg:table-cell">Status</Th>
             <Th className="hidden lg:table-cell">Lockup</Th>
             <Th>Start/End</Th>
-            <Th> <button className="px-1 border rounded text-color-6 font-bold">TODO: Restake all </button> </Th>
+            <Th>
+              <button className="px-1 border rounded text-color-6 font-bold">TODO: Restake all </button>
+            </Th>
           </tr>
         </thead>
         <Tbody />
