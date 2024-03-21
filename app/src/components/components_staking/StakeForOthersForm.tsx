@@ -291,8 +291,6 @@ const CommunityStakeModal = ({
       buttonText="Stake"
       onButtonClick={async () => {
         communityStake.stake();
-        // setIsLoading(isLoading);
-        // return onClose();
       }}
       buttonLoading={false}
       isOpen={isOpen}
