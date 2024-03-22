@@ -37,8 +37,6 @@ const CommunityRestakeAllButton = ({ stake, address }: { stake: StakeData[]; add
   const [modalIsOpen, setModalIsOpen] = useState(false);
   const onClose = useCallback(() => setModalIsOpen(false), []);
 
-  // TODO: 
-  // extendMultipleCommunityStake
   return (
     <>
       <CommunityRestakeModal
