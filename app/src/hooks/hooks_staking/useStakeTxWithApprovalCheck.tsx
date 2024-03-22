@@ -74,18 +74,29 @@ export const useStakeTxWithApprovalCheck = ({ address }: { address: `0x${string}
             args: [connectedChain.stakingContractAddr, requiredApprovalAmount],
           });
         } catch (e) {
+          setApprovalIsLoading(false);
           onTxError("Spending approval", e, toast);
         }
 
         if (hash) {
           try {
-            await waitForTransactionReceipt(wagmiConfig, {
+            const { status } = await waitForTransactionReceipt(wagmiConfig, {
               hash,
               chainId: connectedChain.id as (typeof wagmiConfig)["chains"][number]["id"],
             });
+            if (status !== "success") {
+              onTxReceiptError(
+                "Spending approval",
+                hash,
+                new Error("Transaction failed"),
+                toast,
+                connectedChain.explorer
+              );
+            }
             setApprovalIsLoading(false);
             submitStakeTx(functionName, functionArgs);
           } catch (e) {
+            setApprovalIsLoading(false);
             onTxReceiptError("Spending approval", hash, e, toast, connectedChain.explorer);
           }
         }

@@ -1,9 +1,6 @@
 import React, { ComponentPropsWithRef, useCallback, useEffect, useState } from "react";
 import { PanelDiv } from "./PanelDiv";
 import { useWalletStore } from "@/context/walletStore";
-import IdentityStakingAbi from "../../abi/IdentityStaking.json";
-import { SelfRestakeModal } from "./SelfRestakeModal";
-import { useDatastoreConnectionContext } from "@/context/datastoreConnectionContext";
 import { DisplayAddressOrENS, DisplayDuration, formatAmount, useConnectedChain } from "@/utils/helpers";
 import { StakeData, useStakeHistoryQuery } from "@/utils/stakeHistory";
 import { CommunityUpdateButton } from "./CommunityUpdateButton";
@@ -39,13 +36,10 @@ const CommunityRestakeAllButton = ({ stake, address }: { stake: StakeData[]; add
 
   return (
     <>
-      <CommunityRestakeModal
-        address={address}
-        stakedData={stake}
-        isOpen={modalIsOpen}
-        onClose={onClose}
-      />
-     <button className="px-1 border rounded text-color-6 font-bold" onClick={() => setModalIsOpen(true)}>Restake all </button>
+      <CommunityRestakeModal address={address} stakedData={stake} isOpen={modalIsOpen} onClose={onClose} />
+      <button className="px-1 border rounded text-color-6 font-bold" onClick={() => setModalIsOpen(true)}>
+        Restake all{" "}
+      </button>
     </>
   );
 };
@@ -68,7 +62,11 @@ const CommunityUnstakeButton = ({
         isOpen={modalIsOpen}
         onClose={() => setModalIsOpen(false)}
       />
-      <button className="disabled:text-color-5 disabled:cursor-not-allowed" onClick={() => setModalIsOpen(true)} disabled={!unlocked}>
+      <button
+        className="disabled:text-color-5 disabled:cursor-not-allowed"
+        onClick={() => setModalIsOpen(true)}
+        disabled={!unlocked}
+      >
         Unstake
       </button>
     </>
@@ -141,7 +139,7 @@ const StakeLine = ({ stake, address }: { stake: StakeData; address: string }) =>
         <span className={unlocked ? "text-color-2" : "text-focus"}>{unlockTimeStr}</span>
       </Td>
       <Td className="pr-8 py-1">
-        <CommunityUpdateButton lockSeconds={lockSeconds} amount={stake.amount} address={stake.stakee} />
+        <CommunityUpdateButton stake={stake} />
       </Td>
       <Td>
         <Popover className="flex ">
@@ -150,7 +148,7 @@ const StakeLine = ({ stake, address }: { stake: StakeData; address: string }) =>
           </Popover.Button>
 
           <Popover.Panel className="absolute z-10 inline-block">
-            <div className="grid grid-rows-2 mx-10 border rounded p-1 border border-foreground-4 bg-gradient-to-b from-background to-background-6">
+            <div className="grid grid-rows-2 mx-10 rounded p-1 border border-foreground-4 bg-gradient-to-b from-background to-background-6">
               <CommunityRestakeButton address={address} stake={stake} />
               <CommunityUnstakeButton address={address} stake={stake} unlocked={unlocked} />
             </div>
@@ -171,12 +169,14 @@ export const StakeForOthersHistory = ({}: any) => {
   );
 
   let restakeAllBtn;
-  console.log(" stakeForOthersHistory = ",stakeForOthersHistory);
-  console.log("stakeForOthersHistory type", typeof stakeForOthersHistory)
   if (!isPending && !isError && address && stakeForOthersHistory && stakeForOthersHistory.length > 0) {
-    restakeAllBtn = <CommunityRestakeAllButton address={address} stake={stakeForOthersHistory}/>
+    restakeAllBtn = <CommunityRestakeAllButton address={address} stake={stakeForOthersHistory} />;
   } else {
-    restakeAllBtn = <button className="px-1 border rounded text-color-6 font-bold disabled:text-color-5 disabled:cursor-not-allowed">Restake all </button>
+    restakeAllBtn = (
+      <button className="px-1 border rounded text-color-6 font-bold disabled:text-color-5 disabled:cursor-not-allowed">
+        Restake all{" "}
+      </button>
+    );
   }
 
   return (
@@ -190,9 +190,7 @@ export const StakeForOthersHistory = ({}: any) => {
             <Th className="hidden lg:table-cell">Status</Th>
             <Th className="hidden lg:table-cell">Lockup</Th>
             <Th>Start/End</Th>
-            <Th>
-              {restakeAllBtn}
-            </Th>
+            <Th>{restakeAllBtn}</Th>
           </tr>
         </thead>
         <Tbody />
