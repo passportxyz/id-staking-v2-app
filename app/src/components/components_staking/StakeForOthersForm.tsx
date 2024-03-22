@@ -31,7 +31,7 @@ type CommunityStakeChainParams = {
   stakee: `0x${string}`;
   amount: bigint;
   lockedPeriodsSeconds: bigint;
-}
+};
 
 type CommunityStake = CommunityStakeInputs & CommunityStakeChainParams;
 
@@ -194,7 +194,7 @@ export const StakeForOthersForm = () => {
       lockedPeriodMonths: 3,
       lockedPeriodsSeconds: 3n * 30n * 24n * 60n * 60n,
       amount: 0n,
-      stakee:"0x0"
+      stakee: "0x0",
     });
     event.preventDefault();
   };
@@ -281,7 +281,6 @@ const CommunityStakeModal = ({
     },
   });
 
-
   const [isLoading, setIsLoading] = useState(false);
 
   const connectedChain = useConnectedChain();
@@ -304,145 +303,6 @@ const CommunityStakeModal = ({
     >
       <div>
         <DataLine label="Stay tuned ..." value={"... comming soon"} />
-      </div>
-    </StakeModal>
-  );
-
-  const toast = useToast();
-  const writeContract = useWriteContract();
-  const walletChainId = useWalletStore((state) => state.chain);
-  const valueToStake = ethers.parseUnits(inputValue || "0", 18);
-
-  const setWalletChain = useWalletStore((state) => state.setChain);
-  const allowanceCheck = useReadContract({
-    abi: ERC20,
-    address: connectedChain.gtcContractAddr,
-    functionName: "allowance",
-    chainId: connectedChain.id,
-    args: [address, connectedChain.stakingContractAddr],
-  });
-  const isSpendingApproved = allowanceCheck.isSuccess && inputValue && (allowanceCheck.data as bigint) >= valueToStake;
-
-  const stakeGtc = () => {
-    const lockedPeriodSeconds: BigInt = BigInt(lockedPeriod) * 30n * 24n * 60n * 60n;
-
-    writeContract.writeContract(
-      {
-        address: connectedChain.stakingContractAddr,
-        abi: IdentityStakingAbi,
-        functionName: "selfStake",
-        chainId: connectedChain.id,
-        args: [valueToStake, lockedPeriodSeconds],
-      },
-      {
-        onSuccess: async (hash) => {
-          // on Success
-
-          const transactionReceipt = await waitForTransactionReceipt(wagmiConfig, {
-            hash: hash,
-          });
-
-          if (transactionReceipt.status === "success") {
-            toast(makeSuccessToastProps("Success", "Stake transaction confirmed"));
-            setIsLoading(false);
-            onClose();
-          } else {
-            // toast error
-            console.log(`Approving error. Transaction hash '${hash}'`);
-            toast(
-              makeErrorToastProps("Approving error", `Transaction details'${connectedChain.explorer + "/" + hash}'`)
-            );
-            setIsLoading(false);
-          }
-        },
-        onError: (error) => {
-          console.log("staking error: ", error.name, error.message);
-          toast(makeErrorToastProps(error.name, error.message));
-          // on Error
-          setIsLoading(false);
-          onClose();
-        },
-      }
-    );
-  };
-
-  const handleStake = async () => {
-    setIsLoading(true);
-
-    if (walletChainId !== connectedChain.id) {
-      try {
-        const switchResult = await switchChain(wagmiConfig, {
-          chainId: connectedChain.id as (typeof wagmiConfig)["chains"][number]["id"],
-        });
-        console.log("geri switchResult", switchResult);
-      } catch (error: any) {
-        console.log("error switch chain", error);
-
-        toast(makeErrorToastProps("Failed to switch chain:", error.message));
-        return;
-      }
-    }
-
-    if (isSpendingApproved) {
-      stakeGtc();
-    } else {
-      // Allow
-      const approveSpending = writeContract.writeContract(
-        {
-          address: connectedChain.gtcContractAddr,
-          abi: ERC20,
-          functionName: "approve",
-          chainId: connectedChain.id,
-          args: [connectedChain.stakingContractAddr, valueToStake],
-        },
-        {
-          onSuccess: async (hash) => {
-            // on Success
-            // spending is now approved, stake the GTC
-            const transactionReceipt = await waitForTransactionReceipt(wagmiConfig, {
-              hash: hash,
-            });
-            console.log("transactionReceipt.status - ", transactionReceipt.status);
-            if (transactionReceipt.status === "success") {
-              stakeGtc();
-            } else {
-              // toast error
-              console.log(`Approving error. Transaction hash '${hash}'`);
-              toast(
-                makeErrorToastProps("Approving error", `Transaction details'${connectedChain.explorer + "/" + hash}'`)
-              );
-              setIsLoading(false);
-            }
-          },
-          onError: (error) => {
-            // on Error
-            console.log("approving error: ", error.name, error.message);
-            toast(makeErrorToastProps(error.name, error.message));
-            setIsLoading(false);
-          },
-        }
-      );
-    }
-  };
-  // const lockedPeriodSeconds: BigInt = BigInt(lockedPeriod) * 30n * 24n * 60n * 60n;
-  return (
-    <StakeModal
-      title="Stake on yourself"
-      buttonText="Stake"
-      onButtonClick={() => handleStake()}
-      buttonLoading={isLoading}
-      isOpen={isOpen}
-      onClose={() => {
-        setIsLoading(false);
-        return onClose();
-      }}
-    >
-      <div>
-        <DataLine label="Address" value={<DisplayAddressOrENS user={address} />} />
-        <hr className="border-foreground-4" />
-        <DataLine label="Amount" value={`${inputValue} GTC`} />
-        <hr className="border-foreground-4" />
-        <DataLine label="Lockup" value={<div>{lockedPeriod} months</div>} />
       </div>
     </StakeModal>
   );
