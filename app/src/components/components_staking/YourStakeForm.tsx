@@ -32,7 +32,7 @@ export const YourStakeForm: React.FC = ({}) => {
       } else {
         setLockedPeriod(3);
       }
-      setPreviousUnlockTime(undefined);
+      setPreviousUnlockTime(unlockTime);
     } else {
       setPreviousUnlockTime(undefined);
     }
