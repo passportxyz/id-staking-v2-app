@@ -129,7 +129,6 @@ export const formatSeconds = (seconds: number) => {
   const month = Math.floor(duration.asMonths());
   duration.subtract(month, "months");
   const day = Math.floor(duration.asDays());
-  console.log(`LARISA New: year: ${year}, month: ${month} , weeks: ${weeks} , days: ${day}}`)
 
   return {
     year,
@@ -170,7 +169,6 @@ export const DisplayDuration = ({ seconds }: { seconds: number }) => {
     duration.subtract(month, "months");
     const day = Math.floor(duration.asDays());
 
-    console.log(`LARISA original: year: ${year}, month: ${month} , weeks: ${weeks} , days: ${day}}`)
     Object.entries({ year, month, day }).forEach(([key, part]) => {
       [tempShort, tempLong] = addPartToTimeDescriptions(key, part, tempShort, tempLong);
     });

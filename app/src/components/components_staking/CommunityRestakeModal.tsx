@@ -18,20 +18,38 @@ const useExtendCommunityStake = ({ onConfirm, address }: { onConfirm: () => void
 
   const extendCommunityStake = useCallback(
     async (stakedData: StakeData[]) => {
-      stakedData.map((stake, index) => {
-
-        const unlockTime = new Date(stake.unlock_time);
-        const lockTime = new Date(stake.lock_time);
+      if (stakedData.length == 1) {
+        const unlockTime = new Date(stakedData[0].unlock_time);
+        const lockTime = new Date(stakedData[0].lock_time);
 
         const lockSeconds = Math.floor((unlockTime.getTime() - lockTime.getTime()) / 1000);
         
-        writeContract({
+        return writeContract({
           address: chain.stakingContractAddr,
           abi: IdentityStakingAbi,
           functionName: "extendCommunityStake",
-          args: [stake.stakee, BigInt(lockSeconds)],
+          args: [stakedData[0].stakee, BigInt(lockSeconds)],
         });
-      })
+
+      } else {
+        const stakeeList = stakedData.map((stake) => stake.stakee);
+        const lockedList = stakedData.map((stake) => {
+          const unlockTime = new Date(stake.unlock_time);
+          const lockTime = new Date(stake.lock_time);
+
+          const lockSeconds = Math.floor((unlockTime.getTime() - lockTime.getTime()) / 1000);
+          return lockSeconds
+        });
+
+        return writeContract({
+          address: chain.stakingContractAddr,
+          abi: IdentityStakingAbi,
+          functionName: "extendMultipleCommunityStake",
+          args: [stakeeList, lockedList],
+        });
+
+      }
+
       
     },
     [writeContract]
@@ -135,7 +153,7 @@ export const CommunityRestakeModal = ({
 
                         <tbody>
                           {stakedData.map((stake, index) => (
-                            <StakeLine key={0} stake={stake} />
+                            <StakeLine key={index} stake={stake} />
                           ))}
                         </tbody>
                       </table>
