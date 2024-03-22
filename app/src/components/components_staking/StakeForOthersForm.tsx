@@ -105,9 +105,7 @@ export const StakeForOthersForm = () => {
     />
   ) : null;
 
-  console.log("stakeSections", stakeSections);
   const addStakeSelection = (event: MouseEvent<HTMLAnchorElement>) => {
-    console.log("addStakeSelection");
     setStakeSections([...stakeSections, <StakeForOthersFormSection key={stakeSections.length} />]);
     event.preventDefault();
   };

@@ -1,4 +1,4 @@
-import React, { useEffect, Fragment, useState, useCallback, useMemo } from "react";
+import React, { useEffect, Fragment, useState, useCallback, useMemo, ChangeEvent } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import { makeErrorToastProps, makeSuccessToastProps } from "../DoneToastContent";
 import { useToast } from "@chakra-ui/react";
@@ -12,7 +12,6 @@ import { Button } from "../Button";
 import { LoadButton } from "../LoadButton";
 import { BackdropEnabler } from "./Backdrop";
 import { YourStakeForm, FormButton } from "./YourStakeForm";
-
 
 const DataLine = ({ label, value }: { label: string; value: React.ReactNode }) => (
   <div className="flex justify-between py-2">
@@ -85,7 +84,7 @@ const useExtendCommunityStake = ({ onConfirm, address }: { onConfirm: () => void
   );
 };
 
-const OnOthersUpdateModalPreview = ({
+const CommunityUpdateModalPreview = ({
   address,
   amount,
   lockSeconds,
@@ -99,6 +98,15 @@ const OnOthersUpdateModalPreview = ({
   onClose: () => void;
 }) => {
   const { isLoading, extendCommunityStake } = useExtendCommunityStake({ onConfirm: onClose, address });
+  const [updatedAmount, setUpdatedAmountValue] = useState<number>(formatAmount(amount));
+ 
+  const handleAddValue = (added: number) => {
+    setUpdatedAmountValue(updatedAmount + added)
+  };
+  const handleInputChange = (event: ChangeEvent<HTMLInputElement>) => {
+    setUpdatedAmountValue(Number(event.target.value));
+  };
+  
   return (
     <Modal
       title="Update stake on others"
@@ -109,27 +117,31 @@ const OnOthersUpdateModalPreview = ({
       onClose={onClose}
     >
       <div>
-      <div className="row-span-1 text-color-2">Address</div>
-      <div className="px-5 border rounded opacity-50 bg-gradient-to-r from-foreground-2 to-foreground-4 text-color-4"><input type="text" value={address} disabled /></div>
-      <br/>
-      <div className="row-span-1 text-color-2">Amount</div>
-      <div className="border rounded text-color-2 bg-background"><input className="pl-5 w-full bg-background" type="text" value={amount} /></div>
-      
-      <br/>
-      <div className="gap-2 place-content-end hidden lg:flex col-span-2 text-color-4">
-          {["+5", "+20", "+125"].map((amount) => (
-            <FormButton
-              key={amount}
-              // onClick={() => handleAddFixedValue(amount)}
-              className="w-12"
-              variant={amount === "..." ? "active" : "inactive"}
-            >
-              {amount}
+        <div className="row-span-1 text-color-2">Address</div>
+        <div className="px-5 border rounded opacity-50 bg-gradient-to-r from-foreground-2 to-foreground-4 text-color-4">
+          <input type="text" value={address} disabled />
+        </div>
+        <br />
+        <div className="row-span-1 text-color-2">Amount</div>
+        <div className="border rounded text-color-2 bg-background">
+          <input
+            className="pl-5 w-full bg-background"
+            type="text"
+            value={updatedAmount}
+            onChange={handleInputChange}
+          />
+        </div>
+
+        <br />
+        <div className="gap-2 place-content-end hidden lg:flex col-span-2 text-color-4">
+          {[5, 20, 125].map((amount) => (
+            <FormButton key={amount} onClick={() => handleAddValue(amount)} className="w-12" variant="inactive">
+              {`+${amount}`}
             </FormButton>
           ))}
         </div>
 
-        <br/>
+        <br />
         <div className="row-span-1 text-color-2">Lockup period</div>
         <div className="flex col-span-3 w-full col-end-[-1] text-sm gap-2 justify-self-end">
           {["3", "6", "12"].map((months) => (
@@ -143,7 +155,7 @@ const OnOthersUpdateModalPreview = ({
             </FormButton>
           ))}
         </div>
-        <br/>
+        <br />
 
         {/* <DataLine label="Address" value={<DisplayAddressOrENS user={address} />} />
         <hr className="border-foreground-4" />
@@ -230,7 +242,7 @@ export default function Modal({
   );
 }
 
-export const OnOthersUpdateButton = ({
+export const CommunityUpdateButton = ({
   lockSeconds,
   address,
   amount,
@@ -244,14 +256,14 @@ export const OnOthersUpdateButton = ({
 
   return (
     <>
-      <OnOthersUpdateModalPreview
+      <CommunityUpdateModalPreview
         address={address}
         amount={amount}
         lockSeconds={lockSeconds}
         isOpen={previewModalIsOpen}
         onClose={() => setPreviewModalIsOpen(false)}
       />
- 
+
       <button onClick={() => setPreviewModalIsOpen(true)} className="text-color-6 font-bold">
         Update stake
       </button>
