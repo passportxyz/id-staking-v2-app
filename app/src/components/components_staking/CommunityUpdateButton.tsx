@@ -1,7 +1,7 @@
-import React, { useState, useCallback, useMemo, ChangeEvent, useEffect } from "react";
+import React, { useState, useCallback, useMemo, ChangeEvent, useEffect, ComponentPropsWithRef } from "react";
 import IdentityStakingAbi from "../../abi/IdentityStaking.json";
 import { useStakeHistoryQueryKey } from "@/utils/stakeHistory";
-import { formatAmount, formatSeconds, useConnectedChain } from "@/utils/helpers";
+import { DisplayAddressOrENS, DisplayDuration, formatAmount, formatSeconds, useConnectedChain } from "@/utils/helpers";
 import { FormButton } from "./StakeFormInputSection";
 import { useStakeTxHandler } from "@/hooks/hooks_staking/useStakeTxHandler";
 import { StakeModal } from "./StakeModal";
@@ -21,7 +21,7 @@ const useExtendCommunityStake = ({ address }: { address: string }) => {
         address: chain.stakingContractAddr,
         abi: IdentityStakingAbi,
         functionName: "communityStake",
-        args: [communityAddress, valueToStake, BigInt(lockSeconds)], 
+        args: [communityAddress, valueToStake, BigInt(lockSeconds)],
       });
     },
     [writeContract, chain.stakingContractAddr]
@@ -34,6 +34,82 @@ const useExtendCommunityStake = ({ address }: { address: string }) => {
       isConfirmed,
     }),
     [isLoading, extendCommunityStake, isConfirmed]
+  );
+};
+
+const Th = ({ className, children, ...props }: ComponentPropsWithRef<"th"> & { children: React.ReactNode }) => (
+  <th className={`${className} p-2 pb-4 text-color-6`} {...props}>
+    {children}
+  </th>
+);
+
+const Td = ({ className, ...props }: ComponentPropsWithRef<"td">) => (
+  <td className={`${className} p-2 py-4`} {...props} />
+);
+
+const StakeLine = ({ address, amount, lockedMonths }: { address: string, amount: number, lockedMonths:number }) => {
+
+  const lockSeconds = lockedMonths * 30 * 24 * 60 * 60;
+
+  return (
+    <tr>
+      <Td className="text-start">
+        <DisplayAddressOrENS className="justify-start" user={address} />
+      </Td>
+      <Td className="text-end">{amount} GTC</Td>
+      <Td className="text-end">
+        <div>{lockedMonths} months</div>
+      </Td>
+    </tr>
+  );
+};
+
+const CommunityUpdateModal = ({
+  address,
+  amount,
+  lockedMonths,
+  isOpen,
+  onClose,
+}: {
+  address: string;
+  amount: number;
+  lockedMonths: number;
+  isOpen: boolean;
+  onClose: () => void;
+}) => {
+  const { isLoading, extendCommunityStake, isConfirmed } = useExtendCommunityStake({ address });
+
+  useEffect(() => {
+    if (isConfirmed) {
+      onClose();
+    }
+  }, [isConfirmed, onClose]);
+
+  return (
+    <StakeModal
+      title="Update stake on others"
+      buttonText="Update Stake"
+      onButtonClick={() => extendCommunityStake(address, amount, lockedMonths)}
+      buttonLoading={isLoading}
+      isOpen={isOpen}
+      onClose={onClose}
+    >
+      <div className="mt-2">
+        <table className="w-full">
+          <thead>
+            <tr className="border-b pb-6 border-foreground-4">
+              <Th className="text-start">Address</Th>
+              <Th className="text-end">Amount</Th>
+              <Th className="text-end">Lockup</Th>
+            </tr>
+          </thead>
+
+          <tbody>
+              <StakeLine key={0} address={address} amount={amount} lockedMonths={lockedMonths}/>
+          </tbody>
+        </table>
+      </div>
+    </StakeModal>
   );
 };
 
@@ -52,7 +128,8 @@ const CommunityUpdateModalPreview = ({
 }) => {
   const { isLoading, extendCommunityStake, isConfirmed } = useExtendCommunityStake({ address });
   const [updatedAmount, setUpdatedAmountValue] = useState<number>(formatAmount(amount));
-  const [updatedLockedPeriod, setUpdatedLockedPeriod] = useState<number>(formatSeconds(lockSeconds).month);
+  const [updatedLockedMonths, setUpdatedLockedMonths] = useState<number>(formatSeconds(lockSeconds).month);
+  
   useEffect(() => {
     if (isConfirmed) {
       onClose();
@@ -67,14 +144,29 @@ const CommunityUpdateModalPreview = ({
   };
 
   const handleLockedPeriod = (month: number) => {
-    setUpdatedLockedPeriod(month);
+    setUpdatedLockedMonths(month);
   };
+ 
+  const [updateModalIsOpen, setUpdateModalIsOpen] = useState(false);
+
+  const onCloseUpdate = useCallback(() => {
+    setUpdateModalIsOpen(false);
+  }, []);
 
   return (
+    <>
+      <CommunityUpdateModal
+        address={address}
+        amount={updatedAmount}
+        lockedMonths={updatedLockedMonths}
+        isOpen={updateModalIsOpen}
+        onClose={onCloseUpdate}
+      />
+
     <StakeModal
       title="Update stake on others"
       buttonText="Preview"
-      onButtonClick={() => extendCommunityStake(address, updatedLockedPeriod, updatedAmount)}
+      onButtonClick={() => {onClose(); setUpdateModalIsOpen(true)}}
       buttonLoading={isLoading}
       isOpen={isOpen}
       onClose={onClose}
@@ -112,7 +204,7 @@ const CommunityUpdateModalPreview = ({
               key={months}
               onClick={() => handleLockedPeriod(months)}
               className="text-sm w-full"
-              variant={months === updatedLockedPeriod ? "active" : "inactive"}
+              variant={months === updatedLockedMonths ? "active" : "inactive"}
             >
               {months} months
             </FormButton>
@@ -121,6 +213,7 @@ const CommunityUpdateModalPreview = ({
         <br />
       </div>
     </StakeModal>
+    </>
   );
 };
 

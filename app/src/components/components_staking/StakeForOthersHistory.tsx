@@ -171,8 +171,6 @@ export const StakeForOthersHistory = ({}: any) => {
   );
 
   let restakeAllBtn;
-  console.log(" stakeForOthersHistory = ",stakeForOthersHistory);
-  console.log("stakeForOthersHistory type", typeof stakeForOthersHistory)
   if (!isPending && !isError && address && stakeForOthersHistory && stakeForOthersHistory.length > 0) {
     restakeAllBtn = <CommunityRestakeAllButton address={address} stake={stakeForOthersHistory}/>
   } else {
