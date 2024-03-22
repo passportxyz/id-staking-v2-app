@@ -1,12 +1,10 @@
-import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import { chainConfigs, ChainConfig, wagmiConfig } from "@/utils/chains";
 import { useBalance } from "wagmi";
 import { useWalletStore } from "@/context/walletStore";
 import { DropDownIcon } from "./DropDownIcon";
 import { useConnectedChain, useOutsideClick } from "@/utils/helpers";
 import { switchChain } from "@wagmi/core";
-import { useToast } from "@chakra-ui/react";
-import { makeErrorToastProps } from "../DoneToastContent";
 
 const ChainMenuItem = ({
   chain,
@@ -14,6 +12,7 @@ const ChainMenuItem = ({
   menuIsOpen,
   onMenuOpen,
   onMenuItemSelect,
+  isPendingWalletApproval,
   className,
 }: {
   chain: ChainConfig;
@@ -21,6 +20,7 @@ const ChainMenuItem = ({
   menuIsOpen: boolean;
   onMenuOpen: () => void;
   onMenuItemSelect: () => void;
+  isPendingWalletApproval: boolean;
   className?: string;
 }) => {
   const address = useWalletStore((state) => state.address);
@@ -44,10 +44,12 @@ const ChainMenuItem = ({
       onClick={() => (menuIsOpen ? onMenuItemSelect() : onMenuOpen())}
     >
       <div
-        className={`h-full text-lg items-center px-4 ${!(isSelected || menuIsOpen) ? "hidden" : "flex"} ${className}`}
+        className={`h-full text-lg items-center px-4 ${isPendingWalletApproval ? "animate-pulse" : ""} ${
+          !(isSelected || menuIsOpen) ? "hidden" : "flex"
+        } ${className}`}
       >
         <img src={chain.icon} className="h-6 w-5" />
-        <div className="mx-4 grow">GTC Balance </div>
+        <div className="mx-4 grow">{isPendingWalletApproval ? "Approve in wallet..." : "GTC Balance"}</div>
         <img src="/assets/gitcoinLogoGreen.svg" alt="Gitcoin Logo" />
         <div className="mx-2 font-bold">{formattedBalance}</div>
         <DropDownIcon
@@ -100,6 +102,7 @@ export const NetworkDropdown: React.FC = ({}) => {
               isSelected={!idx}
               menuIsOpen={menuIsOpen}
               onMenuOpen={() => idx || setMenuIsOpen(true)}
+              isPendingWalletApproval={tempSelectedChain.id !== selectedChain.id}
               onMenuItemSelect={async () => {
                 const oldChain = selectedChain;
                 setTempSelectedChain(chain);

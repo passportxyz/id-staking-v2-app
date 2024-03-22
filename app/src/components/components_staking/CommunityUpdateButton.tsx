@@ -11,7 +11,7 @@ import { DisplayAddressOrENS, DisplayDuration, formatAmount } from "@/utils/help
 import { Button } from "../Button";
 import { LoadButton } from "../LoadButton";
 import { BackdropEnabler } from "./Backdrop";
-import { YourStakeForm, FormButton } from "./YourStakeForm";
+import { FormButton } from "./StakeFormInputSection";
 
 const DataLine = ({ label, value }: { label: string; value: React.ReactNode }) => (
   <div className="flex justify-between py-2">

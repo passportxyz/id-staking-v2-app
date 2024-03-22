@@ -40,7 +40,7 @@ export const useStakeTxHandler = ({
         }
       }
     })();
-  }, [isConfirmed, toast, queryClient, queryKey]);
+  }, [isConfirmed, toast, queryClient, queryKey, txTitle, onConfirm]);
 
   useEffect(() => {
     if (isError) {
@@ -57,7 +57,7 @@ export const useStakeTxHandler = ({
         )
       );
     }
-  }, [error, toast]);
+  }, [error, toast, txTitle, isError]);
 
   useEffect(() => {
     if (isReceiptError) {
@@ -74,7 +74,7 @@ export const useStakeTxHandler = ({
         )
       );
     }
-  }, [isReceiptError, receiptError, toast]);
+  }, [isReceiptError, receiptError, toast, txTitle, hash, connectedChain.explorer]);
 
   const isLoading = isPending || isConfirming;
 

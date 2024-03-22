@@ -1,10 +1,9 @@
-import React, { ComponentPropsWithRef, useEffect, useState } from "react";
+import React, { ComponentPropsWithRef, useCallback, useEffect, useState } from "react";
 import { PanelDiv } from "./PanelDiv";
 import { useWalletStore } from "@/context/walletStore";
 import { SelfRestakeModal } from "./SelfRestakeModal";
 import { DisplayAddressOrENS, DisplayDuration, formatAmount, formatDate } from "@/utils/helpers";
 import { StakeData, useYourStakeHistoryQuery } from "@/utils/stakeHistory";
-import { useChainId } from "wagmi";
 import { SelfUnstakeModal } from "./SelfUnstakeModal";
 
 const Th = ({ className, ...props }: ComponentPropsWithRef<"th">) => (
@@ -25,6 +24,7 @@ const SelfRestakeButton = ({
   amount: string;
 }) => {
   const [modalIsOpen, setModalIsOpen] = useState(false);
+  const onClose = useCallback(() => setModalIsOpen(false), []);
 
   return (
     <>
@@ -33,7 +33,7 @@ const SelfRestakeButton = ({
         amount={amount}
         lockSeconds={lockSeconds}
         isOpen={modalIsOpen}
-        onClose={() => setModalIsOpen(false)}
+        onClose={onClose}
       />
       <button onClick={() => setModalIsOpen(true)}>Restake</button>
     </>
@@ -42,10 +42,11 @@ const SelfRestakeButton = ({
 
 const SelfUnstakeButton = ({ address, unlocked, amount }: { address: string; unlocked: boolean; amount: string }) => {
   const [modalIsOpen, setModalIsOpen] = useState(false);
+  const onClose = useCallback(() => setModalIsOpen(false), []);
 
   return (
     <>
-      <SelfUnstakeModal address={address} amount={amount} isOpen={modalIsOpen} onClose={() => setModalIsOpen(false)} />
+      <SelfUnstakeModal address={address} amount={amount} isOpen={modalIsOpen} onClose={onClose} />
       <button
         onClick={() => setModalIsOpen(true)}
         disabled={!unlocked}

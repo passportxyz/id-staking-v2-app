@@ -1,4 +1,4 @@
-import React, { ButtonHTMLAttributes, ChangeEvent, MouseEvent, useState, useMemo } from "react";
+import React, { ButtonHTMLAttributes, ChangeEvent, MouseEvent, useState, useMemo, useCallback, useEffect } from "react";
 import { Button } from "@/components/Button";
 import { PanelDiv } from "./PanelDiv";
 import IdentityStakingAbi from "../../abi/IdentityStaking.json";
@@ -6,107 +6,196 @@ import ERC20 from "../../abi/ERC20.json";
 import { useWriteContract, useReadContract, useAccount } from "wagmi";
 import { waitForTransactionReceipt } from "@wagmi/core";
 import { switchChain } from "@wagmi/core";
-import { ChainConfig, wagmiConfig } from "@/utils/chains";
+import { wagmiConfig } from "@/utils/chains";
 import { makeErrorToastProps, makeSuccessToastProps } from "../DoneToastContent";
 import { useToast } from "@chakra-ui/react";
 import { useWalletStore } from "@/context/walletStore";
 import { ethers } from "ethers";
 import { StakeModal, DataLine } from "./StakeModal";
 import { DisplayAddressOrENS, useConnectedChain } from "@/utils/helpers";
-import { YourStakeForm, FormButton } from "./YourStakeForm";
+import { FormButton, StakeFormInputSection } from "./StakeFormInputSection";
+import { useStakeTxWithApprovalCheck } from "@/hooks/hooks_staking/useStakeTxWithApprovalCheck";
+import { v4 as uuidv4 } from "uuid";
+import { create } from "zustand";
+import { parseEther } from "viem";
+import { on } from "events";
 
-const StakeForOthersFormSection = () => {
-  const [stakeeAddress, setStakeeAddress] = useState<string>("");
-  const [inputValue, setInputValue] = useState<string>("");
-  const [lockedPeriod, setLockedPeriodState] = useState<number>(3);
+type CommunityStakeInputs = {
+  uuid: string;
+  stakeeInput: string;
+  amountInput: string;
+  lockedPeriodMonths: number;
+};
 
-  const handleInputChange = (event: ChangeEvent<HTMLInputElement>) => {
-    setInputValue(event.target.value);
+type CommunityStakeChainParams = {
+  stakee: `0x${string}`;
+  amount: bigint;
+  lockedPeriodsSeconds: bigint;
+}
+
+type CommunityStake = CommunityStakeInputs & CommunityStakeChainParams;
+
+const useCommunityStakesStore = create<{
+  communityStakes: CommunityStake[];
+  communityStakesById: Record<string, CommunityStake>;
+  stakeSections: (typeof StakeForOthersFormSection)[];
+  updateCommunityStake: (uuid: string, communityStake: Partial<CommunityStake>) => void;
+  removeCommunityStake: (uuid: string) => void;
+  addCommunityStake: (communityStake: CommunityStake) => void;
+}>((set) => ({
+  communityStakes: [],
+  communityStakesById: {},
+  stakeSections: [],
+  addCommunityStake: (communityStake: CommunityStake) =>
+    set((state) => {
+      return {
+        ...state,
+        communityStakes: [...state.communityStakes, communityStake],
+        communityStakesById: { ...state.communityStakesById, [communityStake.uuid]: communityStake },
+      };
+    }),
+  updateCommunityStake: (uuid: string, communityStake: Partial<CommunityStake>) =>
+    set((state) => {
+      if (communityStake.amountInput !== undefined) {
+        communityStake.amount = parseEther(communityStake.amountInput);
+      }
+
+      if (communityStake.lockedPeriodMonths !== undefined) {
+        communityStake.lockedPeriodsSeconds = BigInt(communityStake.lockedPeriodMonths) * 30n * 24n * 60n * 60n;
+      }
+
+      if (communityStake.stakeeInput !== undefined) {
+        // TODO: shall we resolve ENS names here ???
+        communityStake.stakee = communityStake.stakeeInput as `0x${string}`;
+      }
+
+      const newCommunityStake = {
+        ...state.communityStakesById[uuid],
+        ...communityStake,
+      };
+      return {
+        ...state,
+        communityStakes: state.communityStakes.map((cStake) => {
+          return newCommunityStake.uuid === cStake.uuid ? newCommunityStake : cStake;
+        }),
+        communityStakesById: { ...state.communityStakesById, [uuid]: newCommunityStake },
+      };
+    }),
+  removeCommunityStake: (uuid: string) =>
+    set((state) => {
+      const newCommunityStakesById = { ...state.communityStakesById };
+      delete newCommunityStakesById[uuid];
+      return {
+        ...state,
+        communityStakes: state.communityStakes.filter((cStake) => {
+          return cStake.uuid !== uuid;
+        }),
+        communityStakesById: newCommunityStakesById,
+      };
+    }),
+}));
+
+const StakeForOthersFormSection = ({ showClose, uuid }: { showClose: boolean; uuid: string }) => {
+  const communityStake = useCommunityStakesStore((state) => state.communityStakesById[uuid]);
+  const updateCommunityStake = useCommunityStakesStore((state) => state.updateCommunityStake);
+  const removeCommunityStake = useCommunityStakesStore((state) => state.removeCommunityStake);
+
+  const setInputValue = (value: string) => {
+    updateCommunityStake(uuid, { amountInput: value });
   };
 
-  const handleStakeeInputChange = (event: ChangeEvent<HTMLInputElement>) => {
+  const setStakeeAddress = (address: string) => {
+    updateCommunityStake(uuid, { stakeeInput: address as `0x${string}` });
+  };
+
+  const setLockedPeriod = (lockPeriod: number) => {
+    updateCommunityStake(uuid, { lockedPeriodMonths: lockPeriod });
+  };
+
+  const handleStakeeInputChange = useCallback((event: ChangeEvent<HTMLInputElement>) => {
     setStakeeAddress(event.target.value);
-  };
-
-  const handleAddFixedValue = (value: string) => {
-    setInputValue(value);
-  };
-
-  const handleLockedPeriod = (value: number) => {
-    setLockedPeriodState(value);
-  };
+  }, []);
 
   return (
-    <div className="w-full rounded-lg border border-foreground-4 bg-gradient-to-b from-background to-background-5">
-      <div className="w-full rounded-t-lg bg-background-6 grid gap-4 grid-cols-[min-content_repeat(3,minmax(0,1fr))] lg:grid-cols-[min-content_repeat(6,minmax(0,1fr))] py-10 px-4 md:px-14">
-        <div className="col-span-1 text-color-6 font-bold">Address</div>
+    <div className="w-full rounded-lg bg-gradient-to-b from-background to-background-5">
+      <div className="w-full rounded-t-lg border-r border-l border-t items-center border-foreground-4 bg-background-6 flex gap-4 py-6 px-4 md:px-14">
+        <div className="text-color-6 shrink-0 text-right font-bold w-[72px]">Address</div>
         <input
-          className="px-2 col-end-[-1] grow col-start-2 rounded-lg border border-foreground-4 bg-black text-s text-color-2"
+          className="px-4 py-1 w-full rounded-lg border border-foreground-4 bg-background text-color-2"
           type="text"
-          value={stakeeAddress}
+          value={communityStake.stakeeInput}
           placeholder="anotherperson.eth"
           onChange={handleStakeeInputChange}
         />
+        {showClose ? (
+          <div
+            onClick={() => {
+              console.log("geri click");
+              removeCommunityStake(uuid);
+            }}
+          >
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M15 1L1.00007 14.9999" stroke="#4C817A" />
+              <path d="M15 15L1.00007 1.00006" stroke="#4C817A" />
+            </svg>
+          </div>
+        ) : null}
       </div>
-      <div className="w-full rounded-b-lg border-t border-foreground-4 bg-gradient-to-b from-background to-background-5  grid gap-4 grid-cols-[min-content_repeat(3,minmax(0,1fr))] lg:grid-cols-[min-content_repeat(6,minmax(0,1fr))] py-10 px-4 md:px-14">
-        <div className="col-span-1 text-color-6 font-bold">Amount</div>
-        <input
-          className="px-2 col-end-[-1] grow col-start-2 rounded-lg border border-foreground-4 bg-black text-s text-color-2"
-          type="number"
-          value={inputValue}
-          placeholder="Input a custom amount or choose one from below"
-          onChange={handleInputChange}
-        />
-        <div className="gap-2 col-start-2 hidden lg:flex col-span-2 text-color-4">
-          {["5", "20", "125"].map((amount) => (
-            <FormButton
-              key={amount}
-              onClick={() => handleAddFixedValue(amount)}
-              className="w-12"
-              variant={amount === inputValue ? "active" : "inactive"}
-            >
-              {amount}
-            </FormButton>
-          ))}
-        </div>
-        <div className="mx-1 text-right font-bold text-color-6">
-          Lockup
-          <br />
-          period
-        </div>
-        <div className="flex col-span-3 w-full col-end-[-1] text-sm gap-2 justify-self-end">
-          {[3, 6, 12].map((months) => (
-            <FormButton
-              key={months}
-              onClick={() => handleLockedPeriod(months)}
-              className="text-sm w-full"
-              variant={lockedPeriod === months ? "active" : "inactive"}
-            >
-              {months} months
-            </FormButton>
-          ))}
-        </div>
-      </div>
+      <StakeFormInputSection
+        className="rounded-t-none"
+        amount={communityStake.amountInput}
+        lockedMonths={communityStake.lockedPeriodMonths}
+        handleAmountChange={setInputValue}
+        handleLockedMonthsChange={setLockedPeriod}
+      />
     </div>
   );
 };
 
 export const StakeForOthersForm = () => {
-  const [stakeSections, setStakeSections] = useState([<StakeForOthersFormSection key={0} />]);
+  const communityStakes = useCommunityStakesStore((state) => state.communityStakes);
+  const addCommunityStake = useCommunityStakesStore((state) => state.addCommunityStake);
+  const stakeSections = communityStakes.map((communityStake, idx) => (
+    <StakeForOthersFormSection key={idx} showClose={idx != 0} uuid={communityStake.uuid} />
+  ));
+
+  useEffect(() => {
+    if (communityStakes.length === 0) {
+      addCommunityStake({
+        uuid: uuidv4(),
+        stakeeInput: "",
+        amountInput: "0",
+        lockedPeriodMonths: 3,
+        amount: 0n,
+        lockedPeriodsSeconds: 3n * 30n * 24n * 60n * 60n,
+        stakee: "0x0",
+      });
+    }
+  }, [communityStakes]);
+
   const { address } = useAccount();
   const [modalIsOpen, setModalIsOpen] = useState(false);
   const communityStakeModal = address ? (
     <CommunityStakeModal
       address={address}
-      inputValue={"inputValue"}
-      lockedPeriod={6}
+      stakees={communityStakes.map((cStake) => cStake.stakee)}
+      amounts={communityStakes.map((cStake) => cStake.amount)}
+      lockedPeriodsSeconds={communityStakes.map((cStake) => cStake.lockedPeriodsSeconds)}
       isOpen={modalIsOpen}
       onClose={() => setModalIsOpen(false)}
     />
   ) : null;
 
   const addStakeSelection = (event: MouseEvent<HTMLAnchorElement>) => {
-    setStakeSections([...stakeSections, <StakeForOthersFormSection key={stakeSections.length} />]);
+    addCommunityStake({
+      uuid: uuidv4(),
+      stakeeInput: "",
+      amountInput: "0",
+      lockedPeriodMonths: 3,
+      lockedPeriodsSeconds: 3n * 30n * 24n * 60n * 60n,
+      amount: 0n,
+      stakee:"0x0"
+    });
     event.preventDefault();
   };
   return (
@@ -135,19 +224,64 @@ export const StakeForOthersForm = () => {
   );
 };
 
+const useCommunityStakeTx = ({
+  staker,
+  stakees,
+  amounts,
+  lockedPeriodsSeconds,
+  onConfirm,
+}: {
+  staker: `0x${string}`;
+  stakees: `0x${string}`[];
+  amounts: bigint[];
+  lockedPeriodsSeconds: bigint[];
+  onConfirm: () => void;
+}) => {
+  const requiredApprovalAmount = useMemo(() => amounts.reduce((a, b) => a + b, 0n), [amounts]);
+
+  const [functionName, functionArgs] = useMemo(() => {
+    if (stakees.length === 1) {
+      return ["communityStake", [stakees[0], amounts[0], lockedPeriodsSeconds[0]]];
+    } else {
+      return ["communityStakeBatch", [stakees, amounts, lockedPeriodsSeconds]];
+    }
+  }, [stakees, amounts, lockedPeriodsSeconds]);
+
+  return useStakeTxWithApprovalCheck({
+    address: staker,
+    requiredApprovalAmount,
+    functionName,
+    functionArgs,
+    onConfirm,
+  });
+};
+
 const CommunityStakeModal = ({
   address,
-  inputValue,
-  lockedPeriod,
+  stakees,
+  amounts,
+  lockedPeriodsSeconds,
   isOpen,
   onClose,
 }: {
   address: `0x${string}`;
-  inputValue: string;
-  lockedPeriod: number;
+  stakees: `0x${string}`[];
+  amounts: bigint[];
+  lockedPeriodsSeconds: bigint[];
   isOpen: boolean;
   onClose: () => void;
 }) => {
+  const communityStake = useCommunityStakeTx({
+    staker: address,
+    stakees,
+    amounts,
+    lockedPeriodsSeconds,
+    onConfirm: () => {
+      onClose();
+    },
+  });
+
+
   const [isLoading, setIsLoading] = useState(false);
 
   const connectedChain = useConnectedChain();
@@ -157,8 +291,9 @@ const CommunityStakeModal = ({
       title="Stake on yourself"
       buttonText="Stake"
       onButtonClick={async () => {
-        setIsLoading(isLoading);
-        return onClose();
+        communityStake.stake();
+        // setIsLoading(isLoading);
+        // return onClose();
       }}
       buttonLoading={false}
       isOpen={isOpen}
