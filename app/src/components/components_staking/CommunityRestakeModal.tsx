@@ -17,19 +17,39 @@ const useExtendCommunityStake = ({ address }: { address: string }) => {
 
   const extendCommunityStake = useCallback(
     async (stakedData: StakeData[]) => {
-      stakedData.map((stake) => {
-        const unlockTime = new Date(stake.unlock_time);
-        const lockTime = new Date(stake.lock_time);
+      if (stakedData.length == 1) {
+        const unlockTime = new Date(stakedData[0].unlock_time);
+        const lockTime = new Date(stakedData[0].lock_time);
 
         const lockSeconds = Math.floor((unlockTime.getTime() - lockTime.getTime()) / 1000);
-
-        writeContract({
+        
+        return writeContract({
           address: chain.stakingContractAddr,
           abi: IdentityStakingAbi,
           functionName: "extendCommunityStake",
-          args: [stake.stakee, BigInt(lockSeconds)],
+          args: [stakedData[0].stakee, BigInt(lockSeconds)],
         });
-      });
+
+      } else {
+        const stakeeList = stakedData.map((stake) => stake.stakee);
+        const lockedList = stakedData.map((stake) => {
+          const unlockTime = new Date(stake.unlock_time);
+          const lockTime = new Date(stake.lock_time);
+
+          const lockSeconds = Math.floor((unlockTime.getTime() - lockTime.getTime()) / 1000);
+          return lockSeconds
+        });
+
+        return writeContract({
+          address: chain.stakingContractAddr,
+          abi: IdentityStakingAbi,
+          functionName: "extendMultipleCommunityStake",
+          args: [stakeeList, lockedList],
+        });
+
+      }
+
+      
     },
     [writeContract, chain.stakingContractAddr]
   );

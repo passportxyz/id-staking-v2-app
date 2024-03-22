@@ -120,6 +120,24 @@ export const createSignedPayload = async (did: DID, data: any) => {
 
 export const formatAmount = (amount: string) => +parseFloat(ethers.formatEther(amount)).toFixed(2);
 
+export const formatSeconds = (seconds: number) => {
+  const duration = moment.duration(seconds, "seconds");
+  const weeks = Math.floor(duration.asWeeks());
+
+  const year = Math.floor(duration.asYears());
+  duration.subtract(year, "years");
+  const month = Math.floor(duration.asMonths());
+  duration.subtract(month, "months");
+  const day = Math.floor(duration.asDays());
+
+  return {
+    year,
+    month,
+    weeks,
+    day,
+  };
+};
+
 export const formatDate = (date: Date): string =>
   Intl.DateTimeFormat("en-US", { month: "short", day: "2-digit", year: "numeric" }).format(date);
 
@@ -179,7 +197,7 @@ export const DisplayDuration = ({ seconds }: { seconds: number }) => {
 };
 
 // Provide custom max, or use defaults which scale with the screen size
-export const DisplayAddressOrENS = ({ user, max, className }: { user: string; max?: number; className?:string }) => {
+export const DisplayAddressOrENS = ({ user, max, className }: { user: string; max?: number; className?: string }) => {
   const maxLen = max || 12;
 
   if (user.length <= maxLen) {

@@ -1,6 +1,7 @@
 import React, { ComponentPropsWithRef, useCallback, useEffect, useState } from "react";
 import { PanelDiv } from "./PanelDiv";
 import { useWalletStore } from "@/context/walletStore";
+import IdentityStakingAbi from "../../abi/IdentityStaking.json";
 import { SelfRestakeModal } from "./SelfRestakeModal";
 import { useDatastoreConnectionContext } from "@/context/datastoreConnectionContext";
 import { DisplayAddressOrENS, DisplayDuration, formatAmount, useConnectedChain } from "@/utils/helpers";
@@ -32,6 +33,23 @@ const CommunityRestakeButton = ({ stake, address }: { stake: StakeData; address:
   );
 };
 
+const CommunityRestakeAllButton = ({ stake, address }: { stake: StakeData[]; address: string }) => {
+  const [modalIsOpen, setModalIsOpen] = useState(false);
+  const onClose = useCallback(() => setModalIsOpen(false), []);
+
+  return (
+    <>
+      <CommunityRestakeModal
+        address={address}
+        stakedData={stake}
+        isOpen={modalIsOpen}
+        onClose={onClose}
+      />
+     <button className="px-1 border rounded text-color-6 font-bold" onClick={() => setModalIsOpen(true)}>Restake all </button>
+    </>
+  );
+};
+
 const CommunityUnstakeButton = ({
   stake,
   address,
@@ -50,29 +68,16 @@ const CommunityUnstakeButton = ({
         isOpen={modalIsOpen}
         onClose={() => setModalIsOpen(false)}
       />
-      <button onClick={() => setModalIsOpen(true)} disabled={unlocked}>
+      <button className="disabled:text-color-5 disabled:cursor-not-allowed" onClick={() => setModalIsOpen(true)} disabled={!unlocked}>
         Unstake
       </button>
     </>
-  );
-  return (
-    <button
-      onClick={() => {
-        // TODO: ....
-        console.log("Unstake:....");
-      }}
-      disabled={unlocked}
-      className="disabled:text-color-5 disabled:cursor-not-allowed"
-    >
-      Unstake
-    </button>
   );
 };
 
 const Tbody = () => {
   const connectedChain = useConnectedChain();
   const address = useWalletStore((state) => state.address);
-  const { dbAccessToken, dbAccessTokenStatus } = useDatastoreConnectionContext();
 
   const { isPending, isError, data, error } = useStakeHistoryQuery(address);
   const stakeForOthersHistory = data?.filter(
@@ -157,6 +162,23 @@ const StakeLine = ({ stake, address }: { stake: StakeData; address: string }) =>
 };
 
 export const StakeForOthersHistory = ({}: any) => {
+  const connectedChain = useConnectedChain();
+  const address = useWalletStore((state) => state.address);
+
+  const { isPending, isError, data, error } = useStakeHistoryQuery(address);
+  const stakeForOthersHistory = data?.filter(
+    (stake: StakeData) => stake.staker === address && stake.stakee !== address && stake.chain === connectedChain.id
+  );
+
+  let restakeAllBtn;
+  console.log(" stakeForOthersHistory = ",stakeForOthersHistory);
+  console.log("stakeForOthersHistory type", typeof stakeForOthersHistory)
+  if (!isPending && !isError && address && stakeForOthersHistory && stakeForOthersHistory.length > 0) {
+    restakeAllBtn = <CommunityRestakeAllButton address={address} stake={stakeForOthersHistory}/>
+  } else {
+    restakeAllBtn = <button className="px-1 border rounded text-color-6 font-bold disabled:text-color-5 disabled:cursor-not-allowed">Restake all </button>
+  }
+
   return (
     <PanelDiv className="flex flex-col">
       <div className="m-8 text-color-6 font-bold text-xl">Stake for Others</div>
@@ -169,7 +191,7 @@ export const StakeForOthersHistory = ({}: any) => {
             <Th className="hidden lg:table-cell">Lockup</Th>
             <Th>Start/End</Th>
             <Th>
-              <button className="px-1 border rounded text-color-6 font-bold">TODO: Restake all </button>
+              {restakeAllBtn}
             </Th>
           </tr>
         </thead>
