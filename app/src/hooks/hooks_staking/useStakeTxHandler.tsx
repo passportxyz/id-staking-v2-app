@@ -1,19 +1,47 @@
 import React, { useEffect } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import { makeErrorToastProps, makeSuccessToastProps } from "../../components/DoneToastContent";
-import { useToast } from "@chakra-ui/react";
+import { Toast, useToast } from "@chakra-ui/react";
 import { useWaitForTransactionReceipt, useWriteContract } from "wagmi";
 import { useConnectedChain } from "@/utils/helpers";
 
-export const useStakeTxHandler = ({
-  onConfirm,
-  txTitle,
-  queryKey,
-}: {
-  onConfirm: () => void;
-  txTitle: string;
-  queryKey?: string[];
-}) => {
+export const onTxError = (txTitle: string, error: any, toast: typeof Toast) => {
+  console.error(`${txTitle} failed:`, error);
+  toast(
+    makeErrorToastProps(
+      "Failed",
+      <div>
+        <p>{txTitle} transaction failed</p>
+        <p>
+          Error: {error?.name}, Details: {error?.message}
+        </p>
+      </div>
+    )
+  );
+};
+
+export const onTxReceiptError = (
+  txTitle: any,
+  hash: any,
+  receiptError: any,
+  toast: typeof Toast,
+  connectedChain: any
+) => {
+  console.error(`${txTitle} receipt failed, tx hash =`, hash, " error:", receiptError);
+  toast(
+    makeErrorToastProps(
+      "Error",
+      <div>
+        <p>{txTitle} transaction failed to confirm</p>
+        <p>
+          See <a href={connectedChain.explorer + "/" + hash}>details</a> on the block explorer
+        </p>
+      </div>
+    )
+  );
+};
+
+export const useStakeTxHandler = ({ txTitle, queryKey }: { txTitle: string; queryKey?: string[] }) => {
   const connectedChain = useConnectedChain();
   const toast = useToast();
   const queryClient = useQueryClient();
@@ -32,47 +60,25 @@ export const useStakeTxHandler = ({
     (async () => {
       if (isConfirmed) {
         toast(makeSuccessToastProps("Success", `${txTitle} transaction confirmed`));
-        onConfirm();
         if (queryKey) {
           // delay for indexer
-          await new Promise((resolve) => setTimeout(resolve, 5000));
+          // maybe it would be better to wait for a few TX confirmations instead of delaying?
+          await new Promise((resolve) => setTimeout(resolve, 10000));
           await queryClient.invalidateQueries({ queryKey });
         }
       }
     })();
-  }, [isConfirmed, toast, queryClient, queryKey, txTitle, onConfirm]);
+  }, [isConfirmed, toast, queryClient, queryKey, txTitle]);
 
   useEffect(() => {
     if (isError) {
-      console.error(`${txTitle} failed:`, error);
-      toast(
-        makeErrorToastProps(
-          "Failed",
-          <div>
-            <p>{txTitle} transaction failed</p>
-            <p>
-              Error: {error?.name}, Details: {error?.message}
-            </p>
-          </div>
-        )
-      );
+      onTxError(txTitle, error, toast);
     }
   }, [error, toast, txTitle, isError]);
 
   useEffect(() => {
     if (isReceiptError) {
-      console.error(`${txTitle} receipt failed, tx hash =`, hash, " error:", receiptError);
-      toast(
-        makeErrorToastProps(
-          "Error",
-          <div>
-            <p>{txTitle} transaction failed to confirm</p>
-            <p>
-              See <a href={connectedChain.explorer + "/" + hash}>details</a> on the block explorer
-            </p>
-          </div>
-        )
-      );
+      onTxReceiptError(txTitle, hash, receiptError, toast, connectedChain);
     }
   }, [isReceiptError, receiptError, toast, txTitle, hash, connectedChain.explorer]);
 
@@ -80,6 +86,7 @@ export const useStakeTxHandler = ({
 
   return {
     isLoading,
+    isConfirmed,
     writeContract,
   };
 };
