@@ -59,7 +59,9 @@ export const StakeModal = ({
                 <Dialog.Panel className="w-full max-w-lg overflow-hidden transition-all">
                   <BackdropEnabler />
                   <PanelDiv className="px-16 py-10 text-left text-color-1 align-middle">
-                    <Dialog.Title className="text-3xl font-medium leading-6 text-color-6 my-12">{title}</Dialog.Title>
+                    <Dialog.Title className="text-3xl text-center font-medium leading-6 text-color-6 my-12">
+                      {title}
+                    </Dialog.Title>
                     <div className="mt-2">{children}</div>
 
                     <div className="mt-4 flex flex-col items-center">

@@ -1,42 +1,41 @@
-import React, { ComponentPropsWithRef, Fragment, useCallback, useMemo } from "react";
+import React, { ComponentPropsWithRef, Fragment, useCallback, useEffect, useMemo } from "react";
 import IdentityStakingAbi from "../../abi/IdentityStaking.json";
 import { useStakeHistoryQueryKey } from "@/utils/stakeHistory";
 import { DisplayAddressOrENS, DisplayDuration, formatAmount, useConnectedChain } from "@/utils/helpers";
-import { StakeModal, DataLine } from "./StakeModal";
 import { useStakeTxHandler } from "@/hooks/hooks_staking/useStakeTxHandler";
 import { Dialog, Transition } from "@headlessui/react";
 import { BackdropEnabler } from "./Backdrop";
 import { PanelDiv } from "./PanelDiv";
 import { LoadButton } from "../LoadButton";
 import { Button } from "@chakra-ui/react";
-import { StakeData, useStakeHistoryQuery } from "@/utils/stakeHistory";
+import { StakeData } from "@/utils/stakeHistory";
 
-const useUnstakeCommunityStake = ({ onConfirm, address }: { onConfirm: () => void; address: string }) => {
+const useUnstakeCommunityStake = ({ address }: { address: string }) => {
   const chain = useConnectedChain();
   const queryKey = useStakeHistoryQueryKey(address);
-  const { isLoading, writeContract } = useStakeTxHandler({ queryKey, onConfirm, txTitle: "Restake" });
+  const { isLoading, writeContract, isConfirmed } = useStakeTxHandler({ queryKey, txTitle: "Unstake" });
 
   const unstakeCommunityStake = useCallback(
     async (stakedData: StakeData[]) => {
-      stakedData.map((stake, index) => {
+      stakedData.map((stake) => {
         writeContract({
           address: chain.stakingContractAddr,
           abi: IdentityStakingAbi,
           functionName: "withdrawCommunityStake",
           args: [stake.stakee, stake.amount],
         });
-      })
-      
+      });
     },
-    [writeContract]
+    [writeContract, chain.stakingContractAddr]
   );
 
   return useMemo(
     () => ({
       isLoading,
       unstakeCommunityStake,
+      isConfirmed,
     }),
-    [isLoading, unstakeCommunityStake]
+    [isLoading, unstakeCommunityStake, isConfirmed]
   );
 };
 
@@ -82,8 +81,14 @@ export const CommunityUnstakeModal = ({
   isOpen: boolean;
   onClose: () => void;
 }) => {
-  const { isLoading, unstakeCommunityStake } = useUnstakeCommunityStake({ onConfirm: onClose, address });
-  
+  const { isLoading, unstakeCommunityStake, isConfirmed } = useUnstakeCommunityStake({ address });
+
+  useEffect(() => {
+    if (isConfirmed) {
+      onClose();
+    }
+  }, [isConfirmed, onClose]);
+
   return (
     <>
       <Transition appear show={isOpen} as={Fragment}>
@@ -129,7 +134,7 @@ export const CommunityUnstakeModal = ({
 
                         <tbody>
                           {stakedData.map((stake, index) => (
-                            <StakeLine key={0} stake={stake} />
+                            <StakeLine key={index} stake={stake} />
                           ))}
                         </tbody>
                       </table>
@@ -157,4 +162,3 @@ export const CommunityUnstakeModal = ({
     </>
   );
 };
-

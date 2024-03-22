@@ -48,6 +48,11 @@
   },
   {
     "inputs": [],
+    "name": "ArrayLengthMismatch",
+    "type": "error"
+  },
+  {
+    "inputs": [],
     "name": "CannotStakeOnSelf",
     "type": "error"
   },
@@ -197,12 +202,6 @@
         "indexed": false,
         "internalType": "uint64",
         "name": "unlockTime",
-        "type": "uint64"
-      },
-      {
-        "indexed": false,
-        "internalType": "uint64",
-        "name": "lockDuration",
         "type": "uint64"
       }
     ],
@@ -380,12 +379,6 @@
         "internalType": "uint64",
         "name": "unlockTime",
         "type": "uint64"
-      },
-      {
-        "indexed": false,
-        "internalType": "uint64",
-        "name": "lockDuration",
-        "type": "uint64"
       }
     ],
     "name": "SelfStake",
@@ -466,6 +459,19 @@
     ],
     "name": "Upgraded",
     "type": "event"
+  },
+  {
+    "inputs": [],
+    "name": "BURNER_ROLE",
+    "outputs": [
+      {
+        "internalType": "bytes32",
+        "name": "",
+        "type": "bytes32"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
   },
   {
     "inputs": [],
@@ -654,6 +660,24 @@
   {
     "inputs": [
       {
+        "internalType": "address[]",
+        "name": "stakees",
+        "type": "address[]"
+      },
+      {
+        "internalType": "uint64[]",
+        "name": "durations",
+        "type": "uint64[]"
+      }
+    ],
+    "name": "extendMultipleCommunityStake",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
         "internalType": "uint64",
         "name": "duration",
         "type": "uint64"
@@ -751,6 +775,11 @@
         "internalType": "address[]",
         "name": "initialReleasers",
         "type": "address[]"
+      },
+      {
+        "internalType": "address[]",
+        "name": "initialBurners",
+        "type": "address[]"
       }
     ],
     "name": "initialize",
@@ -774,6 +803,29 @@
   {
     "inputs": [],
     "name": "lockAndBurn",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address[]",
+        "name": "stakees",
+        "type": "address[]"
+      },
+      {
+        "internalType": "uint88[]",
+        "name": "amounts",
+        "type": "uint88[]"
+      },
+      {
+        "internalType": "uint64[]",
+        "name": "durations",
+        "type": "uint64[]"
+      }
+    ],
+    "name": "multipleCommunityStakes",
     "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"
@@ -1064,6 +1116,24 @@
       }
     ],
     "name": "withdrawCommunityStake",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address[]",
+        "name": "stakees",
+        "type": "address[]"
+      },
+      {
+        "internalType": "uint88[]",
+        "name": "amounts",
+        "type": "uint88[]"
+      }
+    ],
+    "name": "withdrawMultipleCommunityStake",
     "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"

@@ -128,7 +128,7 @@ const StakeLine = ({ stake, address }: { stake: StakeData; address: string }) =>
 export const YourStakeHistory = ({}: any) => {
   return (
     <PanelDiv className="flex flex-col">
-      <div className="m-8 text-color-6 font-bold text-xl">Your Stake History</div>
+      <div className="m-8 text-color-6 font-bold text-xl">Your Stake</div>
       <table className="w-full">
         <thead>
           <tr className="border-b pb-6 border-foreground-4">
