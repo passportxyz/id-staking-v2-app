@@ -201,7 +201,6 @@ export const CommunityUpdateButton = ({ stake }: { stake: StakeData }) => {
         onClose={onCloseTransactionModal}
         amount={amount}
         lockedPeriodMonths={lockedPeriodMonths}
-        address={stake.stakee}
       />
 
       <button onClick={() => setPreviewModalIsOpen(true)} className="text-color-6 font-bold">
