@@ -16,9 +16,10 @@ const SIWEButton = (props: ButtonProps & { enableEthBranding: boolean }) => {
         </svg>
       )}
       <span className="hidden group-disabled:inline">Loading...</span>
-      <span className="inline group-disabled:hidden">
+      {/* <span className="inline group-disabled:hidden">
         Sign in {enableEthBranding ? "with Ethereum" : "using signature"}
-      </span>
+      </span> */}
+      <span className="inline group-disabled:hidden">Connect Wallet</span>
     </Button>
   );
 };

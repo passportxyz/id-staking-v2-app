@@ -12,7 +12,7 @@ import SIWEButton from "../components/SIWEButton";
 import { useDatastoreConnectionContext } from "../context/datastoreConnectionContext";
 import { useToast } from "@chakra-ui/react";
 import { DoneToastContent } from "../components/DoneToastContent";
-import { WebmVideo } from "../components/WebmVideo";
+import { PlatformCard, PlatformScoreSpec } from "../components/components_staking/PlatformCard";
 
 export default function Home() {
   const address = useWalletStore((state) => state.address);
@@ -20,7 +20,16 @@ export default function Home() {
   const connectError = useWalletStore((state) => state.error);
   const { connect: connectDatastore, dbAccessTokenStatus } = useDatastoreConnectionContext();
   const toast = useToast();
-  const [enableEthBranding, setEnableEthBranding] = useState(true);
+  const [enableEthBranding, setEnableEthBranding] = useState(false);
+
+  const gtcStakingStampPlatform: PlatformScoreSpec = {
+    name: "GTC Staking",
+    description: "Stake GTC to boost your trust in the Gitcoin ecosystem.",
+    possiblePoints: 7.57,
+    earnedPoints: 0,
+    icon: "./assets/gtcStakingLogoIcon.svg",
+    connectMessage: "Connect Wallet",
+  };
 
   const navigate = useNavigate();
 
@@ -53,6 +62,9 @@ export default function Home() {
   const signIn = async () => {
     await connectWallet(connectDatastore);
   };
+
+  const notificationClass =
+    "flex items-center justify-between h-14 rounded-lg border w-1/3 bg-gradient-to-t from-background-6 to-background";
 
   return (
     <PageRoot className="text-color-2" backgroundGradientStyle="top-only">
@@ -96,17 +108,16 @@ export default function Home() {
 
         <div className="grid grid-cols-1">
           <div className="z-10 grid grid-flow-row grid-cols-2 gap-4 lg:grid-flow-col">
-            <div>
-              <div className="col-span-2 font-heading text-6xl lg:row-start-2">
-                BOOST YOUR
+            <div className="pr-16">
+              <div className="col-span-2 font-heading text-6xl lg:row-start-2 text-foreground-2">
+                Increase Your
                 <br />
-                PASSPORT SCORE
+                Passport Score
               </div>
               <div className="col-span-2 mb-4 text-2xl leading-none text-foreground-2 md:text-5xl"></div>
-              <div className="col-span-2 max-w-md text-lg lg:max-w-sm">
-                Solidify your Passport identity with the GTC Staking Stamp. By staking GTC, you not only contribute to
-                the ecosystem&amp;s security but also enhance your Passport Score, gaining recognition and trust within
-                the community.
+              <div className="col-span-2 max-w-md text-sm lg:max-w-sm text-foreground">
+                Reinforce your identity and increase your unique humanity score by staking GTC. Secure your Passport
+                Score with ease, safeguarding against Sybil threats.
               </div>
               <SIWEButton
                 enableEthBranding={enableEthBranding}
@@ -115,12 +126,15 @@ export default function Home() {
                 className="col-span-2 mt-4 lg:w-3/4"
               />
             </div>
-            <div>Right panel - TO BE DONE</div>
+            {/* <div>Right panel - TO BE DONE</div> */}
+            <div className="flex justify-center">
+              <PlatformCard platform={gtcStakingStampPlatform} className="ml-24 mt-12" />
+            </div>
           </div>
-          <div className="z-10 flex gap-8 justify-between pt-32">
-            <div className={`flex items-center justify-between h-14 rounded-lg border w-1/3`}>
-              <span className="px-8 text-xl">GTC Staked</span>
-              <div className="flex items-center rounded-lg border text-2xl h-full px-4 w-1/3">
+          <div className="z-10 flex gap-8 justify-between pt-32 text-foreground-2">
+            <div className={notificationClass}>
+              <span className="pl-8 pr-0 text-l text-nowrap">GTC Staked</span>
+              <div className="flex items-center rounded-lg border text-2xl h-full px-4 w-2/5">
                 <svg width="18" height="22" viewBox="0 0 18 22" fill="none" xmlns="http://www.w3.org/2000/svg">
                   <path
                     d="M17.9224 7.49436C17.8686 7.40416 17.8125 7.31364 17.7555 7.22502C17.5963 6.97775 17.4232 6.73522 17.2417 6.50435C16.3782 5.40648 15.2557 4.49279 13.9954 3.86201C12.6755 3.20158 11.2493 2.85529 9.75633 2.83321C9.65877 2.83163 9.57935 2.75373 9.57935 2.65943V1.33984C9.57935 0.870219 9.18682 0.488281 8.70418 0.488281C8.22153 0.488281 7.829 0.870219 7.829 1.33984V2.84961C7.829 2.93193 7.76838 3.00352 7.68508 3.01992C7.18299 3.11927 6.68608 3.25867 6.20765 3.43497C6.18723 3.44254 6.16584 3.44633 6.14412 3.44633C6.04591 3.44633 5.96584 3.36843 5.96584 3.27255V1.33984C5.96584 0.870219 5.57331 0.488281 5.09067 0.488281C4.60802 0.488281 4.21549 0.870219 4.21549 1.33984V4.27486C4.21549 4.37894 4.16265 4.47734 4.07416 4.53789C2.846 5.38125 1.82463 6.50814 1.11995 7.7965C0.392261 9.12714 0.00523818 10.6319 5.19441e-05 12.1486C-0.00416187 13.3997 0.248019 14.6175 0.749463 15.768C1.23276 16.8769 1.92577 17.8764 2.80937 18.739C3.70335 19.6117 4.74448 20.2979 5.90393 20.7786C7.1039 21.276 8.37388 21.5283 9.67854 21.5283H16.8342C17.1506 21.5283 17.4083 21.2779 17.4083 20.9697V16.3108C17.4083 16.066 17.2809 15.8424 17.0676 15.7128L16.6673 15.4693L16.6459 15.4564L15.1497 14.5462L15.1218 14.5291L13.2305 13.3789C13.1092 13.3051 13.0509 13.1651 13.0856 13.0301C13.1566 12.7538 13.1925 12.4678 13.1925 12.1798C13.1925 11.8918 13.1566 11.6058 13.0856 11.3295C13.0509 11.1948 13.1092 11.0545 13.2305 10.9807L15.1218 9.83046L15.1497 9.81343L16.6459 8.90321L16.6673 8.89028L17.7285 8.24499C17.9927 8.08414 18.078 7.75487 17.9224 7.49436ZM15.5964 7.40101C15.5821 7.49436 15.527 7.57636 15.445 7.62619L12.483 9.42802C12.3828 9.48889 12.2674 9.52106 12.1495 9.52106C12.0127 9.52106 11.8775 9.4769 11.7683 9.39648C11.1424 8.93569 10.3952 8.69221 9.60788 8.69221H9.58843C8.64907 8.69726 7.76093 9.05712 7.08802 9.70556C6.4151 10.3543 6.03683 11.2147 6.02322 12.1287C6.00928 13.0708 6.37556 13.9586 7.05431 14.6291C7.73338 15.2996 8.64032 15.669 9.60788 15.669C10.3968 15.669 11.1453 15.4245 11.7718 14.9619C11.8804 14.8817 12.0104 14.8392 12.1478 14.8392C12.2665 14.8392 12.3825 14.8717 12.483 14.9328L15.468 16.7485C15.587 16.8211 15.6583 16.9457 15.6583 17.0825V19.5054C15.6583 19.682 15.5105 19.8258 15.3289 19.8258H9.67724C8.61958 19.8258 7.58881 19.6227 6.61315 19.2221C5.67055 18.8349 4.82163 18.282 4.09037 17.5783C3.35749 16.8734 2.78182 16.0547 2.37924 15.1451C1.9611 14.2008 1.74976 13.201 1.75073 12.1735C1.7517 11.146 1.95883 10.149 2.36595 9.2104C2.75913 8.30365 3.32216 7.48868 4.03883 6.7882C4.05861 6.76896 4.08454 6.75824 4.11176 6.75824C4.16914 6.75824 4.21614 6.80366 4.21614 6.85917V7.7861C4.21614 8.25571 4.60867 8.63765 5.09131 8.63765C5.57396 8.63765 5.96649 8.25571 5.96649 7.7861V5.60233C5.96649 5.48091 6.03878 5.36768 6.15093 5.31438C7.23258 4.79777 8.3956 4.536 9.6082 4.536C10.8208 4.536 11.87 4.77317 12.9073 5.24058C13.9095 5.69222 14.7883 6.33278 15.5189 7.14396C15.5827 7.21461 15.6113 7.30891 15.597 7.40195L15.5964 7.40101ZM11.4418 12.2413C11.4308 12.5554 11.3348 12.861 11.1643 13.126C10.9938 13.3912 10.7537 13.6095 10.4697 13.7564C10.2065 13.893 9.9083 13.9652 9.60815 13.9652C8.59618 13.9652 7.77319 13.1644 7.77319 12.1798C7.77319 11.1951 8.59651 10.3944 9.60815 10.3944C9.9083 10.3944 10.2062 10.4666 10.4697 10.6032C10.7537 10.7501 10.9938 10.9684 11.1643 11.2336C11.3348 11.4985 11.4308 11.8042 11.4418 12.1173V12.2413Z"
@@ -131,12 +145,12 @@ export default function Home() {
                     fill="#6CB6AD"
                   />
                 </svg>
-                <span className="pl-2">1.5M</span>
+                <span className="pl-2">1.5M+</span>
               </div>
             </div>
-            <div className={`flex items-center justify-between h-14 rounded-lg border w-1/3`}>
-              <span className="px-8 text-xl">Stakers</span>
-              <div className="flex items-center rounded-lg border text-2xl h-full px-4 w-1/3">
+            <div className={notificationClass}>
+              <span className="pl-8 pr-0 text-l text-nowrap">Stakers</span>
+              <div className="flex items-center rounded-lg border text-2xl h-full px-4 w-2/5">
                 <svg width="24" height="20" viewBox="0 0 24 20" fill="none" xmlns="http://www.w3.org/2000/svg">
                   <path
                     fillRule="evenodd"
@@ -152,19 +166,19 @@ export default function Home() {
                   />
                 </svg>
 
-                <span className="pl-2">123K</span>
+                <span className="pl-2">123K+</span>
               </div>
             </div>
-            <div className={`flex items-center justify-between h-14 rounded-lg border w-1/3`}>
-              <span className="px-8 text-xl">Passport Stamps</span>
-              <div className="flex items-center rounded-lg border text-2xl h-full px-4 w-1/3">
-                <svg width="19" height="21" viewBox="0 0 19 21" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <div className={notificationClass}>
+              <span className="pl-8 pr-0 text-l text-nowrap">Passport Stamps</span>
+              <div className="flex items-center rounded-lg border text-2xl h-full px-4 w-2/5">
+                <svg className="min-w-" width="19" height="21" viewBox="0 0 19 21" fill="none" xmlns="http://www.w3.org/2000/svg">
                   <path
                     d="M18.1955 7.11548V13.9333C18.1955 15.0111 17.609 16.0074 16.6574 16.5463L10.6363 19.9552C9.68471 20.4941 8.51172 20.4941 7.55914 19.9552L1.53813 16.5463C0.586494 16.0074 0 15.0111 0 13.9333V7.11548C0 6.03762 0.586494 5.04139 1.53813 4.50246L7.55914 1.09357C8.51078 0.554642 9.68376 0.554642 10.6363 1.09357L16.6574 4.50246C17.609 5.04139 18.1955 6.03762 18.1955 7.11548Z"
                     fill="#6CB6AD"
                   />
                 </svg>
-                <span className="pl-2">100K</span>
+                <span className="pl-2">100K+</span>
               </div>
             </div>
           </div>
