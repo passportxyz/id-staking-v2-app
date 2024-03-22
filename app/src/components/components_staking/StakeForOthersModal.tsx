@@ -1,29 +1,16 @@
-import React, { useCallback, useMemo } from "react";
+import React, { useCallback, useEffect } from "react";
 import { StakeModal } from "./StakeModal";
 import { useStakeTxWithApprovalCheck } from "@/hooks/hooks_staking/useStakeTxWithApprovalCheck";
 import { DisplayAddressOrENS, DisplayDuration, formatAmount } from "@/utils/helpers";
+import { useCommunityStakesStore } from "./StakeForOthersForm";
 
-const useCommunityStakeTx = ({
-  staker,
-  stakees,
-  amounts,
-  lockedPeriodsSeconds,
-  onConfirm,
-}: {
-  staker: `0x${string}`;
-  stakees: `0x${string}`[];
-  amounts: bigint[];
-  lockedPeriodsSeconds: bigint[];
-  onConfirm: () => void;
-}) => {
-  const requiredApprovalAmount = useMemo(() => amounts.reduce((a, b) => a + b, 0n), [amounts]);
-
+const useCommunityStakeTx = ({ staker }: { staker: `0x${string}` }) => {
   const { stake, isLoading, isConfirmed } = useStakeTxWithApprovalCheck({
     address: staker,
   });
 
   const communityStake = useCallback(
-    async ({
+    ({
       stakees,
       amounts,
       lockedPeriodsSeconds,
@@ -32,14 +19,32 @@ const useCommunityStakeTx = ({
       amounts: bigint[];
       lockedPeriodsSeconds: bigint[];
     }) => {
+      let functionName: string;
+      let functionArgs: any[];
       if (stakees.length === 1) {
-        return ["communityStake", [stakees[0], amounts[0], lockedPeriodsSeconds[0]]];
+        functionName = "communityStake";
+        functionArgs = [stakees[0], amounts[0], lockedPeriodsSeconds[0]];
       } else {
-        return ["multipleCommunityStakes", [stakees, amounts, lockedPeriodsSeconds]];
+        functionName = "multipleCommunityStakes";
+        functionArgs = [stakees, amounts, lockedPeriodsSeconds];
       }
+
+      const requiredApprovalAmount = amounts.reduce((a, b) => a + b, 0n);
+
+      stake({
+        functionName,
+        functionArgs,
+        requiredApprovalAmount,
+      });
     },
-    [stakees, amounts, lockedPeriodsSeconds]
+    [stake]
   );
+
+  return {
+    communityStake,
+    isLoading,
+    isConfirmed,
+  };
 };
 
 export const StakeForOthersModal = ({
@@ -49,7 +54,6 @@ export const StakeForOthersModal = ({
   lockedPeriodsSeconds,
   isOpen,
   onClose,
-  onConfirm,
 }: {
   address: `0x${string}`;
   stakees: `0x${string}`[];
@@ -57,21 +61,24 @@ export const StakeForOthersModal = ({
   lockedPeriodsSeconds: bigint[];
   isOpen: boolean;
   onClose: () => void;
-  onConfirm: () => void;
 }) => {
-  const { stake, isLoading } = useCommunityStakeTx({
+  const resetCommunityStakes = useCommunityStakesStore((state) => state.resetCommunityStakes);
+  const { communityStake, isLoading, isConfirmed } = useCommunityStakeTx({
     staker: address,
-    stakees,
-    amounts,
-    lockedPeriodsSeconds,
-    onConfirm,
   });
+
+  useEffect(() => {
+    if (isConfirmed) {
+      resetCommunityStakes();
+      onClose();
+    }
+  }, [isConfirmed, onClose, resetCommunityStakes]);
 
   return (
     <StakeModal
       title="Stake on others"
       buttonText="Stake"
-      onButtonClick={stake}
+      onButtonClick={() => communityStake({ stakees, amounts, lockedPeriodsSeconds })}
       buttonLoading={isLoading}
       isOpen={isOpen}
       onClose={onClose}

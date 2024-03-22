@@ -76,7 +76,6 @@ export const useStakeTxWithApprovalCheck = ({ address }: { address: `0x${string}
         } catch (e) {
           onTxError("Spending approval", e, toast);
         }
-        setApprovalIsLoading(false);
 
         if (hash) {
           try {
@@ -84,19 +83,32 @@ export const useStakeTxWithApprovalCheck = ({ address }: { address: `0x${string}
               hash,
               chainId: connectedChain.id as (typeof wagmiConfig)["chains"][number]["id"],
             });
+            setApprovalIsLoading(false);
             submitStakeTx(functionName, functionArgs);
           } catch (e) {
-            onTxReceiptError("Spending approval", hash, e, toast, connectedChain);
+            onTxReceiptError("Spending approval", hash, e, toast, connectedChain.explorer);
           }
         }
       } else {
         submitStakeTx(functionName, functionArgs);
       }
     },
-    [submitStakeTx, allowanceCheckIsSuccess, allowance]
+    [
+      submitStakeTx,
+      allowanceCheckIsSuccess,
+      allowance,
+      connectedChain.explorer,
+      connectedChain.gtcContractAddr,
+      connectedChain.id,
+      connectedChain.stakingContractAddr,
+      toast,
+    ]
   );
 
   const isLoading = allowanceCheckIsLoading || approvalIsLoading || stakeIsLoading;
 
-  return useMemo(() => ({ stake, isLoading, isConfirmed }), [stake, isLoading]);
+  return useMemo(
+    () => ({ stake, isLoading, isConfirmed, approvalIsLoading }),
+    [stake, isLoading, isConfirmed, approvalIsLoading]
+  );
 };

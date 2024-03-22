@@ -1,4 +1,4 @@
-import React, { ButtonHTMLAttributes, useState, useMemo, useEffect, useCallback } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { Button } from "@/components/Button";
 import { useWalletStore } from "@/context/walletStore";
 import { useYourStakeHistoryQuery } from "@/utils/stakeHistory";
@@ -32,7 +32,7 @@ export const YourStakeForm: React.FC = ({}) => {
       } else {
         setLockedPeriod(3);
       }
-      setPreviousUnlockTime(unlockTime);
+      setPreviousUnlockTime(undefined);
     } else {
       setPreviousUnlockTime(undefined);
     }

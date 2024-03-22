@@ -35,7 +35,7 @@ const createEmptyCommunityStake = (): CommunityStake => ({
 
 const initialEmptyStake = createEmptyCommunityStake();
 
-const useCommunityStakesStore = create<{
+export const useCommunityStakesStore = create<{
   communityStakes: CommunityStake[];
   communityStakesById: Record<string, CommunityStake>;
   resetCommunityStakes: () => void;
@@ -191,7 +191,6 @@ export const StakeForOthersForm = () => {
 
   const communityStakes = useCommunityStakesStore((state) => state.communityStakes);
   const addCommunityStake = useCommunityStakesStore((state) => state.addCommunityStake);
-  const resetCommunityStakes = useCommunityStakesStore((state) => state.resetCommunityStakes);
 
   const previousStakedAddresses = useMemo(() => data?.map((stake) => stake.stakee.toLowerCase()) ?? [], [data]);
   const hasDuplicateAddresses = useMemo(
@@ -239,11 +238,6 @@ export const StakeForOthersForm = () => {
     setModalIsOpen(false);
   }, []);
 
-  const onConfirm = useCallback(() => {
-    resetCommunityStakes();
-    onClose();
-  }, [onClose, resetCommunityStakes]);
-
   const communityStakeModal = useMemo(
     () =>
       address ? (
@@ -254,7 +248,6 @@ export const StakeForOthersForm = () => {
           lockedPeriodsSeconds={communityStakes.map((cStake) => cStake.lockedPeriodsSeconds)}
           isOpen={modalIsOpen}
           onClose={onClose}
-          onConfirm={onConfirm}
         />
       ) : null,
     [address, communityStakes, modalIsOpen, onClose]

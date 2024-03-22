@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useMemo } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import { makeErrorToastProps, makeSuccessToastProps } from "../../components/DoneToastContent";
 import { Toast, useToast } from "@chakra-ui/react";
@@ -20,13 +20,7 @@ export const onTxError = (txTitle: string, error: any, toast: typeof Toast) => {
   );
 };
 
-export const onTxReceiptError = (
-  txTitle: any,
-  hash: any,
-  receiptError: any,
-  toast: typeof Toast,
-  connectedChain: any
-) => {
+export const onTxReceiptError = (txTitle: any, hash: any, receiptError: any, toast: typeof Toast, explorerUrl: any) => {
   console.error(`${txTitle} receipt failed, tx hash =`, hash, " error:", receiptError);
   toast(
     makeErrorToastProps(
@@ -34,7 +28,7 @@ export const onTxReceiptError = (
       <div>
         <p>{txTitle} transaction failed to confirm</p>
         <p>
-          See <a href={connectedChain.explorer + "/" + hash}>details</a> on the block explorer
+          See <a href={explorerUrl + "/" + hash}>details</a> on the block explorer
         </p>
       </div>
     )
@@ -78,15 +72,18 @@ export const useStakeTxHandler = ({ txTitle, queryKey }: { txTitle: string; quer
 
   useEffect(() => {
     if (isReceiptError) {
-      onTxReceiptError(txTitle, hash, receiptError, toast, connectedChain);
+      onTxReceiptError(txTitle, hash, receiptError, toast, connectedChain.explorer);
     }
   }, [isReceiptError, receiptError, toast, txTitle, hash, connectedChain.explorer]);
 
   const isLoading = isPending || isConfirming;
 
-  return {
-    isLoading,
-    isConfirmed,
-    writeContract,
-  };
+  return useMemo(
+    () => ({
+      isLoading,
+      isConfirmed,
+      writeContract,
+    }),
+    [isLoading, isConfirmed, writeContract]
+  );
 };
