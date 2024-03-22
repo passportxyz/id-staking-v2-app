@@ -1,40 +1,40 @@
-import React, { useMemo } from "react";
+import React, { useCallback, useEffect } from "react";
 import { StakeModal, DataLine } from "./StakeModal";
 import { DisplayAddressOrENS, DisplayDuration, formatAmount, formatDate } from "@/utils/helpers";
 import { StakeData } from "@/utils/stakeHistory";
 import { parseEther } from "viem";
 import { useStakeTxWithApprovalCheck } from "@/hooks/hooks_staking/useStakeTxWithApprovalCheck";
 
-const useSelfStakeTx = ({
-  address,
-  inputValue,
-  lockedPeriodSeconds,
-  onConfirm,
-}: {
-  address: `0x${string}`;
-  inputValue: string;
-  lockedPeriodSeconds: bigint;
-  onConfirm: () => void;
-}) => {
-  const valueToStake = parseEther(inputValue);
-
-  const [functionName, functionArgs] = useMemo(() => {
-    let functionName = "extendSelfStake";
-    const args = [lockedPeriodSeconds];
-    if (valueToStake > 0n) {
-      functionName = "selfStake";
-      args.unshift(valueToStake);
-    }
-    return [functionName, args];
-  }, [valueToStake, lockedPeriodSeconds]);
-
-  return useStakeTxWithApprovalCheck({
+const useSelfStakeTx = ({ address }: { address: `0x${string}` }) => {
+  const { stake, isLoading, isConfirmed, approvalIsLoading } = useStakeTxWithApprovalCheck({
     address,
-    requiredApprovalAmount: valueToStake,
-    functionName,
-    functionArgs,
-    onConfirm,
   });
+
+  const selfStake = useCallback(
+    ({ inputValue, lockedPeriodSeconds }: { inputValue: string; lockedPeriodSeconds: bigint }) => {
+      const valueToStake = parseEther(inputValue);
+      let functionName = "extendSelfStake";
+      let functionArgs: any[] = [lockedPeriodSeconds];
+      if (valueToStake > 0n) {
+        functionName = "selfStake";
+        functionArgs.unshift(valueToStake);
+      }
+
+      stake({
+        functionName,
+        functionArgs,
+        requiredApprovalAmount: valueToStake,
+      });
+    },
+    [stake]
+  );
+
+  return {
+    selfStake,
+    isLoading,
+    isConfirmed,
+    approvalIsLoading,
+  };
 };
 
 const UpdateModalDataLine = ({
@@ -128,18 +128,21 @@ export const SelfStakeModal = ({
 }) => {
   const lockedPeriodSeconds = BigInt(lockedPeriodMonths) * 30n * 24n * 60n * 60n;
 
-  const { stake, isLoading } = useSelfStakeTx({
+  const { selfStake, isLoading, isConfirmed, approvalIsLoading } = useSelfStakeTx({
     address,
-    inputValue,
-    lockedPeriodSeconds,
-    onConfirm: onClose,
   });
+
+  useEffect(() => {
+    if (isConfirmed) {
+      onClose();
+    }
+  }, [isConfirmed, onClose]);
 
   return (
     <StakeModal
       title={stakeToUpdate ? "Update self stake" : "Stake on yourself"}
-      buttonText={stakeToUpdate ? "Update stake" : "Stake"}
-      onButtonClick={stake}
+      buttonText={approvalIsLoading ? "Requesting approval (1 of 2)..." : stakeToUpdate ? "Update stake" : "Stake"}
+      onButtonClick={() => selfStake({ inputValue, lockedPeriodSeconds: lockedPeriodSeconds })}
       buttonLoading={isLoading}
       isOpen={isOpen}
       onClose={onClose}

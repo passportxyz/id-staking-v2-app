@@ -1,19 +1,15 @@
-import React from "react";
+import React, { useCallback } from "react";
 import { StakeForOthersHistory } from "./StakeForOthersHistory";
 import { StakeForOthersForm } from "./StakeForOthersForm";
 import { StakeSection } from "./StakeSection";
-import { StakeData, useStakeHistoryQuery } from "@/utils/stakeHistory";
+import { useCommunityStakeHistoryQuery } from "@/utils/stakeHistory";
 import { useAccount } from "wagmi";
 
 export const StakeForOthers = ({}: any) => {
   const { address } = useAccount();
-  const { data } = useStakeHistoryQuery(address);
-  const yourStakeHistory = data?.filter((stake: StakeData) => {
-    return stake.stakee !== address?.toLowerCase();
-  });
-  const stakedAmount: string = yourStakeHistory
-    ? yourStakeHistory.reduce((acc, stake) => acc + BigInt(stake.amount), 0n).toString()
-    : "0";
+  const { data } = useCommunityStakeHistoryQuery(address);
+
+  const stakedAmount: string = data?.reduce((acc, stake) => acc + BigInt(stake.amount), 0n).toString() || "0";
 
   return (
     <StakeSection

@@ -39,7 +39,33 @@ export const useYourStakeHistoryQuery = (address: string | undefined) => {
   const { data, ...rest } = useStakeHistoryQuery(address);
   const chainId = useChainId();
   const filteredData = useMemo(
-    () => data?.filter((stake) => stake.staker === address && stake.stakee === address && stake.chain === chainId),
+    () =>
+      data?.filter(
+        (stake) =>
+          stake.staker.toLowerCase() === address?.toLowerCase() &&
+          stake.stakee.toLowerCase() === address?.toLowerCase() &&
+          stake.chain === chainId
+      ),
+    [data, address, chainId]
+  );
+
+  return {
+    ...rest,
+    data: filteredData,
+  };
+};
+
+export const useCommunityStakeHistoryQuery = (address: string | undefined) => {
+  const { data, ...rest } = useStakeHistoryQuery(address);
+  const chainId = useChainId();
+  const filteredData = useMemo(
+    () =>
+      data?.filter(
+        (stake) =>
+          stake.staker.toLowerCase() === address?.toLowerCase() &&
+          stake.stakee.toLowerCase() !== address.toLowerCase() &&
+          stake.chain === chainId
+      ),
     [data, address, chainId]
   );
 

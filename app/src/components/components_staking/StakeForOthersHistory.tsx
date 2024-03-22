@@ -27,12 +27,7 @@ const CommunityRestakeButton = ({ stake, address }: { stake: StakeData; address:
 
   return (
     <>
-      <CommunityRestakeModal
-        address={address}
-        stakedData={[stake]}
-        isOpen={modalIsOpen}
-        onClose={onClose}
-      />
+      <CommunityRestakeModal address={address} stakedData={[stake]} isOpen={modalIsOpen} onClose={onClose} />
       <button onClick={() => setModalIsOpen(true)}>Restake</button>
     </>
   );
@@ -159,7 +154,7 @@ const StakeLine = ({ stake, address }: { stake: StakeData; address: string }) =>
           <Popover.Panel className="absolute z-10 inline-block">
             <div className="grid grid-rows-2 mx-10 border rounded p-1 border border-foreground-4 bg-gradient-to-b from-background to-background-6">
               <CommunityRestakeButton address={address} stake={stake} />
-              <CommunityUnstakeButton address={address} stake={stake} unlocked={unlocked}/>
+              <CommunityUnstakeButton address={address} stake={stake} unlocked={unlocked} />
             </div>
           </Popover.Panel>
         </Popover>

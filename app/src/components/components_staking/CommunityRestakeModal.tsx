@@ -1,20 +1,19 @@
-import React, { ComponentPropsWithRef, Fragment, useCallback, useMemo } from "react";
+import React, { ComponentPropsWithRef, Fragment, useCallback, useEffect, useMemo } from "react";
 import IdentityStakingAbi from "../../abi/IdentityStaking.json";
 import { useStakeHistoryQueryKey } from "@/utils/stakeHistory";
 import { DisplayAddressOrENS, DisplayDuration, formatAmount, useConnectedChain } from "@/utils/helpers";
-import { StakeModal, DataLine } from "./StakeModal";
 import { useStakeTxHandler } from "@/hooks/hooks_staking/useStakeTxHandler";
 import { Dialog, Transition } from "@headlessui/react";
 import { BackdropEnabler } from "./Backdrop";
 import { PanelDiv } from "./PanelDiv";
 import { LoadButton } from "../LoadButton";
 import { Button } from "@chakra-ui/react";
-import { StakeData, useStakeHistoryQuery } from "@/utils/stakeHistory";
+import { StakeData } from "@/utils/stakeHistory";
 
-const useExtendCommunityStake = ({ onConfirm, address }: { onConfirm: () => void; address: string }) => {
+const useExtendCommunityStake = ({ address }: { address: string }) => {
   const chain = useConnectedChain();
   const queryKey = useStakeHistoryQueryKey(address);
-  const { isLoading, writeContract } = useStakeTxHandler({ queryKey, onConfirm, txTitle: "Restake" });
+  const { isLoading, writeContract, isConfirmed } = useStakeTxHandler({ queryKey, txTitle: "Restake" });
 
   const extendCommunityStake = useCallback(
     async (stakedData: StakeData[]) => {
@@ -52,15 +51,16 @@ const useExtendCommunityStake = ({ onConfirm, address }: { onConfirm: () => void
 
       
     },
-    [writeContract]
+    [writeContract, chain.stakingContractAddr]
   );
 
   return useMemo(
     () => ({
       isLoading,
       extendCommunityStake,
+      isConfirmed,
     }),
-    [isLoading, extendCommunityStake]
+    [isLoading, extendCommunityStake, isConfirmed]
   );
 };
 
@@ -106,8 +106,14 @@ export const CommunityRestakeModal = ({
   isOpen: boolean;
   onClose: () => void;
 }) => {
-  const { isLoading, extendCommunityStake } = useExtendCommunityStake({ onConfirm: onClose, address });
-  
+  const { isLoading, extendCommunityStake, isConfirmed } = useExtendCommunityStake({ address });
+
+  useEffect(() => {
+    if (isConfirmed) {
+      onClose();
+    }
+  }, [isConfirmed, onClose]);
+
   return (
     <>
       <Transition appear show={isOpen} as={Fragment}>
@@ -181,5 +187,3 @@ export const CommunityRestakeModal = ({
     </>
   );
 };
-
-
