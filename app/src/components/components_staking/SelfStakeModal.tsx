@@ -52,6 +52,52 @@ const UpdateModalDataLine = ({
   </div>
 );
 
+export const UpdateStakeModalBody = ({
+  address,
+  inputValue,
+  lockedPeriodSeconds,
+  stakeToUpdate,
+}: {
+  address: `0x${string}`;
+  inputValue: string;
+  lockedPeriodSeconds: number;
+  stakeToUpdate: StakeData;
+}) => {
+  const oldAmount = formatAmount(stakeToUpdate.amount);
+  const newAmount = parseFloat(inputValue) >= 0 ? inputValue : "0";
+  const total = formatAmount((parseEther(inputValue) + BigInt(stakeToUpdate.amount)).toString());
+
+  const oldUnlockDate = new Date(stakeToUpdate.unlock_time);
+
+  const newUnlockDate = new Date(Date.now() + lockedPeriodSeconds * 1000);
+
+  return (
+    <div>
+      <UpdateModalDataLine label="Address">
+        <DisplayAddressOrENS user={address} max={20} />
+      </UpdateModalDataLine>
+      <hr className="border-foreground-4" />
+      <UpdateModalDataLine label="Old amount">{oldAmount} GTC</UpdateModalDataLine>
+      <hr className="border-foreground-4" />
+      <UpdateModalDataLine label="New amount" emphasis>
+        +{newAmount} GTC
+      </UpdateModalDataLine>
+      <hr className="border-foreground-4" />
+      <UpdateModalDataLine label="Total" emphasis>
+        {total} GTC
+      </UpdateModalDataLine>
+      <hr className="border-foreground-4" />
+      <UpdateModalDataLine label="Old unlock date">{formatDate(oldUnlockDate)}</UpdateModalDataLine>
+      <hr className="border-foreground-4" />
+      <UpdateModalDataLine label="New lockup period" emphasis>
+        <DisplayDuration seconds={lockedPeriodSeconds} />
+      </UpdateModalDataLine>
+      <hr className="border-foreground-4" />
+      <UpdateModalDataLine label="New unlock date">{formatDate(newUnlockDate)}</UpdateModalDataLine>
+    </div>
+  );
+};
+
 const SelfStakeModalBody = ({
   address,
   inputValue,
@@ -66,38 +112,13 @@ const SelfStakeModalBody = ({
   stakeToUpdate?: StakeData;
 }) => {
   if (stakeToUpdate) {
-    const oldAmount = formatAmount(stakeToUpdate.amount);
-    const newAmount = parseFloat(inputValue) >= 0 ? inputValue : "0";
-    const total = formatAmount((parseEther(inputValue) + BigInt(stakeToUpdate.amount)).toString());
-
-    const oldUnlockDate = new Date(stakeToUpdate.unlock_time);
-
-    const newUnlockDate = new Date(Date.now() + lockedPeriodSeconds * 1000);
-
     return (
-      <div>
-        <UpdateModalDataLine label="Address">
-          <DisplayAddressOrENS user={address} max={20} />
-        </UpdateModalDataLine>
-        <hr className="border-foreground-4" />
-        <UpdateModalDataLine label="Old amount">{oldAmount} GTC</UpdateModalDataLine>
-        <hr className="border-foreground-4" />
-        <UpdateModalDataLine label="New amount" emphasis>
-          +{newAmount} GTC
-        </UpdateModalDataLine>
-        <hr className="border-foreground-4" />
-        <UpdateModalDataLine label="Total" emphasis>
-          {total} GTC
-        </UpdateModalDataLine>
-        <hr className="border-foreground-4" />
-        <UpdateModalDataLine label="Old unlock date">{formatDate(oldUnlockDate)}</UpdateModalDataLine>
-        <hr className="border-foreground-4" />
-        <UpdateModalDataLine label="New lockup period" emphasis>
-          <DisplayDuration seconds={lockedPeriodSeconds} />
-        </UpdateModalDataLine>
-        <hr className="border-foreground-4" />
-        <UpdateModalDataLine label="New unlock date">{formatDate(newUnlockDate)}</UpdateModalDataLine>
-      </div>
+      <UpdateStakeModalBody
+        address={address}
+        inputValue={inputValue}
+        lockedPeriodSeconds={lockedPeriodSeconds}
+        stakeToUpdate={stakeToUpdate}
+      />
     );
   }
   return (

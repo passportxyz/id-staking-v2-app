@@ -1,30 +1,32 @@
 import React, { useState, useCallback, useMemo, ChangeEvent, useEffect, ComponentPropsWithRef } from "react";
-import IdentityStakingAbi from "../../abi/IdentityStaking.json";
-import { useStakeHistoryQueryKey } from "@/utils/stakeHistory";
-import { DisplayAddressOrENS, DisplayDuration, formatAmount, formatSeconds, useConnectedChain } from "@/utils/helpers";
-import { FormButton } from "./StakeFormInputSection";
-import { useStakeTxHandler } from "@/hooks/hooks_staking/useStakeTxHandler";
+import { DisplayAddressOrENS, formatAmount } from "@/utils/helpers";
 import { StakeModal } from "./StakeModal";
 import { parseEther } from "viem";
+import { StakeData } from "@/utils/stakeHistory";
+import { PresetAmountsSelection, PresetMonthsSelection, StakeAmountInput } from "./StakeFormInputSection";
+import { useInitializeStakeForm } from "./YourStakeForm";
+import { useStakeTxWithApprovalCheck } from "@/hooks/hooks_staking/useStakeTxWithApprovalCheck";
+import { UpdateStakeModalBody } from "./SelfStakeModal";
 
-const useExtendCommunityStake = ({ address }: { address: string }) => {
-  const chain = useConnectedChain();
-  const queryKey = useStakeHistoryQueryKey(address);
-
-  const { isLoading, writeContract, isConfirmed } = useStakeTxHandler({ queryKey, txTitle: "Update stake" });
+const useExtendCommunityStake = ({ staker }: { staker: `0x${string}` }) => {
+  const { stake, isLoading, isConfirmed, approvalIsLoading } = useStakeTxWithApprovalCheck({
+    address: staker,
+  });
 
   const extendCommunityStake = useCallback(
-    async (communityAddress: string, months: number, amount: number) => {
-      const valueToStake = parseEther(amount.toString());
-      const lockSeconds = months * 30 * 24 * 60 * 60;
-      return writeContract({
-        address: chain.stakingContractAddr,
-        abi: IdentityStakingAbi,
-        functionName: "communityStake",
-        args: [communityAddress, valueToStake, BigInt(lockSeconds)],
-      });
+    async (communityAddress: string, stakeValue: bigint, lockSeconds: number) => {
+      let functionName: string;
+      let functionArgs: any[];
+      if (stakeValue > 0n) {
+        functionName = "communityStake";
+        functionArgs = [communityAddress, stakeValue, BigInt(lockSeconds)];
+      } else {
+        functionName = "extendCommunityStake";
+        functionArgs = [communityAddress, BigInt(lockSeconds)];
+      }
+      stake({ functionName, functionArgs, requiredApprovalAmount: stakeValue });
     },
-    [writeContract, chain.stakingContractAddr]
+    [stake]
   );
 
   return useMemo(
@@ -37,47 +39,22 @@ const useExtendCommunityStake = ({ address }: { address: string }) => {
   );
 };
 
-const Th = ({ className, children, ...props }: ComponentPropsWithRef<"th"> & { children: React.ReactNode }) => (
-  <th className={`${className} p-2 pb-4 text-color-6`} {...props}>
-    {children}
-  </th>
-);
-
-const Td = ({ className, ...props }: ComponentPropsWithRef<"td">) => (
-  <td className={`${className} p-2 py-4`} {...props} />
-);
-
-const StakeLine = ({ address, amount, lockedMonths }: { address: string, amount: number, lockedMonths:number }) => {
-
-  const lockSeconds = lockedMonths * 30 * 24 * 60 * 60;
-
-  return (
-    <tr>
-      <Td className="text-start">
-        <DisplayAddressOrENS className="justify-start" user={address} />
-      </Td>
-      <Td className="text-end">{amount} GTC</Td>
-      <Td className="text-end">
-        <div>{lockedMonths} months</div>
-      </Td>
-    </tr>
-  );
-};
-
 const CommunityUpdateModal = ({
-  address,
+  stakeToUpdate,
   amount,
-  lockedMonths,
+  lockedPeriodMonths,
   isOpen,
   onClose,
 }: {
-  address: string;
-  amount: number;
-  lockedMonths: number;
+  stakeToUpdate: StakeData;
+  amount: string;
+  lockedPeriodMonths: number;
   isOpen: boolean;
   onClose: () => void;
 }) => {
-  const { isLoading, extendCommunityStake, isConfirmed } = useExtendCommunityStake({ address });
+  const lockedPeriodSeconds = lockedPeriodMonths * 30 * 24 * 60 * 60;
+  const { isLoading, extendCommunityStake, isConfirmed } = useExtendCommunityStake({ staker: stakeToUpdate.staker });
+  const stakeValue = parseEther(amount);
 
   useEffect(() => {
     if (isConfirmed) {
@@ -89,157 +66,142 @@ const CommunityUpdateModal = ({
     <StakeModal
       title="Update stake on others"
       buttonText="Update Stake"
-      onButtonClick={() => extendCommunityStake(address, amount, lockedMonths)}
+      onButtonClick={() => extendCommunityStake(stakeToUpdate.stakee, stakeValue, lockedPeriodSeconds)}
       buttonLoading={isLoading}
       isOpen={isOpen}
       onClose={onClose}
     >
-      <div className="mt-2">
-        <table className="w-full">
-          <thead>
-            <tr className="border-b pb-6 border-foreground-4">
-              <Th className="text-start">Address</Th>
-              <Th className="text-end">Amount</Th>
-              <Th className="text-end">Lockup</Th>
-            </tr>
-          </thead>
-
-          <tbody>
-              <StakeLine key={0} address={address} amount={amount} lockedMonths={lockedMonths}/>
-          </tbody>
-        </table>
-      </div>
+      <UpdateStakeModalBody
+        address={stakeToUpdate.stakee}
+        inputValue={amount}
+        lockedPeriodSeconds={lockedPeriodSeconds}
+        stakeToUpdate={stakeToUpdate}
+      />
     </StakeModal>
   );
 };
 
 const CommunityUpdateModalPreview = ({
-  address,
+  stake,
   amount,
-  lockSeconds,
+  setAmount,
+  lockedPeriodMonths,
+  setLockedPeriodMonths,
   isOpen,
   onClose,
+  onContinue,
 }: {
-  address: string;
+  stake: StakeData;
   amount: string;
-  lockSeconds: number;
+  setAmount: React.Dispatch<React.SetStateAction<string>>;
+  lockedPeriodMonths: number;
+  setLockedPeriodMonths: React.Dispatch<React.SetStateAction<number>>;
   isOpen: boolean;
   onClose: () => void;
+  onContinue: () => void;
 }) => {
-  const { isLoading, extendCommunityStake, isConfirmed } = useExtendCommunityStake({ address });
-  const [updatedAmount, setUpdatedAmountValue] = useState<number>(formatAmount(amount));
-  const [updatedLockedMonths, setUpdatedLockedMonths] = useState<number>(formatSeconds(lockSeconds).month);
-  
-  useEffect(() => {
-    if (isConfirmed) {
-      onClose();
-    }
-  }, [isConfirmed, onClose]);
+  const [previousUnlockTime, setPreviousUnlockTime] = useState<Date | undefined>();
 
-  const handleAddValue = (added: number) => {
-    setUpdatedAmountValue(updatedAmount + added);
-  };
+  useInitializeStakeForm({ stake, setLockedPeriodMonths, setPreviousUnlockTime });
+
   const handleInputChange = (event: ChangeEvent<HTMLInputElement>) => {
-    setUpdatedAmountValue(Number(event.target.value));
+    setAmount(event.target.value);
   };
-
-  const handleLockedPeriod = (month: number) => {
-    setUpdatedLockedMonths(month);
-  };
- 
-  const [updateModalIsOpen, setUpdateModalIsOpen] = useState(false);
-
-  const onCloseUpdate = useCallback(() => {
-    setUpdateModalIsOpen(false);
-  }, []);
 
   return (
-    <>
-      <CommunityUpdateModal
-        address={address}
-        amount={updatedAmount}
-        lockedMonths={updatedLockedMonths}
-        isOpen={updateModalIsOpen}
-        onClose={onCloseUpdate}
-      />
-
     <StakeModal
       title="Update stake on others"
       buttonText="Preview"
-      onButtonClick={() => {onClose(); setUpdateModalIsOpen(true)}}
-      buttonLoading={isLoading}
+      onButtonClick={onContinue}
+      buttonLoading={false}
       isOpen={isOpen}
       onClose={onClose}
     >
-      <div>
-        <div className="row-span-1 text-color-2">Address</div>
-        <div className="pl-2 border rounded opacity-50 bg-gradient-to-r from-foreground-2 to-foreground-4 text-color-4">
-          <input
-            className="w-full bg-gradient-to-r from-foreground-2 to-foreground-4 "
-            type="text"
-            value={address}
-            disabled
+      <div className="flex flex-col text-color-2">
+        <div>Address</div>
+        <input
+          type="text"
+          value={stake.stakee}
+          disabled
+          className="w-full px-4 py-1 bg-gradient-to-r text-color-3 opacity-50 from-background-8 to-background-7 mb-4 mt-1 rounded-lg"
+        />
+        <div className="flex justify-between w-full items-center">
+          Amount
+          <div className="flex gap-2 my-1 items-center text-color-1">
+            Current Amount
+            <div className="font-bold bg-gradient-to-r from-background-8 to-background-7 text-color-3 text-sm rounded-lg px-2 flex items-center">
+              {formatAmount(stake.amount)}
+            </div>
+          </div>
+        </div>
+        <StakeAmountInput
+          amount={amount}
+          onChange={handleInputChange}
+          disabled={false}
+          includePlusAmountPrefix={true}
+        />
+
+        <div className="self-end flex gap-2 my-4">
+          <PresetAmountsSelection
+            amount={amount}
+            handleAmountChange={setAmount}
+            disabled={false}
+            includePlusAmountPrefix={true}
           />
         </div>
-        <br />
-        <div className="row-span-1 text-color-2">Amount</div>
-        <div className="border rounded text-color-2 bg-background">
-          <input className="pl-2 w-full bg-background" type="text" value={updatedAmount} onChange={handleInputChange} />
-        </div>
 
-        <br />
-        <div className="gap-2 place-content-end hidden lg:flex col-span-2 text-color-4">
-          {[5, 20, 125].map((amount) => (
-            <FormButton key={amount} onClick={() => handleAddValue(amount)} className="w-12" variant="inactive">
-              {`+${amount}`}
-            </FormButton>
-          ))}
+        <div>Lockup period</div>
+        <div className="flex w-full gap-4 mt-2 mb-8">
+          <PresetMonthsSelection
+            lockedMonths={lockedPeriodMonths}
+            handleLockedMonthsChange={setLockedPeriodMonths}
+            disabled={false}
+            onlyAllowStakeAfterTime={previousUnlockTime}
+          />
         </div>
-
-        <br />
-        <div className="row-span-1 text-color-2">Lockup period</div>
-        <div className="flex col-span-3 w-full col-end-[-1] text-sm gap-2 justify-self-end">
-          {[3, 6, 12].map((months) => (
-            <FormButton
-              key={months}
-              onClick={() => handleLockedPeriod(months)}
-              className="text-sm w-full"
-              variant={months === updatedLockedMonths ? "active" : "inactive"}
-            >
-              {months} months
-            </FormButton>
-          ))}
-        </div>
-        <br />
       </div>
     </StakeModal>
-    </>
   );
 };
 
-export const CommunityUpdateButton = ({
-  lockSeconds,
-  address,
-  amount,
-}: {
-  lockSeconds: number;
-  address: string;
-  amount: string;
-}) => {
+export const CommunityUpdateButton = ({ stake }: { stake: StakeData }) => {
   const [previewModalIsOpen, setPreviewModalIsOpen] = useState(false);
+  const [transactionModalIsOpen, setTransactionModalIsOpen] = useState(false);
+  const [amount, setAmount] = useState<string>("");
+  const [lockedPeriodMonths, setLockedPeriodMonths] = useState<number>(3);
 
-  const onClose = useCallback(() => {
+  const onClosePreviewModal = useCallback(() => {
     setPreviewModalIsOpen(false);
+  }, []);
+
+  const onCloseTransactionModal = useCallback(() => {
+    setTransactionModalIsOpen(false);
+  }, []);
+
+  const onContinue = useCallback(() => {
+    setPreviewModalIsOpen(false);
+    setTransactionModalIsOpen(true);
   }, []);
 
   return (
     <>
       <CommunityUpdateModalPreview
-        address={address}
-        amount={amount}
-        lockSeconds={lockSeconds}
+        stake={stake}
         isOpen={previewModalIsOpen}
-        onClose={onClose}
+        onClose={onClosePreviewModal}
+        onContinue={onContinue}
+        amount={amount}
+        setAmount={setAmount}
+        lockedPeriodMonths={lockedPeriodMonths}
+        setLockedPeriodMonths={setLockedPeriodMonths}
+      />
+      <CommunityUpdateModal
+        stakeToUpdate={stake}
+        isOpen={transactionModalIsOpen}
+        onClose={onCloseTransactionModal}
+        amount={amount}
+        lockedPeriodMonths={lockedPeriodMonths}
+        address={stake.stakee}
       />
 
       <button onClick={() => setPreviewModalIsOpen(true)} className="text-color-6 font-bold">

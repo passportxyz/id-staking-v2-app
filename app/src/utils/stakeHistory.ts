@@ -7,8 +7,8 @@ import { useChainId } from "wagmi";
 
 export type StakeData = {
   chain: number;
-  staker: string;
-  stakee: string;
+  staker: `0x${string}`;
+  stakee: `0x${string}`;
   amount: string;
   unlock_time: string;
   lock_time: string;
