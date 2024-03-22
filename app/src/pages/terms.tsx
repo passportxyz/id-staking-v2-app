@@ -53,7 +53,7 @@ export default function Terms() {
           </p>
           <h2 className={headerStyle}>4. Technical Knowledge and Risk Acknowledgement [CONSIDERATION]</h2>
           <p className={sectionStyle}>
-            In using Passport, it's crucial that users have a foundational understanding of blockchain technology and
+            In using Passport, it&apos;s crucial that users have a foundational understanding of blockchain technology and
             the specific mechanisms we employ, such as staking and slashing, to maintain the integrity and security of
             the ecosystem. To assist with this, we provide access to a variety of resources: Our Open-Source Codebase:
             Explore the technical underpinnings of Passport by visiting our GitHub repository
@@ -89,7 +89,7 @@ export default function Terms() {
             unique to one Passport and cannot be reused or shared across multiple Passports. This rule is critical in
             safeguarding the ecosystem against attempts to manipulate the system, ensuring a fair and equitable
             environment for all participants. Any infringement of this policy, such as the replication of a single Stamp
-            across several Passports, will result in 'slashing' penalties. These consequences can range from the loss of
+            across several Passports, will result in &apos;slashing&apos; penalties. These consequences can range from the loss of
             rewards to a reduction in staking benefits or other appropriate punitive measures. Slashing acts as a
             powerful deterrent against actions that compromise the ecosystem’s integrity and fairness. Passport is
             dedicated to enforcing these rules rigorously, continuously updating our policies to guard against new forms
@@ -119,7 +119,7 @@ export default function Terms() {
             resulting from user-uploaded content. Negligence or Misconduct: Any acts of negligence, wrongful conduct, or
             intentional misconduct by users that result in claims or damages to any party, including other users of
             Passport or third parties. This indemnification responsibility entails that users will cover all costs,
-            damages, and expenses, including reasonable attorneys' fees, that arise from claims brought against Gitcoin
+            damages, and expenses, including reasonable attorneys&apos; fees, that arise from claims brought against Gitcoin
             due to the users’ actions or content provided while using Passport. The clause is designed to protect
             Gitcoin and its ecosystem from financial losses and legal implications stemming from users’ activities that
             fail to comply with the Terms of Service or applicable laws. By using Passport, users acknowledge their
@@ -128,7 +128,7 @@ export default function Terms() {
           </p>
           <h2 className={headerStyle}>11. Limitation of Liability and Warranty Disclaimer</h2>
           <p className={sectionStyle}>
-            Passport is provided 'as is' without warranties. Passport is not liable for damages arising from the use of
+            Passport is provided &apos;as is&apos; without warranties. Passport is not liable for damages arising from the use of
             Passport.
           </p>
           <h2 className={headerStyle}>12. Provisions for Unexpected Events [CONSIDERATION]</h2>
@@ -142,11 +142,11 @@ export default function Terms() {
           </p>
           <h2 className={headerStyle}>14. Governing Law and Dispute Resolution</h2>
           <p className={sectionStyle}>
-            These Terms are governed by [applicable jurisdiction's laws]. Disputes will be resolved through our appeals
+            These Terms are governed by [applicable jurisdiction&apos;s laws]. Disputes will be resolved through our appeals
             process as outlined in Passport’s Identity and Appeals process.
           </p>
           <h2 className={headerStyle}>15. Termination</h2>
-          <p className={sectionStyle}>Passport may terminate a user's access to Passport for breach of these Terms.</p>
+          <p className={sectionStyle}>Passport may terminate a user&apos;s access to Passport for breach of these Terms.</p>
           <h2 className={headerStyle}>16. Contact Information</h2>
           <p className={sectionStyle}>
             For questions about these Terms, please contact [Passport contact information] and refer to the Privacy
