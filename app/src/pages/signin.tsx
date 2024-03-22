@@ -2,6 +2,7 @@
 // --- React Methods
 import React, { useEffect, useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
+import { useAccount } from "wagmi";
 
 // --- Shared data context
 import { useWalletStore } from "../context/walletStore";
@@ -21,6 +22,7 @@ export default function Home() {
   const { connect: connectDatastore, dbAccessTokenStatus } = useDatastoreConnectionContext();
   const toast = useToast();
   const [enableEthBranding, setEnableEthBranding] = useState(false);
+  const { isConnected } = useAccount();
 
   const gtcStakingStampPlatform: PlatformScoreSpec = {
     name: "GTC Staking",
@@ -35,10 +37,10 @@ export default function Home() {
 
   // Route user to dashboard when wallet is connected
   useEffect(() => {
-    if (address && dbAccessTokenStatus === "connected") {
+    if (isConnected && dbAccessTokenStatus === "connected") {
       navigate("/home");
     }
-  }, [address, dbAccessTokenStatus]);
+  }, [isConnected, dbAccessTokenStatus, navigate]);
 
   useEffect(() => {
     if (connectError) {
@@ -172,7 +174,14 @@ export default function Home() {
             <div className={notificationClass}>
               <span className="pl-8 pr-0 text-l text-nowrap">Passport Stamps</span>
               <div className="flex items-center rounded-lg border text-2xl h-full px-4 w-2/5">
-                <svg className="min-w-" width="19" height="21" viewBox="0 0 19 21" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <svg
+                  className="min-w-"
+                  width="19"
+                  height="21"
+                  viewBox="0 0 19 21"
+                  fill="none"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
                   <path
                     d="M18.1955 7.11548V13.9333C18.1955 15.0111 17.609 16.0074 16.6574 16.5463L10.6363 19.9552C9.68471 20.4941 8.51172 20.4941 7.55914 19.9552L1.53813 16.5463C0.586494 16.0074 0 15.0111 0 13.9333V7.11548C0 6.03762 0.586494 5.04139 1.53813 4.50246L7.55914 1.09357C8.51078 0.554642 9.68376 0.554642 10.6363 1.09357L16.6574 4.50246C17.609 5.04139 18.1955 6.03762 18.1955 7.11548Z"
                     fill="#6CB6AD"
