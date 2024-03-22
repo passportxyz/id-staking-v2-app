@@ -10,6 +10,7 @@ import { ContentTooltip } from "./Tooltip";
 
 type MinimalHeaderProps = {
   className?: string;
+  hideMenu?: boolean;
 };
 
 const LINKS = [
@@ -38,7 +39,7 @@ const getAssets = () => {
   };
 };
 
-const MinimalHeader = ({ className }: MinimalHeaderProps): JSX.Element => {
+const MinimalHeader = ({ className, hideMenu }: MinimalHeaderProps): JSX.Element => {
   const assets = useMemo(() => getAssets(), []);
 
   const { address } = useAccount();
@@ -60,10 +61,14 @@ const MinimalHeader = ({ className }: MinimalHeaderProps): JSX.Element => {
         <img className="h-8" src={assets.passportLogo} alt="Passport Logo" />
         <div className="ml-3 xl:text-2xl text-color-1 lg:block hidden">Identity Staking</div>
       </div>
-      <div className={`h-16 ${className} flex-1 flex justify-center items-center`}>
-        <LinksList className="hidden md:flex" />
-        <LinksDropdown className="md:hidden flex" />
-      </div>
+      {hideMenu ? (
+        <div className={`h-16 ${className} flex-1 flex justify-center items-center`} />
+      ) : (
+        <div className={`h-16 ${className} flex-1 flex justify-center items-center`}>
+          <LinksList className="hidden md:flex" />
+          <LinksDropdown className="md:hidden flex" />
+        </div>
+      )}
       {/* Placeholder for wallet UI */}
       <div className="flex-1" />
     </div>
