@@ -30,8 +30,11 @@ const walletStore = create<{
   provider: undefined,
   error: undefined,
   connect: async (callback: ConnectCallback) => {
+    console.log("walletStore connect");
+    console.log("walletStore connect, isServerOnMaintenance()", isServerOnMaintenance());
     if (!isServerOnMaintenance()) {
       try {
+        console.log("walletStore connect 1");
         const previouslyUsedWalletLabel = getPreviouslyUsedWalletLabel();
         const connectOptions = previouslyUsedWalletLabel
           ? {
@@ -41,6 +44,7 @@ const walletStore = create<{
               },
             }
           : undefined;
+        console.log("walletStore connect 2");
         let wallet = (await onboard.connectWallet(connectOptions))[0];
 
         if (!wallet) {
@@ -60,6 +64,7 @@ const walletStore = create<{
 
         window.localStorage.setItem("previouslyUsedWalletLabel", wallet.label);
 
+        console.log("walletStore connect 3");
         const walletData = parseWeb3OnboardWallet(wallet);
 
         set({ ...walletData, address: walletData.address as `0x${string}` });

@@ -35,6 +35,8 @@ export default function Home() {
 
   const navigate = useNavigate();
 
+  console.log("signin isConnected, dbAccessTokenStatus", isConnected, dbAccessTokenStatus);
+
   // Route user to dashboard when wallet is connected
   useEffect(() => {
     if (isConnected && dbAccessTokenStatus === "connected") {
@@ -62,6 +64,8 @@ export default function Home() {
   }, [connectError]);
 
   const signIn = async () => {
+    console.log("signin signing in ...");
+
     await connectWallet(connectDatastore);
   };
 
