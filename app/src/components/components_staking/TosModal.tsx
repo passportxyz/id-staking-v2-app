@@ -20,36 +20,48 @@ export const TosModal = ({
   const terms = [
     <>
       I aknowledge that I might be slashed for bad behaviour.
-      <a href="#">TODO Learn more about slashing</a>
+      <a href="#/terms" className="text-color-6">
+        Learn more about slashing
+      </a>
     </>,
     <>
-      Specifics about slashing and wallets. <a href="#">TODO Learn more</a>
+      Specifics about slashing and wallets.{" "}
+      <a
+        href="https://docs.passport.gitcoin.co/building-with-passport/major-concepts/deduplicating-stamps"
+        target="blank"
+        className="text-color-6"
+      >
+        Learn more
+      </a>
     </>,
     <>
-      I agree to the <a href="#/terms">Terms and Conditions.</a>
+      I agree to the{" "}
+      <a href="#/terms" className="text-color-6">
+        Terms and Conditions.
+      </a>
     </>,
   ];
 
   const [acceptedTerms, setAcceptedTerms] = useState(terms.map(() => false));
   const termsCheckBoxes = terms.map((t, index) => (
-    <li key={index}>
-      <label>
-        <input
-          id="id-tos-1"
-          type="checkbox"
-          className="h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-600"
-          checked={acceptedTerms[index]}
-          onChange={(e) => {
-            console.log(e.target.value);
-            const newacceptedTerms = [...acceptedTerms];
-            newacceptedTerms[index] = !newacceptedTerms[index];
-            setAcceptedTerms(newacceptedTerms);
-            return;
-          }}
-        />
-        {t}
-      </label>
-    </li>
+    <label>
+      <div className="flex justify-start gap-2 pb-4">
+        <div className="flex-1 min-w-6 max-w-6 pt-1">
+          <input
+            type="checkbox"
+            className="h-4 w-4"
+            checked={acceptedTerms[index]}
+            onChange={(e) => {
+              console.log(e.target.value);
+              const newacceptedTerms = [...acceptedTerms];
+              newacceptedTerms[index] = !newacceptedTerms[index];
+              setAcceptedTerms(newacceptedTerms);
+            }}
+          />
+        </div>
+        <div className="flex-grow">{t}</div>
+      </div>
+    </label>
   ));
   const allTermsAccepted = acceptedTerms.every((t) => t);
   return (
@@ -64,7 +76,7 @@ export const TosModal = ({
     >
       <div>
         Before you can stake, you have to agree to the following:
-        <ul>{termsCheckBoxes}</ul>
+        <div className="flex flex-col pt-12 pb-12 w-full">{termsCheckBoxes}</div>
       </div>
     </StakeModal>
   );

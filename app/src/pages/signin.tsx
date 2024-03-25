@@ -1,7 +1,7 @@
 /* eslint-disable react-hooks/exhaustive-deps, @next/next/no-img-element */
 // --- React Methods
 import React, { useEffect, useState, useMemo } from "react";
-import { useNavigate, useSearchParams } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { useAccount, useSignMessage } from "wagmi";
 import axios from "axios";
 
@@ -13,7 +13,7 @@ import PageRoot from "../components/PageRoot";
 import SIWEButton from "../components/SIWEButton";
 import { useDatastoreConnectionContext } from "../context/datastoreConnectionContext";
 import { useToast } from "@chakra-ui/react";
-import { DoneToastContent } from "../components/DoneToastContent";
+import { DoneToastContent, makeErrorToastProps } from "../components/DoneToastContent";
 import { PlatformCard, PlatformScoreSpec } from "../components/components_staking/PlatformCard";
 import { TosModal } from "../components/components_staking/TosModal";
 import { useMutation, useQuery, DefaultError, useQueryClient } from "@tanstack/react-query";
@@ -84,6 +84,7 @@ export const useTosAcceptMutation = (address?: string) => {
   const { dbAccessToken, dbAccessTokenStatus } = useDatastoreConnectionContext();
   return useMutation<any, DefaultError, TosSignedMessage>({
     mutationFn: async (tosSigned: TosSignedMessage) => {
+      console.log("Saving signature ...");
       const response = await axios.post(
         `${process.env.NEXT_PUBLIC_SCORER_ENDPOINT}/ceramic-cache/tos/signed-message/IST/${address}`,
         tosSigned,
@@ -105,15 +106,18 @@ export default function Home() {
   const toast = useToast();
   const [enableEthBranding, setEnableEthBranding] = useState(false);
   const { isConnected } = useAccount();
-  const { data: tosCheck, isFetched: isTosCheckFetched } = useTosQuery(address);
-  const { data: tosMessage, isFetched: isTosMessageFetched } = useTosGetMessageQuery(address, tosCheck?.accepted);
+  const tosCheck = useTosQuery(address);
+  const tosMessageToSign = useTosGetMessageQuery(address, tosCheck.data?.accepted);
   const signer = useSignMessage();
   const acceptTos = useTosAcceptMutation(address);
-  const isTosAccepted = isTosCheckFetched && tosCheck?.accepted;
-  const needToAcceptTos = isTosCheckFetched && !tosCheck?.accepted;
+  const isTosAccepted = tosCheck.isFetched && tosCheck.data?.accepted;
+  const needToAcceptTos = tosCheck.isFetched && !tosCheck.data?.accepted;
   const queryClient = useQueryClient();
   const tosQueryKey = useTosQueryKey(address);
 
+  console.log("isConnected, dbAccessTokenStatus", isConnected, dbAccessTokenStatus);
+  console.log("tosCheck", tosCheck.data);
+  console.log("tosMessageToSign", tosMessageToSign.data);
   const gtcStakingStampPlatform: PlatformScoreSpec = {
     name: "GTC Staking",
     description: "Stake GTC to boost your trust in the Gitcoin ecosystem.",
@@ -130,6 +134,15 @@ export default function Home() {
     if (!isConnected && dbAccessTokenStatus === "connected") {
       // TODO: this is an error situation. What to do here?
       console.error("ERROR - db connected but wallet not!");
+      toast(
+        makeErrorToastProps(
+          "Failed",
+          <div>
+            <p>Failed to connect wallet :(</p>
+            <p>Please reload the page</p>
+          </div>
+        )
+      );
     }
 
     if (isConnected && dbAccessTokenStatus === "connected" && isTosAccepted) {
@@ -154,21 +167,85 @@ export default function Home() {
     }
   }, [connectError]);
 
+  useEffect(() => {
+    if (tosMessageToSign.isError) {
+      toast(
+        makeErrorToastProps(
+          "Error getting TOS to sign",
+          <div>
+            <p>{tosMessageToSign.error.message}</p>
+            <p>Please try again ...</p>
+          </div>
+        )
+      );
+    }
+  }, [tosMessageToSign.isError, tosMessageToSign.error]);
+
+  useEffect(() => {
+    if (tosCheck.isError) {
+      toast(
+        makeErrorToastProps(
+          "Error checking TOS acceptance",
+          <div>
+            <p>{tosCheck.error.message}</p>
+            <p>Please try again ...</p>
+          </div>
+        )
+      );
+    }
+  }, [tosCheck.isError, tosCheck.error]);
+
+  useEffect(() => {
+    if (acceptTos.isError) {
+      toast(
+        makeErrorToastProps(
+          "Error saving TOS acceptance signature",
+          <div>
+            <p>{acceptTos.error.message}</p>
+            <p>Please try again ...</p>
+          </div>
+        )
+      );
+    }
+  }, [acceptTos.isError, acceptTos.error]);
+
+  useEffect(() => {
+    if (signer.isError) {
+      console.log("signer errors: ", signer.error);
+      const cause = signer.error?.cause as Error;
+      toast(
+        makeErrorToastProps(
+          `Error saving TOS acceptance signature: ${signer.error?.name}`,
+          <div>
+            <p>{cause?.message || signer.error?.message}</p>
+            <p>Please try again ...</p>
+          </div>
+        )
+      );
+    }
+  }, [signer.isError, signer.error]);
+
   const signIn = async () => {
     console.log("signin signing in ...");
     await connectWallet(connectDatastore);
   };
 
   const onAcceptTos = async () => {
-    console.log("accepting tos ...");
-    if (tosMessage) {
-      const signature = await signer.signMessageAsync({ message: tosMessage.text });
-      await acceptTos.mutateAsync({
-        tos_type: "IST",
-        nonce: tosMessage.nonce,
-        signature: signature,
-      });
-      queryClient.invalidateQueries({ queryKey: tosQueryKey });
+    console.log("accepting tos ...", tosMessageToSign.data);
+    if (tosMessageToSign.data) {
+      try {
+        const signature = await signer.signMessageAsync({ message: tosMessageToSign.data.text });
+        await acceptTos.mutateAsync({
+          tos_type: "IST",
+          nonce: tosMessageToSign.data.nonce,
+          signature: signature,
+        });
+        queryClient.invalidateQueries({ queryKey: tosQueryKey });
+      } catch (error) {
+        console.log("Error: ", error);
+      }
+    } else {
+      console.error("tosMessageToSign.data is undefined");
     }
   };
 
