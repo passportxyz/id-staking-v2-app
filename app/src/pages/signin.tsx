@@ -2,7 +2,7 @@
 // --- React Methods
 import React, { useEffect, useState, useMemo } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
-import { useAccount } from "wagmi";
+import { useAccount, useSignMessage } from "wagmi";
 import axios from "axios";
 
 // --- Shared data context
@@ -16,7 +16,7 @@ import { useToast } from "@chakra-ui/react";
 import { DoneToastContent } from "../components/DoneToastContent";
 import { PlatformCard, PlatformScoreSpec } from "../components/components_staking/PlatformCard";
 import { TosModal } from "../components/components_staking/TosModal";
-import { useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery, DefaultError, useQueryClient } from "@tanstack/react-query";
 
 export const useTosQueryKey = (address: string | undefined): string[] => {
   return useMemo(() => ["tos", address || ""], [address]);
@@ -30,7 +30,14 @@ type TosAccepted = {
 };
 
 type TosMessageToSign = {
-  accepted: boolean;
+  text: string;
+  nonce: string;
+};
+
+type TosSignedMessage = {
+  tos_type: string;
+  nonce: string;
+  signature: string;
 };
 
 export const useTosQuery = (address: string | undefined) => {
@@ -58,7 +65,7 @@ export const useTosGetMessageQuery = (address: string | undefined, accepted?: bo
   const queryKey = useTosMessageQueryKey(address);
   return useQuery({
     queryKey,
-    queryFn: async (): Promise<TosAccepted> => {
+    queryFn: async (): Promise<TosMessageToSign> => {
       const response = await axios.get(
         `${process.env.NEXT_PUBLIC_SCORER_ENDPOINT}/ceramic-cache/tos/message-to-sign/IST/${address}`,
         {
@@ -67,10 +74,26 @@ export const useTosGetMessageQuery = (address: string | undefined, accepted?: bo
           },
         }
       );
-      console.log("geri data", response.data);
-      return response.data as TosAccepted;
+      return response.data as TosMessageToSign;
     },
     enabled: !accepted && Boolean(address) && dbAccessTokenStatus === "connected",
+  });
+};
+
+export const useTosAcceptMutation = (address?: string) => {
+  const { dbAccessToken, dbAccessTokenStatus } = useDatastoreConnectionContext();
+  return useMutation<any, DefaultError, TosSignedMessage>({
+    mutationFn: async (tosSigned: TosSignedMessage) => {
+      const response = await axios.post(
+        `${process.env.NEXT_PUBLIC_SCORER_ENDPOINT}/ceramic-cache/tos/signed-message/IST/${address}`,
+        tosSigned,
+        {
+          headers: {
+            Authorization: `Bearer ${dbAccessToken}`,
+          },
+        }
+      );
+    },
   });
 };
 
@@ -82,15 +105,14 @@ export default function Home() {
   const toast = useToast();
   const [enableEthBranding, setEnableEthBranding] = useState(false);
   const { isConnected } = useAccount();
-  const { data, isFetching, isFetched } = useTosQuery("0x85fF01cfF157199527528788ec4eA6336615C989");
-  const { data: tosMessage, isFetched: isTosMessageFetched } = useTosGetMessageQuery("0x85fF01cfF157199527528788ec4eA6336615C989", data?.accepted);
-
-  const [showTos, setShowTos] = useState(false);
-
-  console.log("geri isFetching", isFetching);
-  console.log("geri isFetched", isFetched);
-  console.log("geri data", data);
-  console.log("geri tosMessage", tosMessage);
+  const { data: tosCheck, isFetched: isTosCheckFetched } = useTosQuery(address);
+  const { data: tosMessage, isFetched: isTosMessageFetched } = useTosGetMessageQuery(address, tosCheck?.accepted);
+  const signer = useSignMessage();
+  const acceptTos = useTosAcceptMutation(address);
+  const isTosAccepted = isTosCheckFetched && tosCheck?.accepted;
+  const needToAcceptTos = isTosCheckFetched && !tosCheck?.accepted;
+  const queryClient = useQueryClient();
+  const tosQueryKey = useTosQueryKey(address);
 
   const gtcStakingStampPlatform: PlatformScoreSpec = {
     name: "GTC Staking",
@@ -103,8 +125,6 @@ export default function Home() {
 
   const navigate = useNavigate();
 
-  console.log("signin isConnected, dbAccessTokenStatus", isConnected, dbAccessTokenStatus);
-
   // Route user to dashboard when wallet is connected
   useEffect(() => {
     if (!isConnected && dbAccessTokenStatus === "connected") {
@@ -112,20 +132,13 @@ export default function Home() {
       console.error("ERROR - db connected but wallet not!");
     }
 
-    if (isConnected && dbAccessTokenStatus === "connected") {
-      if (!data?.accepted) {
-        console.log("... should noavigate ...");
-        setShowTos(true);
-      } else {
-        // navigate("/home");
-      }
+    if (isConnected && dbAccessTokenStatus === "connected" && isTosAccepted) {
+      navigate("/home");
     }
-  }, [isConnected, dbAccessTokenStatus, navigate, data]);
+  }, [isConnected, dbAccessTokenStatus, navigate, isTosAccepted]);
 
   useEffect(() => {
     if (connectError) {
-      console.log("displaying Connection Error", connectError);
-      console.log("displaying Connection Error", (connectError as Error).message);
       toast({
         duration: 6000,
         isClosable: true,
@@ -143,12 +156,20 @@ export default function Home() {
 
   const signIn = async () => {
     console.log("signin signing in ...");
-
     await connectWallet(connectDatastore);
   };
 
-  const onButtonClick = async () => {
-    console.log("signin signing in ...");
+  const onAcceptTos = async () => {
+    console.log("accepting tos ...");
+    if (tosMessage) {
+      const signature = await signer.signMessageAsync({ message: tosMessage.text });
+      await acceptTos.mutateAsync({
+        tos_type: "IST",
+        nonce: tosMessage.nonce,
+        signature: signature,
+      });
+      queryClient.invalidateQueries({ queryKey: tosQueryKey });
+    }
   };
 
   const notificationClass =
@@ -157,11 +178,11 @@ export default function Home() {
   return (
     <PageRoot className="text-color-2" backgroundGradientStyle="top-only">
       <TosModal
-        isOpen={showTos}
+        isOpen={needToAcceptTos}
         onClose={() => {
           return;
         }}
-        onButtonClick={onButtonClick}
+        onButtonClick={onAcceptTos}
       />
       <div className="flex h-full min-h-default items-center justify-center self-center p-8">
         <div className="absolute top-0 right-0 z-0 h-auto w-full  gradient-mask-t-0 md:h-full md:w-auto md:gradient-mask-l-0">
