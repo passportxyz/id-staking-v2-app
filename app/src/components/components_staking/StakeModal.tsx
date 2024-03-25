@@ -17,6 +17,7 @@ export const StakeModal = ({
   buttonText,
   onButtonClick,
   buttonLoading,
+  buttonDisabled,
   isOpen,
   onClose,
   children,
@@ -25,6 +26,7 @@ export const StakeModal = ({
   buttonText: string;
   onButtonClick: () => void;
   buttonLoading: boolean;
+  buttonDisabled?: boolean;
   isOpen: boolean;
   onClose: () => void;
   children: React.ReactNode;
@@ -65,7 +67,12 @@ export const StakeModal = ({
                     <div className="mt-2">{children}</div>
 
                     <div className="mt-4 flex flex-col items-center">
-                      <LoadButton className="w-full" onClick={onButtonClick} isLoading={buttonLoading}>
+                      <LoadButton
+                        className="w-full"
+                        onClick={onButtonClick}
+                        isLoading={buttonLoading}
+                        disabled={buttonDisabled}
+                      >
                         {buttonText}
                       </LoadButton>
                       <Button variant="custom" className="mt-4 px-8" onClick={onClose}>

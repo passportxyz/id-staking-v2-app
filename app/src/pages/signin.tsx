@@ -1,8 +1,9 @@
 /* eslint-disable react-hooks/exhaustive-deps, @next/next/no-img-element */
 // --- React Methods
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useMemo } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { useAccount } from "wagmi";
+import axios from "axios";
 
 // --- Shared data context
 import { useWalletStore } from "../context/walletStore";
@@ -14,6 +15,64 @@ import { useDatastoreConnectionContext } from "../context/datastoreConnectionCon
 import { useToast } from "@chakra-ui/react";
 import { DoneToastContent } from "../components/DoneToastContent";
 import { PlatformCard, PlatformScoreSpec } from "../components/components_staking/PlatformCard";
+import { TosModal } from "../components/components_staking/TosModal";
+import { useQuery } from "@tanstack/react-query";
+
+export const useTosQueryKey = (address: string | undefined): string[] => {
+  return useMemo(() => ["tos", address || ""], [address]);
+};
+export const useTosMessageQueryKey = (address: string | undefined): string[] => {
+  return useMemo(() => ["tos-message", address || ""], [address]);
+};
+
+type TosAccepted = {
+  accepted: boolean;
+};
+
+type TosMessageToSign = {
+  accepted: boolean;
+};
+
+export const useTosQuery = (address: string | undefined) => {
+  const { dbAccessToken, dbAccessTokenStatus } = useDatastoreConnectionContext();
+  const queryKey = useTosQueryKey(address);
+  return useQuery({
+    queryKey,
+    queryFn: async (): Promise<TosAccepted> => {
+      const response = await axios.get(
+        `${process.env.NEXT_PUBLIC_SCORER_ENDPOINT}/ceramic-cache/tos/accepted/IST/${address}`,
+        {
+          headers: {
+            Authorization: `Bearer ${dbAccessToken}`,
+          },
+        }
+      );
+      return response.data as TosAccepted;
+    },
+    enabled: Boolean(address) && dbAccessTokenStatus === "connected",
+  });
+};
+
+export const useTosGetMessageQuery = (address: string | undefined, accepted?: boolean) => {
+  const { dbAccessToken, dbAccessTokenStatus } = useDatastoreConnectionContext();
+  const queryKey = useTosMessageQueryKey(address);
+  return useQuery({
+    queryKey,
+    queryFn: async (): Promise<TosAccepted> => {
+      const response = await axios.get(
+        `${process.env.NEXT_PUBLIC_SCORER_ENDPOINT}/ceramic-cache/tos/message-to-sign/IST/${address}`,
+        {
+          headers: {
+            Authorization: `Bearer ${dbAccessToken}`,
+          },
+        }
+      );
+      console.log("geri data", response.data);
+      return response.data as TosAccepted;
+    },
+    enabled: !accepted && Boolean(address) && dbAccessTokenStatus === "connected",
+  });
+};
 
 export default function Home() {
   const address = useWalletStore((state) => state.address);
@@ -23,6 +82,15 @@ export default function Home() {
   const toast = useToast();
   const [enableEthBranding, setEnableEthBranding] = useState(false);
   const { isConnected } = useAccount();
+  const { data, isFetching, isFetched } = useTosQuery("0x85fF01cfF157199527528788ec4eA6336615C989");
+  const { data: tosMessage, isFetched: isTosMessageFetched } = useTosGetMessageQuery("0x85fF01cfF157199527528788ec4eA6336615C989", data?.accepted);
+
+  const [showTos, setShowTos] = useState(false);
+
+  console.log("geri isFetching", isFetching);
+  console.log("geri isFetched", isFetched);
+  console.log("geri data", data);
+  console.log("geri tosMessage", tosMessage);
 
   const gtcStakingStampPlatform: PlatformScoreSpec = {
     name: "GTC Staking",
@@ -39,10 +107,20 @@ export default function Home() {
 
   // Route user to dashboard when wallet is connected
   useEffect(() => {
-    if (isConnected && dbAccessTokenStatus === "connected") {
-      navigate("/home");
+    if (!isConnected && dbAccessTokenStatus === "connected") {
+      // TODO: this is an error situation. What to do here?
+      console.error("ERROR - db connected but wallet not!");
     }
-  }, [isConnected, dbAccessTokenStatus, navigate]);
+
+    if (isConnected && dbAccessTokenStatus === "connected") {
+      if (!data?.accepted) {
+        console.log("... should noavigate ...");
+        setShowTos(true);
+      } else {
+        // navigate("/home");
+      }
+    }
+  }, [isConnected, dbAccessTokenStatus, navigate, data]);
 
   useEffect(() => {
     if (connectError) {
@@ -69,11 +147,22 @@ export default function Home() {
     await connectWallet(connectDatastore);
   };
 
+  const onButtonClick = async () => {
+    console.log("signin signing in ...");
+  };
+
   const notificationClass =
     "flex items-center justify-between h-14 rounded-lg border w-1/3 bg-gradient-to-t from-background-6 to-background";
 
   return (
     <PageRoot className="text-color-2" backgroundGradientStyle="top-only">
+      <TosModal
+        isOpen={showTos}
+        onClose={() => {
+          return;
+        }}
+        onButtonClick={onButtonClick}
+      />
       <div className="flex h-full min-h-default items-center justify-center self-center p-8">
         <div className="absolute top-0 right-0 z-0 h-auto w-full  gradient-mask-t-0 md:h-full md:w-auto md:gradient-mask-l-0">
           <svg width="674" height="746" viewBox="0 0 674 746" fill="none" xmlns="http://www.w3.org/2000/svg">

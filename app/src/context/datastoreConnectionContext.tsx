@@ -22,7 +22,7 @@ const BUFFER_TIME_BEFORE_EXPIRATION = 60 * 60 * 1000;
 
 export type DbAuthTokenStatus = "idle" | "failed" | "connected" | "connecting";
 
-const CERAMIC_CACHE_ENDPOINT = process.env.NEXT_PUBLIC_CERAMIC_CACHE_ENDPOINT;
+const CERAMIC_CACHE_ENDPOINT = process.env.NEXT_PUBLIC_SCORER_ENDPOINT + "/ceramic-cache";
 
 export type DatastoreConnectionContextState = {
   dbAccessTokenStatus: DbAuthTokenStatus;

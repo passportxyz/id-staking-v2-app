@@ -24,7 +24,7 @@ export const useStakeHistoryQuery = (address: string | undefined) => {
   return useQuery({
     queryKey,
     queryFn: async (): Promise<StakeData[]> => {
-      const response = await axios.get(`${process.env.NEXT_PUBLIC_CERAMIC_CACHE_ENDPOINT}/stake/gtc`, {
+      const response = await axios.get(`${process.env.NEXT_PUBLIC_SCORER_ENDPOINT}/ceramic-cache/stake/gtc`, {
         headers: {
           Authorization: `Bearer ${dbAccessToken}`,
         },
