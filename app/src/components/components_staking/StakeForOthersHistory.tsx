@@ -1,7 +1,7 @@
 import React, { ComponentPropsWithRef, useCallback, useEffect, useState } from "react";
 import { PanelDiv } from "./PanelDiv";
 import { useWalletStore } from "@/context/walletStore";
-import { DisplayAddressOrENS, DisplayDuration, formatAmount, useConnectedChain } from "@/utils/helpers";
+import { DisplayAddressOrENS, DisplayDuration, formatAmount, useConnectedChain, formatDate } from "@/utils/helpers";
 import { StakeData, useStakeHistoryQuery } from "@/utils/stakeHistory";
 import { CommunityUpdateButton } from "./CommunityUpdateButton";
 import { Popover } from "@headlessui/react";
@@ -108,8 +108,6 @@ const Tbody = () => {
   return <tbody>{tbody_contents}</tbody>;
 };
 
-const formatDate = (date: Date): string =>
-  Intl.DateTimeFormat("en-US", { month: "2-digit", day: "2-digit", year: "numeric" }).format(date);
 
 const StakeLine = ({ stake, address }: { stake: StakeData; address: string }) => {
   const unlockTime = new Date(stake.unlock_time);
