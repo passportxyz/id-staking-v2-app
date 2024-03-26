@@ -19,26 +19,29 @@ export const TosModal = ({
 }) => {
   const terms = [
     <>
-      I aknowledge that I might be slashed for bad behaviour.
+      I acknowledge that I may be subject to slashing for non-compliant behavior. The rules governing such behavior may
+      change. Learn more about slashing.{" "}
       <a href="https://github.com/gitcoinco/id-staking-v2/blob/main/README.md" target="blank" className="text-color-6">
-        Learn more about slashing
+        Learn more about slashing.
       </a>
     </>,
     <>
-      Specifics about slashing and wallets.{" "}
+      I understand that using specific Passport Stamps (e.g., Holonym, Civic, and Google Stamps) are allowed only in one
+      active Passport that I use in Passport-protected apps, and misuse may lead to slashing.{" "}
       <a
         href="https://docs.passport.gitcoin.co/building-with-passport/major-concepts/deduplicating-stamps"
         target="blank"
         className="text-color-6"
       >
-        Learn more
+        Learn more about Passport Stamps and wallets.
       </a>
     </>,
     <>
-      I agree to the{" "}
+      I have read, understood, and agree to the{" "}
       <a href="#/terms" className="text-color-6">
-        Terms and Conditions.
-      </a>
+        Terms and Conditions
+      </a>{" "}
+      of Passport&apos;s Identity Staking.
     </>,
   ];
 
@@ -75,8 +78,9 @@ export const TosModal = ({
       buttonDisabled={buttonDisabled || !allTermsAccepted}
     >
       <div>
-        Before you can stake, you have to agree to the following:
-        <div className="flex flex-col pt-12 pb-12 w-full">{termsCheckBoxes}</div>
+        Before Staking Your Identity, Please Agree to the Following:
+        <div className="flex flex-col pt-12 pb-4 w-full">{termsCheckBoxes}</div>
+        <b>Please note:</b> All three boxes must be checked to enable the &quot;Proceed&quot; button and continue to the app.
       </div>
     </StakeModal>
   );
