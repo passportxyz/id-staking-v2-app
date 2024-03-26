@@ -44,7 +44,7 @@ export const TosModal = ({
 
   const [acceptedTerms, setAcceptedTerms] = useState(terms.map(() => false));
   const termsCheckBoxes = terms.map((t, index) => (
-    <label>
+    <label key={index}>
       <div className="flex justify-start gap-2 pb-4">
         <div className="flex-1 min-w-6 max-w-6 pt-1">
           <input

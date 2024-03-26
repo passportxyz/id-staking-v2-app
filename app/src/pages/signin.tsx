@@ -17,6 +17,7 @@ import { DoneToastContent, makeErrorToastProps } from "../components/DoneToastCo
 import { PlatformCard, PlatformScoreSpec } from "../components/components_staking/PlatformCard";
 import { TosModal } from "../components/components_staking/TosModal";
 import { useMutation, useQuery, DefaultError, useQueryClient } from "@tanstack/react-query";
+import { datadogLogs } from "@datadog/browser-logs";
 
 export const useTosQueryKey = (address: string | undefined): string[] => {
   return useMemo(() => ["tos", address || ""], [address]);
@@ -115,6 +116,8 @@ export default function Home() {
   const queryClient = useQueryClient();
   const tosQueryKey = useTosQueryKey(address);
 
+  datadogLogs.logger.info(`isConnected, dbAccessTokenStatus, ${isConnected}, ${dbAccessTokenStatus}`);
+
   console.log("isConnected, dbAccessTokenStatus", isConnected, dbAccessTokenStatus);
   console.log("tosCheck", tosCheck.data);
   console.log("tosMessageToSign", tosMessageToSign.data);
@@ -133,7 +136,7 @@ export default function Home() {
   useEffect(() => {
     if (!isConnected && dbAccessTokenStatus === "connected") {
       // TODO: this is an error situation. What to do here?
-      console.error("ERROR - db connected but wallet not!");
+      console.error("db connected but wallet not!");
       toast(
         makeErrorToastProps(
           "Failed",
@@ -242,7 +245,7 @@ export default function Home() {
         });
         queryClient.invalidateQueries({ queryKey: tosQueryKey });
       } catch (error) {
-        console.log("Error: ", error);
+        console.error("Error: ", error);
       }
     } else {
       console.error("tosMessageToSign.data is undefined");

@@ -15,6 +15,15 @@ import { wagmiConfig } from "@/utils/chains";
 
 import { onboard } from "../utils/onboard";
 
+import { datadogLogs } from "@datadog/browser-logs";
+
+datadogLogs.init({
+  clientToken: `${process.env.NEXT_PUBLIC_DATADOG_CLIENT_TOKEN}`,
+  site: "us3.datadoghq.com",
+  forwardErrorsToLogs: true,
+  sessionSampleRate: 100,
+});
+
 const RenderOnlyOnClient = ({ children }: { children: React.ReactNode }) => {
   const [isMounted, setIsMounted] = React.useState(false);
 
