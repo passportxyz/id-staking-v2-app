@@ -20,7 +20,7 @@ export const TosModal = ({
   const terms = [
     <>
       I aknowledge that I might be slashed for bad behaviour.
-      <a href="#/terms" className="text-color-6">
+      <a href="https://github.com/gitcoinco/id-staking-v2/blob/main/README.md" target="blank" className="text-color-6">
         Learn more about slashing
       </a>
     </>,
