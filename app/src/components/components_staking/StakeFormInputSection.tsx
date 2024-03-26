@@ -1,5 +1,6 @@
 import React, { ButtonHTMLAttributes, ChangeEvent, useMemo } from "react";
 import { PanelDiv } from "./PanelDiv";
+import { getUnlockTime } from "@/utils/helpers";
 
 export const PresetAmountsSelection = ({
   amount,
@@ -46,7 +47,7 @@ export const PresetMonthsSelection = ({
       disabled={
         disabled ||
         (onlyAllowStakeAfterTime &&
-          new Date().getTime() + presetMonths * 30 * 24 * 60 * 60 * 1000 < onlyAllowStakeAfterTime.getTime())
+          getUnlockTime(new Date(), presetMonths).getTime() < onlyAllowStakeAfterTime.getTime())
       }
     >
       {presetMonths} months

@@ -253,3 +253,20 @@ export const useConnectedChain = () => {
   }
   return chain;
 };
+
+const MINIMUM_LOCK_MILLISECONDS = 3 * 30 * 24 * 60 * 60 * 1000;
+
+export const getUnlockTime = (lockTime: Date, lockMonths: number): Date => {
+  const unlockTime = moment(lockTime).add(lockMonths, "months");
+  if (unlockTime.valueOf() - lockTime.getTime() < MINIMUM_LOCK_MILLISECONDS) {
+    // This is in case the lock is started on e.g. Nov 30th,
+    // because moment will consider Feb 28th as "3 months" later
+    return new Date(lockTime.valueOf() + MINIMUM_LOCK_MILLISECONDS);
+  }
+  return unlockTime.toDate();
+};
+
+export const getLockSeconds = (lockTime: Date, lockMonths: number): number => {
+  const unlockTime = getUnlockTime(lockTime, lockMonths);
+  return Math.floor((unlockTime.valueOf() - lockTime.getTime()) / 1000);
+};

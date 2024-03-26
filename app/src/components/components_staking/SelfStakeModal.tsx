@@ -1,6 +1,6 @@
-import React, { useCallback, useEffect } from "react";
+import React, { useCallback, useEffect, useMemo } from "react";
 import { StakeModal, DataLine } from "./StakeModal";
-import { DisplayAddressOrENS, DisplayDuration, formatAmount, formatDate } from "@/utils/helpers";
+import { DisplayAddressOrENS, DisplayDuration, formatAmount, formatDate, getLockSeconds } from "@/utils/helpers";
 import { StakeData } from "@/utils/stakeHistory";
 import { parseEther } from "viem";
 import { useStakeTxWithApprovalCheck } from "@/hooks/hooks_staking/useStakeTxWithApprovalCheck";
@@ -11,10 +11,10 @@ const useSelfStakeTx = ({ address }: { address: `0x${string}` }) => {
   });
 
   const selfStake = useCallback(
-    ({ inputValue, lockedPeriodSeconds }: { inputValue: string; lockedPeriodSeconds: bigint }) => {
+    ({ inputValue, lockedPeriodSeconds }: { inputValue: string; lockedPeriodSeconds: number }) => {
       const valueToStake = parseEther(inputValue);
       let functionName = "extendSelfStake";
-      let functionArgs: any[] = [lockedPeriodSeconds];
+      let functionArgs: any[] = [BigInt(lockedPeriodSeconds)];
       if (valueToStake > 0n) {
         functionName = "selfStake";
         functionArgs.unshift(valueToStake);
@@ -147,7 +147,7 @@ export const SelfStakeModal = ({
   onClose: () => void;
   stakeToUpdate?: StakeData;
 }) => {
-  const lockedPeriodSeconds = BigInt(lockedPeriodMonths) * 30n * 24n * 60n * 60n;
+  const lockedPeriodSeconds = useMemo(() => getLockSeconds(new Date(), lockedPeriodMonths), [lockedPeriodMonths]);
 
   const { selfStake, isLoading, isConfirmed, approvalIsLoading } = useSelfStakeTx({
     address,
@@ -163,7 +163,7 @@ export const SelfStakeModal = ({
     <StakeModal
       title={stakeToUpdate ? "Update self stake" : "Stake on yourself"}
       buttonText={approvalIsLoading ? "Requesting approval (1 of 2)..." : stakeToUpdate ? "Update stake" : "Stake"}
-      onButtonClick={() => selfStake({ inputValue, lockedPeriodSeconds: lockedPeriodSeconds })}
+      onButtonClick={() => selfStake({ inputValue, lockedPeriodSeconds })}
       buttonLoading={isLoading}
       isOpen={isOpen}
       onClose={onClose}
