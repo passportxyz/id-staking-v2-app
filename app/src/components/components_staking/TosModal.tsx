@@ -69,7 +69,7 @@ export const TosModal = ({
   const allTermsAccepted = acceptedTerms.every((t) => t);
   return (
     <StakeModal
-      title={"Attention ???"}
+      title={"Acknowledge and Agree to Continue"}
       buttonText={"Proceed"}
       onButtonClick={onButtonClick}
       buttonLoading={false}
