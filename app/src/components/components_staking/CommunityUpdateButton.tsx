@@ -1,5 +1,5 @@
 import React, { useState, useCallback, useMemo, ChangeEvent, useEffect, ComponentPropsWithRef } from "react";
-import { DisplayAddressOrENS, formatAmount } from "@/utils/helpers";
+import { DisplayAddressOrENS, formatAmount, getLockSeconds } from "@/utils/helpers";
 import { StakeModal } from "./StakeModal";
 import { parseEther } from "viem";
 import { StakeData } from "@/utils/stakeHistory";
@@ -52,7 +52,7 @@ const CommunityUpdateModal = ({
   isOpen: boolean;
   onClose: () => void;
 }) => {
-  const lockedPeriodSeconds = lockedPeriodMonths * 30 * 24 * 60 * 60;
+  const lockedPeriodSeconds = useMemo(() => getLockSeconds(new Date(), lockedPeriodMonths), [lockedPeriodMonths]);
   const { isLoading, extendCommunityStake, isConfirmed } = useExtendCommunityStake({ staker: stakeToUpdate.staker });
   const stakeValue = parseEther(amount);
 

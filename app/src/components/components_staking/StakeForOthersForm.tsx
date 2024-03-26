@@ -7,6 +7,7 @@ import { create } from "zustand";
 import { parseEther } from "viem";
 import { StakeForOthersModal } from "./StakeForOthersModal";
 import { useCommunityStakeHistoryQuery } from "@/utils/stakeHistory";
+import { getLockSeconds } from "@/utils/helpers";
 
 type CommunityStakeInputs = {
   uuid: string;
@@ -29,7 +30,7 @@ const createEmptyCommunityStake = (): CommunityStake => ({
   amountInput: "",
   lockedPeriodMonths: 3,
   amount: 0n,
-  lockedPeriodsSeconds: 3n * 30n * 24n * 60n * 60n,
+  lockedPeriodsSeconds: BigInt(getLockSeconds(new Date(), 3)),
   stakee: "0x0",
 });
 
@@ -69,7 +70,7 @@ export const useCommunityStakesStore = create<{
       }
 
       if (communityStake.lockedPeriodMonths !== undefined) {
-        communityStake.lockedPeriodsSeconds = BigInt(communityStake.lockedPeriodMonths) * 30n * 24n * 60n * 60n;
+        communityStake.lockedPeriodsSeconds = BigInt(getLockSeconds(new Date(), communityStake.lockedPeriodMonths));
       }
 
       if (communityStake.stakeeInput !== undefined) {
