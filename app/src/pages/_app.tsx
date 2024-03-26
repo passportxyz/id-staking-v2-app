@@ -22,6 +22,8 @@ datadogLogs.init({
   site: "us3.datadoghq.com",
   forwardErrorsToLogs: true,
   sessionSampleRate: 100,
+  service: `${process.env.NEXT_PUBLIC_DATADOG_SERVICE}`,
+  env: `${process.env.NEXT_PUBLIC_DATADOG_ENV}`,
 });
 
 const RenderOnlyOnClient = ({ children }: { children: React.ReactNode }) => {

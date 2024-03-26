@@ -1,10 +1,9 @@
 import { http, createConfig, Config } from "wagmi";
 import { mainnet, optimism, optimismSepolia } from "wagmi/chains";
 
-const MAINNET_RPC_URL = process.env.NEXT_PUBLIC_PASSPORT_MAINNET_RPC_URL as string;
-
-const OP_RPC_URL = process.env.NEXT_PUBLIC_PASSPORT_OP_RPC_URL as string;
-const OP_SEPOLIA_RPC_URL = process.env.NEXT_PUBLIC_PASSPORT_OP_SEPOLIA_RPC_URL as string;
+const MAINNET_RPC_URL = process.env.NEXT_PUBLIC_MAINNET_RPC_URL as string;
+const OP_RPC_URL = process.env.NEXT_PUBLIC_OP_RPC_URL as string;
+const OP_SEPOLIA_RPC_URL = process.env.NEXT_PUBLIC_OP_SEPOLIA_RPC_URL as string;
 
 const ethChainId = Number("0x1");
 const sepoliaChainId = Number("0xaa36a7");
