@@ -2,7 +2,7 @@
 // --- React Methods
 import React, { useEffect, useState, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
-import { useAccount, useSignMessage } from "wagmi";
+import { useAccount, useConnect, useConnectors, useSignMessage } from "wagmi";
 import axios from "axios";
 
 // --- Shared data context
@@ -107,6 +107,8 @@ export default function Home() {
   const toast = useToast();
   const [enableEthBranding, setEnableEthBranding] = useState(false);
   const { isConnected } = useAccount();
+  const { connect } = useConnect();
+  const connectors = useConnectors();
   const tosCheck = useTosQuery(address);
   const tosMessageToSign = useTosGetMessageQuery(address, tosCheck.data?.accepted);
   const signer = useSignMessage();
@@ -137,21 +139,13 @@ export default function Home() {
     if (!isConnected && dbAccessTokenStatus === "connected") {
       // TODO: this is an error situation. What to do here?
       console.error("db connected but wallet not!");
-      toast(
-        makeErrorToastProps(
-          "Failed",
-          <div>
-            <p>Failed to connect wallet :(</p>
-            <p>Please reload the page</p>
-          </div>
-        )
-      );
+      connect({ connector: connectors[0] });
     }
 
     if (isConnected && dbAccessTokenStatus === "connected" && isTosAccepted) {
       navigate("/home");
     }
-  }, [isConnected, dbAccessTokenStatus, navigate, isTosAccepted]);
+  }, [connect, isConnected, connectors, dbAccessTokenStatus, navigate, isTosAccepted]);
 
   useEffect(() => {
     if (connectError) {
