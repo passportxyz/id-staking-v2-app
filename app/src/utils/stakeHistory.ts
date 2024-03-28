@@ -29,7 +29,7 @@ export const useStakeHistoryQuery = (address: string | undefined) => {
           Authorization: `Bearer ${dbAccessToken}`,
         },
       });
-      return response.data;
+      return response.data.items;
     },
     enabled: Boolean(address) && dbAccessTokenStatus === "connected",
   });
