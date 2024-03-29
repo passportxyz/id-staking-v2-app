@@ -1,9 +1,13 @@
 import { http, createConfig, Config } from "wagmi";
 import { mainnet, optimism, optimismSepolia } from "wagmi/chains";
+import { HttpTransport, Chain } from "viem";
 
 const MAINNET_RPC_URL = process.env.NEXT_PUBLIC_MAINNET_RPC_URL as string;
 const OP_RPC_URL = process.env.NEXT_PUBLIC_OP_RPC_URL as string;
 const OP_SEPOLIA_RPC_URL = process.env.NEXT_PUBLIC_OP_SEPOLIA_RPC_URL as string;
+const enableMainnet = process.env.NEXT_PUBLIC_ENABLE_MAINNET === "on";
+const enableOpMainnet = process.env.NEXT_PUBLIC_ENABLE_OP_MAINNET === "on";
+const enableOpSepolia = process.env.NEXT_PUBLIC_ENABLE_OP_SEPOLIA === "on";
 
 const ethChainId = Number("0x1");
 const sepoliaChainId = Number("0xaa36a7");
@@ -26,8 +30,12 @@ export type ChainConfig = {
   explorer: string;
 };
 
-export const chainConfigs: ChainConfig[] = [
-  {
+let enabledChainConfigs: ChainConfig[] = [];
+let wagmiChains: Chain[] = [];
+let wagmiTransports: Record<Config["chains"][number]["id"], HttpTransport> = {};
+
+if (enableMainnet) {
+  enabledChainConfigs.push({
     id: ethChainId,
     token: "ETH",
     label: "Ethereum",
@@ -36,8 +44,13 @@ export const chainConfigs: ChainConfig[] = [
     stakingContractAddr: "0x0",
     icon: "./assets/eth-network-logo-white.svg",
     explorer: "https://etherscan.io/",
-  },
-  {
+  });
+  wagmiChains.push(mainnet);
+  wagmiTransports[mainnet.id] = http(MAINNET_RPC_URL);
+}
+
+if (enableOpMainnet) {
+  enabledChainConfigs.push({
     id: optimismChainId,
     token: "ETH",
     label: "Optimism",
@@ -46,8 +59,13 @@ export const chainConfigs: ChainConfig[] = [
     stakingContractAddr: "0x0",
     icon: "./assets/eth-op-logo.svg",
     explorer: "https://optimistic.etherscan.io/",
-  },
-  {
+  });
+  wagmiChains.push(optimism);
+  wagmiTransports[optimism.id] = http(OP_RPC_URL);
+}
+
+if (enableOpSepolia) {
+  enabledChainConfigs.push({
     // test net chains
     id: sepoliaOPChainId,
     token: "ETH",
@@ -57,14 +75,25 @@ export const chainConfigs: ChainConfig[] = [
     stakingContractAddr: "0xc80e07d81828960F613baa57288192E56d417dA5",
     icon: "./assets/eth-op-logo.svg",
     explorer: "https://sepolia-optimism.etherscan.io/",
-  },
-];
+  });
+  wagmiChains.push(optimism);
+  wagmiTransports[optimismSepolia.id] = http(OP_SEPOLIA_RPC_URL);
+}
+
+export const chainConfigs: ChainConfig[] = enabledChainConfigs;
+
+if (enabledChainConfigs.length === 0) {
+  console.error(
+    "\
+*********************************************************************************\n\
+* No chains enabled. Please check your environment variables.                   *\n\
+*********************************************************************************\n"
+  );
+}
 
 export const wagmiConfig = createConfig({
-  chains: [mainnet, optimism, optimismSepolia],
-  transports: {
-    [mainnet.id]: http(MAINNET_RPC_URL),
-    [optimism.id]: http(OP_RPC_URL),
-    [optimismSepolia.id]: http(OP_SEPOLIA_RPC_URL),
-  },
+  // If wagmiChains.length we have a misconfiguration (and we log above).
+  // So we just set mainnet in wagmi to keep it happy
+  chains: wagmiChains.length > 0 ? (wagmiChains as [Chain, ...Chain[]]) : [mainnet],
+  transports: wagmiTransports,
 });
