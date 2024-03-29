@@ -249,7 +249,8 @@ export const useConnectedChain = () => {
   const chain = chainConfigs.find((chain) => chain.id === chainId);
   if (!chain) {
     // Chain not supported modal or something ?
-    throw new Error("Chain not supported");
+    // throw new Error("Chain not supported");
+    return chainConfigs[0];
   }
   return chain;
 };

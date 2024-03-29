@@ -76,7 +76,7 @@ if (enableOpSepolia) {
     icon: "./assets/eth-op-logo.svg",
     explorer: "https://sepolia-optimism.etherscan.io/",
   });
-  wagmiChains.push(optimism);
+  wagmiChains.push(optimismSepolia);
   wagmiTransports[optimismSepolia.id] = http(OP_SEPOLIA_RPC_URL);
 }
 
