@@ -1,6 +1,6 @@
 /* eslint-disable react-hooks/exhaustive-deps, @next/next/no-img-element */
 // --- React Methods
-import React, { useEffect, useState, useMemo } from "react";
+import React, { useEffect, useState, useMemo, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAccount, useConnect, useConnectors, useSignMessage } from "wagmi";
 import axios from "axios";
@@ -18,6 +18,8 @@ import { PlatformCard, PlatformScoreSpec } from "../components/components_stakin
 import { TosModal } from "../components/components_staking/TosModal";
 import { useMutation, useQuery, DefaultError, useQueryClient } from "@tanstack/react-query";
 import { datadogLogs } from "@datadog/browser-logs";
+import { Button } from "@/components/Button";
+import { PasswordPage } from "@/components/PasswordPage";
 
 export const useTosQueryKey = (address: string | undefined): string[] => {
   return useMemo(() => ["tos", address || ""], [address]);
@@ -99,70 +101,16 @@ export const useTosAcceptMutation = (address?: string) => {
   });
 };
 
-export default function Home() {
+const useTos = () => {
   const address = useWalletStore((state) => state.address);
-  const connectWallet = useWalletStore((state) => state.connect);
-  const connectError = useWalletStore((state) => state.error);
-  const { connect: connectDatastore, dbAccessTokenStatus } = useDatastoreConnectionContext();
-  const toast = useToast();
-  const [enableEthBranding, setEnableEthBranding] = useState(false);
-  const { isConnected } = useAccount();
-  const { connect } = useConnect();
-  const connectors = useConnectors();
   const tosCheck = useTosQuery(address);
   const tosMessageToSign = useTosGetMessageQuery(address, tosCheck.data?.accepted);
   const signer = useSignMessage();
   const acceptTos = useTosAcceptMutation(address);
   const isTosAccepted = tosCheck.isFetched && tosCheck.data?.accepted;
-  const needToAcceptTos = tosCheck.isFetched && !tosCheck.data?.accepted;
   const queryClient = useQueryClient();
   const tosQueryKey = useTosQueryKey(address);
-
-  datadogLogs.logger.info(`isConnected, dbAccessTokenStatus, ${isConnected}, ${dbAccessTokenStatus}`);
-
-  console.log("isConnected, dbAccessTokenStatus", isConnected, dbAccessTokenStatus);
-  console.log("tosCheck", tosCheck.data);
-  console.log("tosMessageToSign", tosMessageToSign.data);
-  const gtcStakingStampPlatform: PlatformScoreSpec = {
-    name: "GTC Staking",
-    description: "Stake GTC to boost your trust in the Gitcoin ecosystem.",
-    possiblePoints: 7.57,
-    earnedPoints: 0,
-    icon: "./assets/gtcStakingLogoIcon.svg",
-    connectMessage: "Connect Wallet",
-  };
-
-  const navigate = useNavigate();
-
-  // Route user to dashboard when wallet is connected
-  useEffect(() => {
-    if (!isConnected && dbAccessTokenStatus === "connected") {
-      // TODO: this is an error situation. What to do here?
-      console.error("db connected but wallet not!");
-      connect({ connector: connectors[0] });
-    }
-
-    if (isConnected && dbAccessTokenStatus === "connected" && isTosAccepted) {
-      navigate("/home");
-    }
-  }, [connect, isConnected, connectors, dbAccessTokenStatus, navigate, isTosAccepted]);
-
-  useEffect(() => {
-    if (connectError) {
-      toast({
-        duration: 6000,
-        isClosable: true,
-        render: (result: any) => (
-          <DoneToastContent
-            title={"Connection Error"}
-            body={(connectError as Error).message}
-            icon="../assets/verification-failed-bright.svg"
-            result={result}
-          />
-        ),
-      });
-    }
-  }, [connectError]);
+  const toast = useToast();
 
   useEffect(() => {
     if (tosMessageToSign.isError) {
@@ -222,12 +170,7 @@ export default function Home() {
     }
   }, [signer.isError, signer.error]);
 
-  const signIn = async () => {
-    console.log("signin signing in ...");
-    await connectWallet(connectDatastore);
-  };
-
-  const onAcceptTos = async () => {
+  const onAcceptTos = useCallback(async () => {
     console.log("accepting tos ...", tosMessageToSign.data);
     if (tosMessageToSign.data) {
       try {
@@ -244,6 +187,95 @@ export default function Home() {
     } else {
       console.error("tosMessageToSign.data is undefined");
     }
+  }, [tosMessageToSign.data, acceptTos, signer, queryClient, tosQueryKey]);
+
+  return useMemo(
+    () => ({ isTosAccepted, onAcceptTos, isPendingCheck: tosCheck.isPending }),
+    [isTosAccepted, onAcceptTos, tosCheck.isPending]
+  );
+};
+
+export default function Home() {
+  const [authorized, setAuthorized] = useState(false);
+
+  return authorized ? <RealHome /> : <PasswordPage onAuthorized={() => setAuthorized(true)} />;
+}
+
+// Once we are out of the beta, we can rename this to Home and delete the above
+const RealHome = () => {
+  const connectWallet = useWalletStore((state) => state.connect);
+  const connectError = useWalletStore((state) => state.error);
+  const { connect: connectDatastore, dbAccessTokenStatus } = useDatastoreConnectionContext();
+  const toast = useToast();
+  const { isConnected } = useAccount();
+  const { connect } = useConnect();
+  const connectors = useConnectors();
+  const [tosModalIsOpen, setTosModalIsOpen] = useState(false);
+  const [isLoggingIn, setIsLoggingIn] = useState(false);
+
+  const { isPendingCheck, isTosAccepted, onAcceptTos } = useTos();
+
+  const closeTosModal = useCallback(() => {
+    setTosModalIsOpen(false);
+    setIsLoggingIn(false);
+  }, []);
+
+  useEffect(() => {
+    if (isLoggingIn && !isPendingCheck && !isTosAccepted && !connectError) {
+      setTosModalIsOpen(true);
+    }
+  }, [isLoggingIn, isPendingCheck, isTosAccepted, connectError]);
+
+  const gtcStakingStampPlatform: PlatformScoreSpec = {
+    name: "GTC Staking",
+    description: "Stake GTC to boost your trust in the Gitcoin ecosystem.",
+    possiblePoints: 7.57,
+    earnedPoints: 0,
+    icon: "./assets/gtcStakingLogoIcon.svg",
+    connectMessage: "Connect Wallet",
+  };
+
+  const navigate = useNavigate();
+
+  // Route user to dashboard when wallet is connected
+  useEffect(() => {
+    if (!isConnected && dbAccessTokenStatus === "connected") {
+      // TODO: this is an error situation. What to do here?
+      console.error("db connected but wallet not!");
+      connect({ connector: connectors[0] });
+    }
+
+    if (isConnected && dbAccessTokenStatus === "connected" && isTosAccepted) {
+      navigate("/home");
+    }
+  }, [connect, isConnected, connectors, dbAccessTokenStatus, navigate, isTosAccepted]);
+
+  useEffect(() => {
+    if (connectError) {
+      setIsLoggingIn(false);
+      toast({
+        duration: 6000,
+        isClosable: true,
+        render: (result: any) => (
+          <DoneToastContent
+            title={"Connection Error"}
+            body={(connectError as Error).message}
+            icon="../assets/verification-failed-bright.svg"
+            result={result}
+          />
+        ),
+      });
+    }
+  }, [connectError]);
+
+  const signIn = async () => {
+    try {
+      setIsLoggingIn(true);
+      await connectWallet(connectDatastore);
+    } catch (e) {
+      console.error("Error connecting wallet", e);
+      setIsLoggingIn(false);
+    }
   };
 
   const notificationClass =
@@ -251,15 +283,9 @@ export default function Home() {
 
   return (
     <PageRoot className="text-color-2" backgroundGradientStyle="top-only">
-      <TosModal
-        isOpen={needToAcceptTos}
-        onClose={() => {
-          return;
-        }}
-        onButtonClick={onAcceptTos}
-      />
+      <TosModal isOpen={tosModalIsOpen} onClose={closeTosModal} onButtonClick={onAcceptTos} />
       <div className="flex h-full min-h-default items-center justify-center self-center p-8">
-        <div className="absolute top-0 right-0 z-0 h-auto w-full  gradient-mask-t-0 md:h-full md:w-auto md:gradient-mask-l-0">
+        <div className="absolute top-0 right-0 h-auto w-full  gradient-mask-t-0 md:h-full md:w-auto md:gradient-mask-l-0">
           <svg width="674" height="746" viewBox="0 0 674 746" fill="none" xmlns="http://www.w3.org/2000/svg">
             <path
               d="M325.567 742.951L11.4334 562.576C4.35899 558.511 0 551.006 0 542.875V182.125C0 173.994 4.35899 166.489 11.4334 162.424L325.567 -17.9511C332.641 -22.0163 341.359 -22.0163 348.433 -17.9511L662.567 162.424C669.641 166.489 674 173.994 674 182.125V542.875C674 551.006 669.641 558.511 662.567 562.576L348.433 742.951C341.359 747.016 332.641 747.016 325.567 742.951ZM68.6005 529.756L325.567 677.311C332.641 681.376 341.359 681.376 348.433 677.311L605.4 529.756C612.474 525.69 616.833 518.185 616.833 510.055V214.959C616.833 206.829 612.474 199.324 605.4 195.258L348.433 47.7033C341.359 43.6381 332.641 43.6381 325.567 47.7033L68.6005 195.258C61.5261 199.324 57.1671 206.829 57.1671 214.959V510.055C57.1671 518.185 61.5261 525.69 68.6005 529.756Z"
@@ -297,7 +323,7 @@ export default function Home() {
         </div>
 
         <div className="grid grid-cols-1">
-          <div className="z-10 grid grid-flow-row grid-cols-2 gap-4 lg:grid-flow-col">
+          <div className="grid grid-flow-row grid-cols-2 gap-4 lg:grid-flow-col">
             <div className="pr-16">
               <div className="col-span-2 font-heading text-6xl lg:row-start-2 text-foreground-2">
                 Increase Your
@@ -310,10 +336,11 @@ export default function Home() {
                 Score with ease, safeguarding against Sybil threats.
               </div>
               <SIWEButton
-                enableEthBranding={enableEthBranding}
+                enableEthBranding={false}
                 data-testid="connectWalletButton"
                 onClick={signIn}
                 className="col-span-2 mt-4 lg:w-3/4"
+                isLoading={isLoggingIn}
               />
             </div>
             {/* <div>Right panel - TO BE DONE</div> */}
@@ -321,7 +348,7 @@ export default function Home() {
               <PlatformCard platform={gtcStakingStampPlatform} className="ml-24 mt-12" />
             </div>
           </div>
-          <div className="z-10 flex gap-8 justify-between pt-32 text-foreground-2">
+          <div className="flex gap-8 justify-between pt-32 text-foreground-2">
             <div className={notificationClass}>
               <span className="pl-8 pr-0 text-l text-nowrap">GTC Staked</span>
               <div className="flex items-center rounded-lg border text-2xl h-full px-4 w-2/5">
@@ -383,4 +410,4 @@ export default function Home() {
       </div>
     </PageRoot>
   );
-}
+};
