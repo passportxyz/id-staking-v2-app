@@ -1,9 +1,3 @@
-// --- React Methods
-import React, { useMemo } from "react";
-
-// --- Wallet connection utilities
-import { Web3Provider } from "@ethersproject/providers";
-
 import { isServerOnMaintenance } from "../utils/helpers";
 import { onboard } from "../utils/onboard";
 
@@ -67,7 +61,7 @@ const walletStore = create<{
         console.log("walletStore connect 3");
         const walletData = parseWeb3OnboardWallet(wallet);
 
-        set({ ...walletData, address: walletData.address as `0x${string}` });
+        set({ ...walletData, address: walletData.address as `0x${string}`, error: undefined });
         await callback(walletData.address, walletData.provider);
       } catch (e) {
         console.error("Error connecting wallet", e);
