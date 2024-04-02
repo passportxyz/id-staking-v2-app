@@ -56,7 +56,7 @@ if (enableOpMainnet) {
     label: "Optimism",
     rpcUrl: OP_RPC_URL,
     gtcContractAddr: "0x1EBA7a6a72c894026Cd654AC5CDCF83A46445B08",
-    stakingContractAddr: "0x0",
+    stakingContractAddr: "0xf58Bb56E6e6EA7834478b470615e037df825C442",
     icon: "./assets/eth-op-logo.svg",
     explorer: "https://optimistic.etherscan.io/",
   });
