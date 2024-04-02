@@ -41,7 +41,7 @@ if (enableMainnet) {
     label: "Ethereum",
     rpcUrl: MAINNET_RPC_URL,
     gtcContractAddr: "0xde30da39c46104798bb5aa3fe8b9e0e1f348163f",
-    stakingContractAddr: "0x0",
+    stakingContractAddr: "0xCc90105D4A2aa067ee768120AdA19886021dF422",
     icon: "./assets/eth-network-logo-white.svg",
     explorer: "https://etherscan.io/",
   });
