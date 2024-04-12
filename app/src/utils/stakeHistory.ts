@@ -29,7 +29,17 @@ export const useStakeHistoryQuery = (address: string | undefined) => {
           Authorization: `Bearer ${dbAccessToken}`,
         },
       });
-      return response.data.items;
+      
+      return response.data.items.map((item: StakeData) => {
+        // NOTE: Modify the respose format
+        // Remove the `.` symbol form the `amount` to not modify the current implementation at the moment 
+        // This fix is required because initially the API return the amount value like an big integer 
+        // The API returned data format was changed to match the data format returned by the `/registry/gtc-stake` API.
+        return {
+          ...item,
+          amount: item.amount.replace(".", "")
+        }
+      });
     },
     enabled: Boolean(address) && dbAccessTokenStatus === "connected",
   });
