@@ -17,6 +17,7 @@ export const StakeSection = ({
   icon: {
     src: string;
     alt: string;
+    height?: string;
   };
   last?: boolean;
   amount: string;
@@ -31,17 +32,23 @@ export const StakeSection = ({
     <div className="col-span-full">
       <Disclosure>
         <Disclosure.Button
-          className={`flex items-center p-2 rounded-lg border border-foreground-4 bg-gradient-to-r from-background to-background-5`}
+          className={`flex items-center py-6 px-1 md:px-2 rounded-lg border border-foreground-4 bg-gradient-to-r from-background to-background-5`}
           onClick={handleDropDown}
           as="div"
         >
-          <img alt={icon.alt} className="mx-4 h-12" src={icon.src} />
-          <div className="grow flex flex-col items-start mr-1">
-            <div className="text-xl text-color-6 font-bold lg:text-2xl text-left">{heading}</div>
-            <div className="text-sm text-left max-w-96 text-pretty">{subheading}</div>
+          <div className="w-16 flex items-center justify-center mx-2 md:mx-4 shrink-0">
+            <img alt={icon.alt} className={icon.height || "h-14"} src={icon.src} />
           </div>
-          <div className="flex gap-1 flex-col items-center mr-2">
-            <div className="text-right">{formatAmount(amount)} GTC</div>
+          <div className="grow flex flex-col items-start mr-1">
+            <div className="text-xl text-color-6 font-bold lg:text-2xl leading-none lg:leading-none text-left">
+              {heading}
+            </div>
+            <div className="text-sm leading-tight text-left max-w-96 text-pretty hidden mt-1 md:block">
+              {subheading}
+            </div>
+          </div>
+          <div className="flex gap-1 text-color-6 flex-col items-end mr-2 shrink-0">
+            <div className="text-right font-bold">{formatAmount(amount)} GTC</div>
             <div className="text-right">Staked</div>
           </div>
           <DropDownIcon isOpen={dropDownOpen} className="px-4" />

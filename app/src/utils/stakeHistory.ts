@@ -29,16 +29,16 @@ export const useStakeHistoryQuery = (address: string | undefined) => {
           Authorization: `Bearer ${dbAccessToken}`,
         },
       });
-      
+
       return response.data.items.map((item: StakeData) => {
         // NOTE: Modify the respose format
-        // Remove the `.` symbol form the `amount` to not modify the current implementation at the moment 
-        // This fix is required because initially the API return the amount value like an big integer 
+        // Remove the `.` symbol form the `amount` to not modify the current implementation at the moment
+        // This fix is required because initially the API return the amount value like an big integer
         // The API returned data format was changed to match the data format returned by the `/registry/gtc-stake` API.
         return {
           ...item,
-          amount: item.amount.replace(".", "")
-        }
+          amount: item.amount.replace(".", ""),
+        };
       });
     },
     enabled: Boolean(address) && dbAccessTokenStatus === "connected",
@@ -74,6 +74,26 @@ export const useCommunityStakeHistoryQuery = (address: string | undefined) => {
         (stake) =>
           stake.staker.toLowerCase() === address?.toLowerCase() &&
           stake.stakee.toLowerCase() !== address.toLowerCase() &&
+          stake.chain === chainId
+      ),
+    [data, address, chainId]
+  );
+
+  return {
+    ...rest,
+    data: filteredData,
+  };
+};
+
+export const useStakeOnYouHistoryQuery = (address: string | undefined) => {
+  const { data, ...rest } = useStakeHistoryQuery(address);
+  const chainId = useChainId();
+  const filteredData = useMemo(
+    () =>
+      data?.filter(
+        (stake) =>
+          stake.staker.toLowerCase() !== address?.toLowerCase() &&
+          stake.stakee.toLowerCase() === address?.toLowerCase() &&
           stake.chain === chainId
       ),
     [data, address, chainId]
