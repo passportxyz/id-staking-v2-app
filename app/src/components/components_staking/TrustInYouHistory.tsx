@@ -29,7 +29,7 @@ const StakeLine = ({ stake }: { stake: StakeData }) => {
   return (
     <tr>
       <Td>
-        <DisplayAddressOrENS user={stake.stakee} />
+        <DisplayAddressOrENS user={stake.staker} />
       </Td>
       <Td>{amount} GTC</Td>
       <Td className="hidden lg:table-cell">{unlocked ? "Unlocked" : "Locked"}</Td>
@@ -78,8 +78,7 @@ const Tbody = () => {
 export const TrustInYouHistory = () => {
   return (
     <PanelDiv className="flex flex-col">
-      <div className="m-8 text-color-6 font-bold text-xl">Stake for Others</div>
-      <table className="w-full">
+      <table className="w-full mt-1">
         <thead>
           <tr className="border-b pb-6 border-foreground-4">
             <Th>Address</Th>
