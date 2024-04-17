@@ -47,8 +47,8 @@ export const StakeSection = ({
               {subheading}
             </div>
           </div>
-          <div className="flex gap-1 flex-col items-center mr-2 shrink-0">
-            <div className="text-right">{formatAmount(amount)} GTC</div>
+          <div className="flex gap-1 text-color-6 flex-col items-end mr-2 shrink-0">
+            <div className="text-right font-bold">{formatAmount(amount)} GTC</div>
             <div className="text-right">Staked</div>
           </div>
           <DropDownIcon isOpen={dropDownOpen} className="px-4" />
