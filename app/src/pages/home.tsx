@@ -8,6 +8,7 @@ import HeaderContentFooterGrid from "../components/HeaderContentFooterGrid";
 import PageWidthGrid from "../components/PageWidthGrid";
 import { YourStake } from "../components/components_staking/YourStake";
 import { StakeForOthers } from "../components/components_staking/StakeForOthers";
+import { TrustInYou } from "@/components/components_staking/TrustInYou";
 import { NetworkDropdown } from "../components/components_staking/NetworkDropdown";
 import LoggedInPageRoot from "@/components/components_staking/LoggedInPageRoot";
 
@@ -21,6 +22,7 @@ export default function LeaderBoard() {
             <NetworkDropdown />
             <YourStake />
             <StakeForOthers />
+            <TrustInYou />
           </PageWidthGrid>
         </BodyWrapper>
       </HeaderContentFooterGrid>
