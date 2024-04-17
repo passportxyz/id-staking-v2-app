@@ -3,7 +3,7 @@ import { useAccount } from "wagmi";
 
 import { Backdrop } from "./Backdrop";
 import { useDatastoreConnectionContext } from "../../context/datastoreConnectionContext";
-import { useNavigate } from "react-router-dom";
+import { useNavigateWithCommonParams } from "@/hooks/hooks_staking/useNavigateWithCommonParams";
 
 type BackgroundGradientStyle = "top-only" | "top-and-side";
 
@@ -18,7 +18,7 @@ const LoggedInPageRoot = ({
 }) => {
   const { isConnected } = useAccount();
   const { dbAccessTokenStatus } = useDatastoreConnectionContext();
-  const navigate = useNavigate();
+  const navigate = useNavigateWithCommonParams();
 
   useEffect(() => {
     if (!isConnected || dbAccessTokenStatus !== "connected") {

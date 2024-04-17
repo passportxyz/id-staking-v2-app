@@ -10,6 +10,7 @@ export const StakeSection = ({
   subheading,
   last,
   amount,
+  initialOpen,
 }: {
   children: React.ReactNode;
   heading: string;
@@ -20,9 +21,10 @@ export const StakeSection = ({
     height?: string;
   };
   last?: boolean;
+  initialOpen?: boolean;
   amount: string;
 }) => {
-  const [dropDownOpen, setDropDownState] = useState<boolean>(false);
+  const [dropDownOpen, setDropDownState] = useState<boolean>(initialOpen || false);
 
   const handleDropDown = () => {
     setDropDownState(!dropDownOpen);
@@ -30,7 +32,7 @@ export const StakeSection = ({
 
   return (
     <div className="col-span-full">
-      <Disclosure>
+      <Disclosure defaultOpen={initialOpen}>
         <Disclosure.Button
           className={`flex items-center py-6 px-1 md:px-2 rounded-lg border border-foreground-4 bg-gradient-to-r from-background to-background-5`}
           onClick={handleDropDown}

@@ -1,4 +1,4 @@
-import React, { ButtonHTMLAttributes, ChangeEvent, useMemo } from "react";
+import React, { ButtonHTMLAttributes, ChangeEvent, useEffect, useMemo, useRef } from "react";
 import { PanelDiv } from "./PanelDiv";
 import { getUnlockTime } from "@/utils/helpers";
 
@@ -60,12 +60,14 @@ export const StakeAmountInput = ({
   onChange,
   disabled,
   includePlusAmountPrefix,
+  autoFocus,
   className,
 }: {
   amount: string;
   onChange: (event: ChangeEvent<HTMLInputElement>) => void;
   disabled?: boolean;
   includePlusAmountPrefix?: boolean;
+  autoFocus?: boolean;
   className?: string;
 }) => (
   <div className={`grid items-center text-color-2 ${className}`}>
@@ -78,6 +80,7 @@ export const StakeAmountInput = ({
       placeholder={`Input a custom amount or choose one from below`}
       onChange={onChange}
       disabled={disabled}
+      autoFocus={autoFocus}
     />
     {includePlusAmountPrefix && (
       <div className="col-start-1 row-start-1 flex items-center justify-center w-8 text-2xl leading-none font-light h-full rounded-l-lg pl-1 bg-gradient-to-r from-background-8 to-background-7 text-color-4 pointer-events-none">
@@ -96,6 +99,7 @@ export const StakeFormInputSection = ({
   isLoading,
   includePlusAmountPrefix,
   onlyAllowStakeAfterTime,
+  autoFocus,
 }: {
   amount: string;
   lockedMonths: number;
@@ -105,9 +109,19 @@ export const StakeFormInputSection = ({
   isLoading?: boolean;
   includePlusAmountPrefix?: boolean;
   onlyAllowStakeAfterTime?: Date;
+  autoFocus?: boolean;
 }) => {
+  const ref = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (autoFocus) {
+      ref.current?.scrollIntoView({ behavior: "smooth", block: "center" });
+    }
+  }, [autoFocus]);
+
   return (
     <PanelDiv
+      ref={ref}
       className={`grid items-center gap-4 grid-cols-[72px_repeat(3,minmax(0,1fr))] lg:grid-cols-[72px_repeat(6,minmax(0,1fr))] py-10 px-4 md:px-14 ${className}`}
     >
       <div className="col-span-1 text-color-6 font-bold text-right">Amount</div>
@@ -117,6 +131,7 @@ export const StakeFormInputSection = ({
         onChange={(event) => handleAmountChange(event.target.value)}
         disabled={isLoading}
         includePlusAmountPrefix={includePlusAmountPrefix}
+        autoFocus={autoFocus}
       />
       <div className="gap-2 col-start-2 hidden lg:flex col-span-2 text-color-4">
         <PresetAmountsSelection

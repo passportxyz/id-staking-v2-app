@@ -5,8 +5,11 @@ import { ChevronDownIcon } from "@heroicons/react/24/outline";
 import { Menu, Transition } from "@headlessui/react";
 import { useAccount } from "wagmi";
 import { useDatastoreConnectionContext } from "../context/datastoreConnectionContext";
-import { useNavigate } from "react-router-dom";
 import { ContentTooltip } from "./Tooltip";
+import {
+  useAddCommonParamsToLink,
+  useNavigateWithCommonParams,
+} from "@/hooks/hooks_staking/useNavigateWithCommonParams";
 
 type MinimalHeaderProps = {
   className?: string;
@@ -44,7 +47,7 @@ const MinimalHeader = ({ className, hideMenu }: MinimalHeaderProps): JSX.Element
 
   const { address } = useAccount();
   const { disconnect } = useDatastoreConnectionContext();
-  const navigate = useNavigate();
+  const navigate = useNavigateWithCommonParams();
 
   const handleLogoClick = async () => {
     if (address) {
@@ -105,13 +108,14 @@ const LinkWithComingSoon = ({
 
 const LinksList = ({ className }: { className: string }) => {
   const location = useLocation();
+  const addCommonParamsToLink = useAddCommonParamsToLink();
 
   return (
     <div className={`justify-center content-center gap-3 lg:gap-8 ${className}`}>
       {LINKS.map((link) => (
         <LinkWithComingSoon
           key={link.to}
-          to={link.to}
+          to={addCommonParamsToLink(link.to)}
           comingSoon={link.comingSoon}
           className={`px-3 ${
             location.pathname.startsWith(link.to)
@@ -128,6 +132,7 @@ const LinksList = ({ className }: { className: string }) => {
 
 const LinksDropdown = ({ className }: { className: string }) => {
   const location = useLocation();
+  const addCommonParamsToLink = useAddCommonParamsToLink();
 
   const currentLinkIndex = useMemo(
     () => LINKS.findIndex((link) => location.pathname.startsWith(link.to)),
@@ -167,7 +172,7 @@ const LinksDropdown = ({ className }: { className: string }) => {
                 <Menu.Item key={link.to}>
                   {({ active }) => (
                     <LinkWithComingSoon
-                      to={link.to}
+                      to={addCommonParamsToLink(link.to)}
                       className={`${
                         active ? "bg-foreground-4 text-color-1" : "text-color-1"
                       } group flex w-full items-center rounded-md px-2 py-2 text-sm`}
