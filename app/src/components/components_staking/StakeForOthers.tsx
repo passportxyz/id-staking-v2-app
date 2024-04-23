@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useCallback } from "react";
 import { StakeForOthersHistory } from "./StakeForOthersHistory";
 import { StakeForOthersForm } from "./StakeForOthersForm";
 import { StakeSection } from "./StakeSection";
@@ -7,8 +7,12 @@ import { useAccount } from "wagmi";
 import { useSearchParams } from "react-router-dom";
 
 export const StakeForOthers = () => {
-  const [searchParams] = useSearchParams();
-  const presetAddress = searchParams.get("stake_on");
+  const [searchParams, setSearchParams] = useSearchParams();
+  const presetAddress = searchParams.get("stake_on") || undefined;
+  const clearPresetAddress = useCallback(() => {
+    searchParams.delete("stake_on");
+    setSearchParams(searchParams);
+  }, [searchParams]);
 
   const { address } = useAccount();
   const { data } = useCommunityStakeHistoryQuery(address);
@@ -26,8 +30,8 @@ export const StakeForOthers = () => {
       amount={stakedAmount}
       initialOpen={!!presetAddress}
     >
-      <StakeForOthersForm presetAddress={presetAddress} />
-      <StakeForOthersHistory />
+      <StakeForOthersForm presetAddress={presetAddress} clearPresetAddress={clearPresetAddress} />
+      <StakeForOthersHistory presetAddress={presetAddress} clearPresetAddress={clearPresetAddress} />
     </StakeSection>
   );
 };

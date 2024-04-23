@@ -1,5 +1,5 @@
 // --- React Methods
-import React, { useEffect, useState } from "react";
+import React from "react";
 
 // --Components
 import Header from "../components/Header";

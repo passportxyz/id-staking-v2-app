@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Disclosure, Transition } from "@headlessui/react";
 import { formatAmount } from "@/utils/helpers";
 import { DropDownIcon } from "./DropDownIcon";
@@ -24,10 +24,16 @@ export const StakeSection = ({
   initialOpen?: boolean;
   amount: string;
 }) => {
-  const [dropDownOpen, setDropDownState] = useState<boolean>(initialOpen || false);
+  const [dropDownOpen, setDropDownOpen] = useState<boolean>(false);
+
+  useEffect(() => {
+    if (initialOpen) {
+      setDropDownOpen(true);
+    }
+  }, [initialOpen]);
 
   const handleDropDown = () => {
-    setDropDownState(!dropDownOpen);
+    setDropDownOpen(!dropDownOpen);
   };
 
   return (
@@ -63,10 +69,12 @@ export const StakeSection = ({
           leaveFrom="transform scale-100 opacity-100"
           leaveTo="transform scale-95 opacity-0"
         >
-          <Disclosure.Panel className="flex mt-6 flex-col gap-8">
-            {children}
-            {last || <hr className="border-background-5" />}
-          </Disclosure.Panel>
+          {dropDownOpen && (
+            <Disclosure.Panel className="flex mt-6 flex-col gap-8" static>
+              {children}
+              {last || <hr className="border-background-5" />}
+            </Disclosure.Panel>
+          )}
         </Transition>
       </Disclosure>
     </div>

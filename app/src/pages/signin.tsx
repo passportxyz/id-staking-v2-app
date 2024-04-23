@@ -20,6 +20,7 @@ import { datadogLogs } from "@datadog/browser-logs";
 import { Button } from "@/components/Button";
 import { PasswordPage } from "@/components/PasswordPage";
 import { useNavigateWithCommonParams } from "@/hooks/hooks_staking/useNavigateWithCommonParams";
+import { useChainInitialization } from "@/hooks/staking_hooks/useChainInitialization";
 
 export const useTosQueryKey = (address: string | undefined): string[] => {
   return useMemo(() => ["tos", address || ""], [address]);
@@ -203,6 +204,7 @@ export default function Home() {
 
 // Once we are out of the beta, we can rename this to Home and delete the above
 const RealHome = () => {
+  useChainInitialization();
   const connectWallet = useWalletStore((state) => state.connect);
   const connectError = useWalletStore((state) => state.error);
   const { connect: connectDatastore, dbAccessTokenStatus } = useDatastoreConnectionContext();

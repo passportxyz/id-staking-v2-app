@@ -4,6 +4,7 @@ import { useAccount } from "wagmi";
 import { Backdrop } from "./Backdrop";
 import { useDatastoreConnectionContext } from "../../context/datastoreConnectionContext";
 import { useNavigateWithCommonParams } from "@/hooks/hooks_staking/useNavigateWithCommonParams";
+import { useChainInitialization } from "@/hooks/staking_hooks/useChainInitialization";
 
 type BackgroundGradientStyle = "top-only" | "top-and-side";
 
@@ -16,6 +17,7 @@ const LoggedInPageRoot = ({
   className?: string;
   backgroundGradientStyle?: BackgroundGradientStyle;
 }) => {
+  useChainInitialization();
   const { isConnected } = useAccount();
   const { dbAccessTokenStatus } = useDatastoreConnectionContext();
   const navigate = useNavigateWithCommonParams();
