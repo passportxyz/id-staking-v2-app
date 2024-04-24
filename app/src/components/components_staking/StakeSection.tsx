@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Disclosure, Transition } from "@headlessui/react";
+import { Disclosure } from "@headlessui/react";
 import { formatAmount } from "@/utils/helpers";
 import { DropDownIcon } from "./DropDownIcon";
 
@@ -25,15 +25,35 @@ export const StakeSection = ({
   amount: string;
 }) => {
   const [dropDownOpen, setDropDownOpen] = useState<boolean>(false);
+  const openRef = React.useRef(dropDownOpen);
+  openRef.current = dropDownOpen;
+
+  // Unmounting the panel on a delay to allow the animation to complete
+  const [panelMounted, setPanelMounted] = useState<boolean>(false);
 
   useEffect(() => {
-    if (initialOpen) {
-      setDropDownOpen(true);
+    if (initialOpen && !panelMounted) {
+      handleOpen();
     }
   }, [initialOpen]);
 
-  const handleDropDown = () => {
-    setDropDownOpen(!dropDownOpen);
+  const handleOpen = () => {
+    setPanelMounted(true);
+    setDropDownOpen(true);
+  };
+
+  const handleClose = () => {
+    setDropDownOpen(false);
+    setTimeout(() => {
+      // Only unmount the panel if it's still closed
+      // Need to use ref to access current state here
+      !openRef.current && setPanelMounted(false);
+    }, 150);
+  };
+
+  const handleClick = () => {
+    if (dropDownOpen) handleClose();
+    else handleOpen();
   };
 
   return (
@@ -41,7 +61,7 @@ export const StakeSection = ({
       <Disclosure defaultOpen={initialOpen}>
         <Disclosure.Button
           className={`flex items-center py-6 px-1 md:px-2 rounded-lg border border-foreground-4 bg-gradient-to-r from-background to-background-5`}
-          onClick={handleDropDown}
+          onClick={handleClick}
           as="div"
         >
           <div className="w-16 flex items-center justify-center mx-2 md:mx-4 shrink-0">
@@ -61,21 +81,18 @@ export const StakeSection = ({
           </div>
           <DropDownIcon isOpen={dropDownOpen} className="px-4" />
         </Disclosure.Button>
-        <Transition
-          enter="transition duration-150 ease-out"
-          enterFrom="transform scale-95 opacity-0"
-          enterTo="transform scale-100 opacity-100"
-          leave="transition duration-100 ease-out"
-          leaveFrom="transform scale-100 opacity-100"
-          leaveTo="transform scale-95 opacity-0"
-        >
-          {dropDownOpen && (
-            <Disclosure.Panel className="flex mt-6 flex-col gap-8" static>
-              {children}
-              {last || <hr className="border-background-5" />}
-            </Disclosure.Panel>
-          )}
-        </Transition>
+        {panelMounted && (
+          <Disclosure.Panel
+            className={`flex flex-col gap-8 transition-all transit duration-150 ease-in-out ${
+              dropDownOpen ? "opacity-100 h-full mt-6" : "opacity-0 h-0 overflow-hidden mt-0"
+            }
+          `}
+            static
+          >
+            {children}
+            {last || <hr className="border-background-5" />}
+          </Disclosure.Panel>
+        )}
       </Disclosure>
     </div>
   );
