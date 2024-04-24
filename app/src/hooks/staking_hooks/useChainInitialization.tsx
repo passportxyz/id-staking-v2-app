@@ -6,19 +6,30 @@ import { useEffect, useMemo } from "react";
 
 // --Components
 import { useSearchParams } from "react-router-dom";
+import { useChainId } from "wagmi";
+
+// Just returns true/false indicating if
+// the connected chain still hasn't been
+// switched to the desired chain for the
+// ?chain_id= query param
+export const useChainInitializing = (): boolean => {
+  const [searchParams] = useSearchParams();
+  return Boolean(searchParams.get("chain_id"));
+};
 
 export const useChainInitialization = () => {
   const [searchParams, setSearchParams] = useSearchParams();
 
-  // Need to use the onboard chain methods here,
+  // For now, need to use the onboard chain methods here,
   // which viem picks up successfully.
   // The viem methods work well in most scenarios but not all,
-  // but maybe we can switch back to those once the
+  // TODO we should switch back to those once the
   // wagmi+onboard issues are resolved
   // const { switchChain } = useSwitchChain();
-  // const connectedChainId = useChainId();
   const setChain = useWalletStore((state) => state.setChain);
   const connectedChainId = useWalletStore((state) => state.chain);
+  // Use this so we can wait until everything is in sync
+  const wagmiConnectedChainId = useChainId();
   const address = useWalletStore((state) => state.address);
 
   const toast = useToast();
@@ -26,11 +37,11 @@ export const useChainInitialization = () => {
   const desiredChainId = parseInt(searchParams.get("chain_id") || "");
 
   useEffect(() => {
-    if (desiredChainId && desiredChainId === connectedChainId) {
+    if (desiredChainId && desiredChainId === connectedChainId && desiredChainId === wagmiConnectedChainId) {
       searchParams.delete("chain_id");
       setSearchParams(searchParams);
     }
-  }, [desiredChainId, connectedChainId, searchParams, setSearchParams]);
+  }, [desiredChainId, connectedChainId, searchParams, setSearchParams, wagmiConnectedChainId]);
 
   useEffect(() => {
     (async () => {
@@ -45,11 +56,5 @@ export const useChainInitialization = () => {
     })();
   }, [desiredChainId, connectedChainId, address, setChain]);
 
-  // Not using this yet, waiting for feedback on how to handle users on unsupported chains
-  // Right now, only the `?chain_id=whatever` query param is supported by the logic above, but
-  // it would be easy to add the logic to handle wallets connected to unsupported chains here too,
-  // and then the return value here will be useful once UI designs are ready
-  const switching = desiredChainId !== connectedChainId;
-
-  return useMemo(() => ({ switching }), [switching]);
+  return useMemo(() => ({ initializing: Boolean(desiredChainId) }), [desiredChainId]);
 };

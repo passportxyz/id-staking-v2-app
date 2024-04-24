@@ -9,6 +9,7 @@ import { StakeForOthersModal } from "./StakeForOthersModal";
 import { useCommunityStakeHistoryQuery } from "@/utils/stakeHistory";
 import { getLockSeconds } from "@/utils/helpers";
 import { useSearchParams } from "react-router-dom";
+import { useChainInitializing } from "@/hooks/staking_hooks/useChainInitialization";
 
 type CommunityStakeInputs = {
   uuid: string;
@@ -208,6 +209,7 @@ export const StakeForOthersForm = ({
 }) => {
   const { address } = useAccount();
   const { data, isPending } = useCommunityStakeHistoryQuery(address);
+  const chainInitializing = useChainInitializing();
 
   const communityStakes = useCommunityStakesStore((state) => state.communityStakes);
   const addCommunityStake = useCommunityStakesStore((state) => state.addCommunityStake);
@@ -223,12 +225,12 @@ export const StakeForOthersForm = ({
   );
 
   useEffect(() => {
-    if (presetAddress && !isPending) {
+    if (presetAddress && !isPending && !chainInitializing) {
       if (!previousStakedAddresses.includes(presetAddress.toLowerCase()) && communityStakes[0].stakeeInput === "") {
         updateCommunityStake(communityStakes[0].uuid, { stakeeInput: presetAddress, autoFocus: true });
       }
     }
-  }, [presetAddress, isPending, previousStakedAddresses, communityStakes, updateCommunityStake]);
+  }, [presetAddress, data, isPending, communityStakes, updateCommunityStake, chainInitializing]);
 
   const stakeSections = useMemo(
     () =>

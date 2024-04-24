@@ -9,9 +9,10 @@ export const ShareWithFriends = () => {
   const [copied, setCopied] = React.useState(false);
 
   const shareLink = window.location.origin + `/#/?chain_id=${chainId}&stake_on=${address}`;
+  const shareText = `Support me on Passport! Click this link to stake on my digital identity and help boost my trust score: ${shareLink} - It's quick and makes a big difference. Thank you! 🌟`;
 
   const onCopy = () => {
-    navigator.clipboard.writeText(shareLink);
+    navigator.clipboard.writeText(shareText);
     setCopied(true);
     setTimeout(() => setCopied(false), 3000);
   };
