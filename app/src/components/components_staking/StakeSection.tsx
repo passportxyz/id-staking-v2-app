@@ -39,15 +39,20 @@ export const StakeSection = ({
 
   const handleOpen = () => {
     setPanelMounted(true);
-    setDropDownOpen(true);
   };
+
+  useEffect(() => {
+    // Causes this to open one render after mounting, so animation can play
+    setDropDownOpen(panelMounted);
+  }, [panelMounted]);
 
   const handleClose = () => {
     setDropDownOpen(false);
     setTimeout(() => {
       // Only unmount the panel if it's still closed
-      // Need to use ref to access current state here
-      !openRef.current && setPanelMounted(false);
+      // Need to use ref to access runtime state here
+      const isOpen = openRef.current;
+      if (!isOpen) setPanelMounted(false);
     }, 150);
   };
 
