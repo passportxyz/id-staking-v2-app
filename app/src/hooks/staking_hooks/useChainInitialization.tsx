@@ -2,7 +2,7 @@
 import { makeErrorToastProps } from "@/components/DoneToastContent";
 import { useWalletStore } from "@/context/walletStore";
 import { useToast } from "@chakra-ui/react";
-import { useEffect, useMemo } from "react";
+import { useEffect, useMemo, useRef } from "react";
 
 // --Components
 import { useSearchParams } from "react-router-dom";
@@ -19,6 +19,7 @@ export const useChainInitializing = (): boolean => {
 
 export const useChainInitialization = () => {
   const [searchParams, setSearchParams] = useSearchParams();
+  const alreadyRunning = useRef<boolean>(false);
 
   // For now, need to use the onboard chain methods here,
   // which viem picks up successfully.
@@ -45,16 +46,18 @@ export const useChainInitialization = () => {
 
   useEffect(() => {
     (async () => {
-      if (desiredChainId && desiredChainId !== connectedChainId && address) {
+      if (desiredChainId && !alreadyRunning.current && desiredChainId !== connectedChainId && address) {
+        alreadyRunning.current = true;
         const success = await setChain(desiredChainId);
         if (!success) {
           toast(
             makeErrorToastProps("Error", "Failed to switch chains. Please switch chains using your wallet provider.")
           );
         }
+        alreadyRunning.current = false;
       }
     })();
-  }, [desiredChainId, connectedChainId, address, setChain]);
+  }, [desiredChainId, connectedChainId, address, setChain, toast]);
 
   return useMemo(() => ({ initializing: Boolean(desiredChainId) }), [desiredChainId]);
 };

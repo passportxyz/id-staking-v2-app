@@ -24,13 +24,13 @@ export const PasswordPage = ({ onAuthorized }: { onAuthorized: () => void }) => 
     if (authorized === "true") {
       onAuthorized();
     }
-  }, []);
+  }, [onAuthorized]);
 
   const [input, setInput] = useState("");
   const toast = useToast();
 
   const checkPassword = async () => {
-    if (await digest(input) === PASSWORD_HASH) {
+    if ((await digest(input)) === PASSWORD_HASH) {
       localStorage.setItem("authorized", "true");
       onAuthorized();
     } else {

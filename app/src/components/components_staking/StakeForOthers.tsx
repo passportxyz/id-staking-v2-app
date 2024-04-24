@@ -16,7 +16,7 @@ export const StakeForOthers = () => {
     if (chainInitializing) return;
     searchParams.delete("stake_on");
     setSearchParams(searchParams);
-  }, [searchParams]);
+  }, [searchParams, setSearchParams, chainInitializing]);
 
   const { address } = useAccount();
   const { data } = useCommunityStakeHistoryQuery(address);

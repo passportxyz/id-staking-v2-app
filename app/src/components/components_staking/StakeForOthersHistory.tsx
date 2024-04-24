@@ -162,7 +162,7 @@ const StakeLine = ({
       <Td>
         <Popover className="flex ">
           <Popover.Button className={"h-5 w-5"}>
-            <img src="/assets/vertical-submenu.svg" />
+            <img src="/assets/vertical-submenu.svg" alt="Menu" />
           </Popover.Button>
 
           <Popover.Panel className="absolute z-10 inline-block">

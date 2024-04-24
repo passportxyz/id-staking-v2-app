@@ -32,7 +32,7 @@ export const StakeSection = ({
   const [panelMounted, setPanelMounted] = useState<boolean>(false);
 
   useEffect(() => {
-    if (initialOpen && !panelMounted) {
+    if (initialOpen) {
       handleOpen();
     }
   }, [initialOpen]);

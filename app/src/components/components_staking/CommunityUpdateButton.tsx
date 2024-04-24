@@ -187,12 +187,12 @@ export const CommunityUpdateButton = ({
   const onClosePreviewModal = useCallback(() => {
     setPreviewModalIsOpen(false);
     onClose();
-  }, []);
+  }, [onClose]);
 
   const onCloseTransactionModal = useCallback(() => {
     setTransactionModalIsOpen(false);
     onClose();
-  }, []);
+  }, [onClose]);
 
   const onContinue = useCallback(() => {
     setPreviewModalIsOpen(false);

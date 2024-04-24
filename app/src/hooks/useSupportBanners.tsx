@@ -17,6 +17,27 @@ export const useSupportBanners = (): {
 
   const { dbAccessToken, dbAccessTokenStatus } = useDatastoreConnectionContext();
 
+  const creatDismissSupportBannerCallback = useCallback(
+    (banner_id: number) => async () => {
+      try {
+        if (!dbAccessToken) throw new Error("No access token");
+        await axios.post(
+          `${process.env.NEXT_PUBLIC_SCORER_ENDPOINT}/passport-admin/banners/${banner_id}/dismiss`,
+          {},
+          {
+            headers: {
+              Authorization: `Bearer ${dbAccessToken}`,
+            },
+          }
+        );
+        setBanners((oldBanners) => oldBanners.filter((banner) => banner.banner_id !== banner_id));
+      } catch (err) {
+        // datadogRum.addError(err);
+      }
+    },
+    [dbAccessToken]
+  );
+
   const loadBanners = useCallback(async () => {
     if (dbAccessTokenStatus === "connected" && dbAccessToken) {
       const banners: {
@@ -34,25 +55,7 @@ export const useSupportBanners = (): {
         }))
       );
     }
-  }, [dbAccessToken, dbAccessTokenStatus]);
-
-  const creatDismissSupportBannerCallback = (banner_id: number) => async () => {
-    try {
-      if (!dbAccessToken) throw new Error("No access token");
-      await axios.post(
-        `${process.env.NEXT_PUBLIC_SCORER_ENDPOINT}/passport-admin/banners/${banner_id}/dismiss`,
-        {},
-        {
-          headers: {
-            Authorization: `Bearer ${dbAccessToken}`,
-          },
-        }
-      );
-      setBanners((oldBanners) => oldBanners.filter((banner) => banner.banner_id !== banner_id));
-    } catch (err) {
-      // datadogRum.addError(err);
-    }
-  };
+  }, [dbAccessToken, dbAccessTokenStatus, creatDismissSupportBannerCallback]);
 
   return useMemo(() => ({ banners, loadBanners }), [banners, loadBanners]);
 };

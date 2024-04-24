@@ -131,7 +131,7 @@ const StakeForOthersFormSection = ({
       onChange?.();
       updateCommunityStake(uuid, { amountInput: value });
     },
-    [updateCommunityStake, uuid]
+    [updateCommunityStake, uuid, onChange]
   );
 
   const setStakeeAddress = useCallback(
@@ -139,7 +139,7 @@ const StakeForOthersFormSection = ({
       onChange?.();
       updateCommunityStake(uuid, { stakeeInput: address as `0x${string}` });
     },
-    [updateCommunityStake, uuid]
+    [updateCommunityStake, uuid, onChange]
   );
 
   const setLockedPeriod = useCallback(
@@ -147,7 +147,7 @@ const StakeForOthersFormSection = ({
       onChange?.();
       updateCommunityStake(uuid, { lockedPeriodMonths: lockPeriod });
     },
-    [updateCommunityStake, uuid]
+    [updateCommunityStake, uuid, onChange]
   );
 
   const handleStakeeInputChange = useCallback(
@@ -155,7 +155,7 @@ const StakeForOthersFormSection = ({
       onChange?.();
       setStakeeAddress(event.target.value);
     },
-    [setStakeeAddress]
+    [setStakeeAddress, onChange]
   );
 
   return (
@@ -230,7 +230,7 @@ export const StakeForOthersForm = ({
         updateCommunityStake(communityStakes[0].uuid, { stakeeInput: presetAddress, autoFocus: true });
       }
     }
-  }, [presetAddress, data, isPending, communityStakes, updateCommunityStake, chainInitializing]);
+  }, [presetAddress, isPending, communityStakes, updateCommunityStake, chainInitializing, previousStakedAddresses]);
 
   const stakeSections = useMemo(
     () =>
@@ -250,7 +250,7 @@ export const StakeForOthersForm = ({
           }
         />
       )),
-    [communityStakes, previousStakedAddresses]
+    [communityStakes, previousStakedAddresses, clearPresetAddress]
   );
 
   const anyIncomplete: boolean = useMemo(
@@ -270,7 +270,7 @@ export const StakeForOthersForm = ({
   const onClose = useCallback(() => {
     setModalIsOpen(false);
     clearPresetAddress();
-  }, []);
+  }, [clearPresetAddress]);
 
   const communityStakeModal = useMemo(
     () =>
