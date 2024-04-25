@@ -5,7 +5,16 @@ import { useQuery } from "@tanstack/react-query";
 import axios from "axios";
 import { useChainId } from "wagmi";
 
+export type LegacyRoundMeta = {
+  unlock_time: string;
+  lock_time: string;
+  round_id: number;
+};
+
+
 export type StakeData = {
+  type: "v1" | "v2" | undefined;  // undefine dis to be considered v2 by default
+  round_id: number | undefined;  // Only required for legacy (v1) staking
   chain: number;
   staker: `0x${string}`;
   stakee: `0x${string}`;
