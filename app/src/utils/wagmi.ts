@@ -5,7 +5,6 @@ import { WalletState } from "@web3-onboard/core";
 import { Chain } from "viem";
 import { mainnet } from "viem/chains";
 import { onboard } from "./onboard";
-import { ethers } from "ethers";
 
 // TODO copied from walletStore.tsx
 const parseChainId = (chainId?: string) => {
@@ -71,10 +70,6 @@ export function web3OnboardWagmiConnector(parameters: Web3OnboardWagmiConnectorP
 
       window.localStorage.setItem("previouslyUsedWalletLabel", primaryWallet.label);
 
-      // provider.removeListener(
-      //   "connect",
-      //   this.onConnect.bind(this)
-      // );
       provider.on("accountsChanged", (...props) => {
         console.log("w3o event accountsChanged", props);
         this.onAccountsChanged.bind(this)(...props);
