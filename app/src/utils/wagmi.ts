@@ -37,6 +37,7 @@ export function web3OnboardWagmiConnector(parameters: Web3OnboardWagmiConnectorP
     async connect(...props) {
       console.log("w3o connect", props);
       const previouslyUsedWalletLabel = getPreviouslyUsedWalletLabel();
+      console.log("w3o previouslyUsedWalletLabel", previouslyUsedWalletLabel);
       const connectOptions = previouslyUsedWalletLabel
         ? {
             autoSelect: {
@@ -46,6 +47,8 @@ export function web3OnboardWagmiConnector(parameters: Web3OnboardWagmiConnectorP
           }
         : undefined;
       let [primaryWallet] = await onboard.connectWallet(connectOptions);
+
+      console.log("w3o primaryWallet", primaryWallet);
 
       if (!primaryWallet) {
         // This error can be caused if the user changed the wallet he is using in the mean time,
@@ -85,7 +88,8 @@ export function web3OnboardWagmiConnector(parameters: Web3OnboardWagmiConnectorP
         this.onDisconnect.bind(this)(...props);
       });
 
-      return { address, chainId, accounts: [address] };
+      console.log("w3o connected", { address, chainId, provider });
+      return { address, chainId, accounts: [address], provider };
     },
     async disconnect(...props) {
       console.log("w3o disconnect", props);
