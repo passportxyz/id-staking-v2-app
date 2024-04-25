@@ -137,20 +137,17 @@ export function web3OnboardWagmiConnector(parameters: Web3OnboardWagmiConnectorP
       console.log("isAuthorized check");
       return false;
     },
-    onAccountsChanged: (callback) =>
-      onboard.state.select("wallets").subscribe((wallets) => {
-        if (wallets.length) {
-          const walletState = parseWeb3OnboardWallet(wallets[0]);
-          callback(walletState.address as `0x${string}`);
-        }
-      }),
+    onAccountsChanged: (...props) => {
+      console.log("onAccountsChanged", props);
+    },
     onMessage: () => {},
-    onChainChanged: (callback) =>
-      onboard.state.select("chain").subscribe((chain) => {
-        if (chain) {
-          callback(chain);
-        }
-      }),
+    onChainChanged: (...props) => {
+      console.log("onChainChanged", props);
+    },
+    onDisconnect: (...props) => {
+      console.log("onDisconnect", props);
+    },
+    type: "web3Onboard",
   }));
 }
 
