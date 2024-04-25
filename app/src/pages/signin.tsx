@@ -271,7 +271,8 @@ const RealHome = () => {
   const signIn = async () => {
     try {
       setIsLoggingIn(true);
-      await connectWallet(connectDatastore);
+      console.log("connectors", connectors);
+      await connectWallet(() => connect({ connector: connectors[0] }), connectDatastore);
     } catch (e) {
       console.error("Error connecting wallet", e);
       setIsLoggingIn(false);

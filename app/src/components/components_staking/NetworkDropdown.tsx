@@ -1,5 +1,6 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
-import { chainConfigs, ChainConfig, wagmiConfig } from "@/utils/chains";
+import { chainConfigs, ChainConfig } from "@/utils/chains";
+import { wagmiConfig } from "@/utils/wagmi";
 import { useBalance } from "wagmi";
 import { useWalletStore } from "@/context/walletStore";
 import { DropDownIcon } from "./DropDownIcon";

@@ -1,9 +1,6 @@
-import { http, createConfig, Config } from "wagmi";
-import { createConnector } from "@wagmi/core";
+import { http, Config } from "wagmi";
 import { mainnet, optimism, optimismSepolia } from "wagmi/chains";
 import { HttpTransport, Chain } from "viem";
-import { onboard } from "./onboard";
-import { WalletState } from "@web3-onboard/core";
 
 const MAINNET_RPC_URL = process.env.NEXT_PUBLIC_MAINNET_RPC_URL as string;
 const OP_RPC_URL = process.env.NEXT_PUBLIC_OP_RPC_URL as string;
@@ -34,8 +31,8 @@ export type ChainConfig = {
 };
 
 let enabledChainConfigs: ChainConfig[] = [];
-let wagmiChains: Chain[] = [];
-let wagmiTransports: Record<Config["chains"][number]["id"], HttpTransport> = {};
+export let wagmiChains: Chain[] = [];
+export let wagmiTransports: Record<Config["chains"][number]["id"], HttpTransport> = {};
 
 if (enableMainnet) {
   enabledChainConfigs.push({
@@ -93,68 +90,3 @@ if (enabledChainConfigs.length === 0) {
 *********************************************************************************\n"
   );
 }
-
-// TODO copied from walletStore.tsx
-const parseChainId = (chainId?: string) => {
-  return chainId
-    ? chainId.startsWith("0x")
-      ? parseInt(chainId.substring(2), 16)
-      : parseInt(chainId.substring(2), 10)
-    : 1;
-};
-
-const parseWeb3OnboardWallet = (wallet: WalletState) => {
-  const address = wallet?.accounts?.[0]?.address;
-  const chainAsStr = wallet?.chains?.[0]?.id;
-  const chain = parseChainId(chainAsStr);
-  const provider = wallet?.provider;
-  return { address, chain, provider };
-};
-
-export type Web3OnboardWagmiConnectorParameters = {};
-
-export function web3OnboardWagmiConnector(parameters: Web3OnboardWagmiConnectorParameters = {}) {
-  return createConnector((config) => ({
-    icon: undefined,
-    id: "web3Onboard",
-    name: "Web3 Onboard",
-    connect: async () => {
-      const wallets = await onboard.connectWallet();
-      const walletData = parseWeb3OnboardWallet(wallets[0]);
-      const address = walletData.address as `0x${string}`;
-      const chainId = walletData.chain;
-      return { address, chainId, accounts: [address] };
-    },
-    setup: async () => {},
-    disconnect: async () => {
-      await onboard.disconnectWallet({ label: "" });
-    },
-    getAccounts: () =>
-      Promise.resolve(onboard.state.get().wallets[0].accounts.map((account) => account.address as `0x${string}`)),
-    getChainId: async () => parseChainId(onboard.state.get().wallets[0].chains[0].id),
-    getProvider: async () => onboard.state.get().wallets[0].provider,
-    isAuthorized: async () => {
-      console.log("isAuthorized check");
-      return false;
-    },
-    onAccountsChanged: (...props) => {
-      console.log("onAccountsChanged", props);
-    },
-    onMessage: () => {},
-    onChainChanged: (...props) => {
-      console.log("onChainChanged", props);
-    },
-    onDisconnect: (...props) => {
-      console.log("onDisconnect", props);
-    },
-    type: "web3Onboard",
-  }));
-}
-
-export const wagmiConfig = createConfig({
-  // If wagmiChains.length we have a misconfiguration (and we log above).
-  // So we just set mainnet in wagmi to keep it happy
-  chains: wagmiChains.length > 0 ? (wagmiChains as [Chain, ...Chain[]]) : [mainnet],
-  connectors: [web3OnboardWagmiConnector()],
-  transports: wagmiTransports,
-});

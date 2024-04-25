@@ -11,7 +11,7 @@ import ManageAccountCenter from "../components/ManageAccountCenter";
 import { DatastoreConnectionContextProvider } from "../context/datastoreConnectionContext";
 
 import { WagmiProvider } from "wagmi";
-import { wagmiConfig } from "@/utils/chains";
+import { wagmiConfig } from "@/utils/wagmi";
 
 import { onboard } from "../utils/onboard";
 
