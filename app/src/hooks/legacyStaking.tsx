@@ -57,13 +57,21 @@ export const useRoundMetadata = (chainId: number | undefined): LegacyRoundMeta[]
       : [],
   });
   const roundMeta: LegacyRoundMeta[] = readResult.data
-    ? readResult.data?.slice(0, 6).map((d, index) => {
-        const result: any[] = d.result as any[];
-        return {
-          lock_time: new Date(Number(result[0]) * 1000).toISOString(),
-          unlock_time: new Date(Number(result[0] + result[1]) * 1000).toISOString(),
-          round_id: roundIds[index],
-        };
+    ? readResult.data.map((d, index) => {
+        const result: any[] | undefined = d.result as any[];
+        if (result && result.length > 0) {
+          return {
+            lock_time: new Date(Number(result[0]) * 1000).toISOString(),
+            unlock_time: new Date(Number(result[0] + result[1]) * 1000).toISOString(),
+            round_id: roundIds[index],
+          };
+        } else {
+          return {
+            lock_time: new Date(0).toISOString(),
+            unlock_time: new Date(0).toISOString(),
+            round_id: 0,
+          };
+        }
       })
     : [];
 
@@ -165,7 +173,8 @@ export const useCommunityStakes = (address: `0x${string}` | undefined, chainId: 
         : [],
   });
 
-  if (chainId && address) {
+  // We have legacy stalkes only for mainnet
+  if (chainId === 1 && address) {
     const v1Stakes: StakeData[] = v1GtcStakeQueries.reduce((acc: StakeData[], query, index) => {
       const data = query.data;
       console.log("geri data", data);
@@ -196,7 +205,7 @@ export const useCommunityStakes = (address: `0x${string}` | undefined, chainId: 
         }, 0n);
 
         const round = roundMeta[index];
-        if (totalAmountForRound && unstakedCommunityStakesAsList.length > 0) {
+        if (round && totalAmountForRound && unstakedCommunityStakesAsList.length > 0) {
           acc.push({
             type: "v1Community",
             chain: chainId,

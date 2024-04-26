@@ -83,13 +83,13 @@ const SelfUnstakeButton = ({ address, unlocked, stake }: { address: string; unlo
 const Tbody = () => {
   const [address, chain] = useWalletStore((state) => [state.address, state.chain]);
   const { isPending, isError, data, error } = useYourStakeHistoryQuery(address);
-  const legacyData = useSelfStake(address, chain);
+  const legacyData = useSelfStake("0x070935482Fcb528Dc433C40080C9B04010a307EC", chain);
 
   const aggregatedData = (data || []).concat(legacyData);
   useEffect(() => {
     isError && console.error("Error getting StakeHistory:", error);
   }, [error, isError]);
-  
+
   let tbody_contents;
   if (!isPending && !isError && address && aggregatedData && aggregatedData.length > 0) {
     tbody_contents = (
@@ -145,7 +145,7 @@ const StakeLine = ({ stake, address }: { stake: StakeData; address: string }) =>
           lockSeconds={lockSeconds}
           amount={stake.amount}
           address={address}
-          disabled={stake.type === "v1"}
+          disabled={stake.type === "v1Single"}
         />
         <br />
         <SelfUnstakeButton address={address} unlocked={unlocked} stake={stake} />
