@@ -3,7 +3,8 @@ import { PanelDiv } from "./PanelDiv";
 import { useWalletStore } from "@/context/walletStore";
 import { useSelfStake } from "@/hooks/legacyStaking";
 import { SelfRestakeModal } from "./SelfRestakeModal";
-import { DisplayAddressOrENS, DisplayDuration, formatAmount, formatDate } from "@/utils/helpers";
+import { DisplayAddressOrENS, DisplayDuration, formatAmount, useConnectedChain, formatDate } from "@/utils/helpers";
+
 import { LegacyRoundMeta, StakeData, useYourStakeHistoryQuery } from "@/utils/stakeHistory";
 import { SelfUnstakeModal, LegacySelfUnstakeModal } from "./SelfUnstakeModal";
 
@@ -81,9 +82,10 @@ const SelfUnstakeButton = ({ address, unlocked, stake }: { address: string; unlo
 };
 
 const Tbody = () => {
-  const [address, chain] = useWalletStore((state) => [state.address, state.chain]);
+  const connectedChain = useConnectedChain();
+  const address = useWalletStore((state) => state.address);
   const { isPending, isError, data, error } = useYourStakeHistoryQuery(address);
-  const legacyData = useSelfStake("0x070935482Fcb528Dc433C40080C9B04010a307EC", chain);
+  const legacyData = useSelfStake(address, connectedChain);
 
   const aggregatedData = (data || []).concat(legacyData);
   useEffect(() => {

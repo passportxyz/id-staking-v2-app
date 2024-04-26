@@ -7,7 +7,7 @@ import { useCommunityStakes } from "@/hooks/legacyStaking";
 import { CommunityUpdateButton } from "./CommunityUpdateButton";
 import { Popover } from "@headlessui/react";
 import { CommunityRestakeModal } from "./CommunityRestakeModal";
-import { CommunityUnstakeModal } from "./CommunityUnstakeModal";
+import { CommunityUnstakeModal, LegacyCommunityUnstakeModal } from "./CommunityUnstakeModal";
 
 const Th = ({ className, children, ...props }: ComponentPropsWithRef<"th"> & { children: React.ReactNode }) => (
   <th className={`${className} p-2 pb-4 text-center`} {...props}>
@@ -81,15 +81,44 @@ const CommunityUnstakeButton = ({
   );
 };
 
+const LegacyCommunityUnstakeButton = ({
+  stake,
+  address,
+  unlocked,
+}: {
+  stake: StakeData;
+  address: string;
+  unlocked: boolean;
+}) => {
+  const [modalIsOpen, setModalIsOpen] = useState(false);
+  return (
+    <>
+      <LegacyCommunityUnstakeModal
+        address={address}
+        stakedData={[stake]}
+        isOpen={modalIsOpen}
+        onClose={() => setModalIsOpen(false)}
+      />
+      <button
+        className="disabled:text-color-5 disabled:cursor-not-allowed"
+        onClick={() => setModalIsOpen(true)}
+        disabled={!unlocked}
+      >
+        Unstake
+      </button>
+    </>
+  );
+};
+
 const Tbody = ({ presetAddress, clearPresetAddress }: { presetAddress?: string; clearPresetAddress: () => void }) => {
   const connectedChain = useConnectedChain();
-  const [address, chain] = useWalletStore((state) => [state.address, state.chain]);
+  const address = useWalletStore((state) => state.address);
 
   const { isPending, isError, data, error } = useStakeHistoryQuery(address);
   const stakeForOthersHistory = data?.filter(
     (stake: StakeData) => stake.staker === address && stake.stakee !== address && stake.chain === connectedChain.id
   );
-  const legacyCommunityStakes = useCommunityStakes("0x79ad4187b56c86eef0cffac3f80dfe745bdd5bd2", chain);
+  const legacyCommunityStakes = useCommunityStakes(address, connectedChain);
   const aggregatedData = (stakeForOthersHistory || []).concat(legacyCommunityStakes);
 
   useEffect(() => {
@@ -155,6 +184,13 @@ const StakeLine = ({
     }
   });
 
+  const unstakeButton =
+    stake.type === "v1Community" ? (
+      <LegacyCommunityUnstakeButton address={address} stake={stake} unlocked={unlocked} />
+    ) : (
+      <CommunityUnstakeButton address={address} stake={stake} unlocked={unlocked} />
+    );
+
   return (
     <tr ref={ref}>
       <Td>
@@ -182,7 +218,7 @@ const StakeLine = ({
           <Popover.Panel className="absolute z-10 inline-block">
             <div className="grid grid-rows-2 mx-10 rounded p-1 border border-foreground-4 bg-gradient-to-b from-background to-background-6">
               <CommunityRestakeButton address={address} stake={stake} />
-              <CommunityUnstakeButton address={address} stake={stake} unlocked={unlocked} />
+              {unstakeButton}
             </div>
           </Popover.Panel>
         </Popover>

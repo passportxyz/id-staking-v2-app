@@ -89,7 +89,7 @@ const useWithdrawLegacySelfStake = ({ address, roundId }: { address: string; rou
         console.error("Legacy contract address not found (this is probably a misconfiguration)");
       }
     },
-    [writeContract, chain.legacyContractAddr]
+    [writeContract, chain.legacyContractAddr, roundId]
   );
 
   return useMemo(
