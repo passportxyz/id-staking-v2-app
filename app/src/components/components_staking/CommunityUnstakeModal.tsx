@@ -195,7 +195,7 @@ export const CommunityUnstakeModal = ({
   );
 };
 
-export const LegacyCommunityUnstakeButton = ({
+export const LegacyCommunityUnstakeModal = ({
   address,
   stakedData,
   isOpen,
