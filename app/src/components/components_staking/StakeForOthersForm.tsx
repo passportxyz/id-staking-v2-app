@@ -8,7 +8,6 @@ import { parseEther } from "viem";
 import { StakeForOthersModal } from "./StakeForOthersModal";
 import { useCommunityStakeHistoryQuery } from "@/utils/stakeHistory";
 import { getLockSeconds } from "@/utils/helpers";
-import { useSearchParams } from "react-router-dom";
 import { useChainInitializing } from "@/hooks/staking_hooks/useChainInitialization";
 
 type CommunityStakeInputs = {
@@ -269,8 +268,7 @@ export const StakeForOthersForm = ({
 
   const onClose = useCallback(() => {
     setModalIsOpen(false);
-    clearPresetAddress();
-  }, [clearPresetAddress]);
+  }, []);
 
   const communityStakeModal = useMemo(
     () =>
