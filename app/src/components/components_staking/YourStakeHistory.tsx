@@ -53,7 +53,7 @@ const SelfUnstakeButton = ({ address, unlocked, stake }: { address: string; unlo
   const [modalIsOpen, setModalIsOpen] = useState(false);
   const onClose = useCallback(() => setModalIsOpen(false), []);
   const modal =
-    stake.type === "v1" && stake.round_id ? (
+    stake.type === "v1Single" && stake.round_id ? (
       <LegacySelfUnstakeModal
         address={address}
         amount={stake.amount}

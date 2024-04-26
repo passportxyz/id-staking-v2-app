@@ -11,13 +11,13 @@ export type LegacyRoundMeta = {
   round_id: number;
 };
 
-
 export type StakeData = {
-  type: "v1" | "v2" | undefined;  // undefine dis to be considered v2 by default
-  round_id: number | undefined;  // Only required for legacy (v1) staking
+  type?: "v1Single" | "v1Community" | "v2"; // undefine dis to be considered v2 by default
+  round_id?: number; // Only required for legacy (v1Single) staking
   chain: number;
   staker: `0x${string}`;
   stakee: `0x${string}`;
+  stakees?: `0x${string}`[]; // Only required for legacy (v1Community) staking
   amount: string;
   unlock_time: string;
   lock_time: string;
