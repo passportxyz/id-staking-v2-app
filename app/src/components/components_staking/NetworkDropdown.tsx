@@ -68,7 +68,7 @@ export const NetworkDropdown: React.FC = ({}) => {
   // rolling back if the chain switch fails or is cancelled
   const [tempSelectedChain, setTempSelectedChain] = useState<ChainConfig>(selectedChain);
   const [menuIsOpen, setMenuIsOpen] = useState(false);
-  const { switchChainAsync } = useSwitchChain();
+  const setChain = useWalletStore((state) => state.setChain);
   const ref = useRef<HTMLDivElement>(null);
   useOutsideClick(ref, () => setMenuIsOpen(false));
 
@@ -107,13 +107,9 @@ export const NetworkDropdown: React.FC = ({}) => {
                 const oldChain = selectedChain;
                 setTempSelectedChain(chain);
                 setMenuIsOpen(false);
-                console.log("Switching chain", chain.id);
                 if (idx) {
-                  try {
-                    await switchChainAsync({
-                      chainId: chain.id,
-                    });
-                  } catch (e) {
+                  const success = setChain(chain.id);
+                  if (!success) {
                     setTempSelectedChain(oldChain);
                   }
                 }
