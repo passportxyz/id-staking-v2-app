@@ -208,7 +208,7 @@ const RealHome = () => {
   const { connect: connectDatastore, dbAccessTokenStatus } = useDatastoreConnectionContext();
   const toast = useToast();
   const { isConnected } = useAccount();
-  const { connectAsync } = useConnect();
+  const { connect } = useConnect();
   const connectors = useConnectors();
   const [tosModalIsOpen, setTosModalIsOpen] = useState(false);
   const [isLoggingIn, setIsLoggingIn] = useState(false);
@@ -242,13 +242,13 @@ const RealHome = () => {
     if (!isConnected && dbAccessTokenStatus === "connected") {
       // TODO: this is an error situation. What to do here?
       console.error("db connected but wallet not!");
-      connectAsync({ connector: connectors[0] });
+      connect({ connector: connectors[0] });
     }
 
     if (isConnected && dbAccessTokenStatus === "connected" && isTosAccepted) {
       navigate("/home");
     }
-  }, [connectAsync, isConnected, connectors, dbAccessTokenStatus, navigate, isTosAccepted]);
+  }, [connect, isConnected, connectors, dbAccessTokenStatus, navigate, isTosAccepted]);
 
   useEffect(() => {
     if (connectError) {
@@ -271,8 +271,7 @@ const RealHome = () => {
   const signIn = async () => {
     try {
       setIsLoggingIn(true);
-      console.log("connectors", connectors);
-      await connectWallet(() => connectAsync({ connector: connectors[0] }), connectDatastore);
+      await connectWallet(connectDatastore);
     } catch (e) {
       console.error("Error connecting wallet", e);
       setIsLoggingIn(false);

@@ -11,7 +11,7 @@ const getPreviouslyUsedWalletLabel = () => window.localStorage.getItem("previous
 type ConnectCallback = (address: string, provider: Eip1193Provider) => Promise<void>;
 
 const walletStore = create<{
-  connect: (walletConnect: any, callback: ConnectCallback) => Promise<void>;
+  connect: (callback: ConnectCallback) => Promise<void>;
   disconnect: () => Promise<void>;
   setChain: (chain: number) => Promise<boolean>;
   provider?: Eip1193Provider;
