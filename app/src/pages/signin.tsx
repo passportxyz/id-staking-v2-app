@@ -1,7 +1,6 @@
 /* eslint-disable react-hooks/exhaustive-deps, @next/next/no-img-element */
 // --- React Methods
 import React, { useEffect, useState, useMemo, useCallback } from "react";
-import { useNavigate } from "react-router-dom";
 import { useAccount, useConnect, useConnectors, useSignMessage } from "wagmi";
 import axios from "axios";
 
@@ -20,6 +19,7 @@ import { useMutation, useQuery, DefaultError, useQueryClient } from "@tanstack/r
 import { datadogLogs } from "@datadog/browser-logs";
 import { Button } from "@/components/Button";
 import { PasswordPage } from "@/components/PasswordPage";
+import { useNavigateWithCommonParams } from "@/hooks/hooks_staking/useNavigateWithCommonParams";
 
 export const useTosQueryKey = (address: string | undefined): string[] => {
   return useMemo(() => ["tos", address || ""], [address]);
@@ -235,7 +235,7 @@ const RealHome = () => {
     connectMessage: "Connect Wallet",
   };
 
-  const navigate = useNavigate();
+  const navigate = useNavigateWithCommonParams();
 
   // Route user to dashboard when wallet is connected
   useEffect(() => {

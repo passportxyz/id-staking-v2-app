@@ -164,19 +164,35 @@ const CommunityUpdateModalPreview = ({
   );
 };
 
-export const CommunityUpdateButton = ({ stake }: { stake: StakeData }) => {
-  const [previewModalIsOpen, setPreviewModalIsOpen] = useState(false);
+export const CommunityUpdateButton = ({
+  stake,
+  isOpenInitial,
+  onClose,
+}: {
+  stake: StakeData;
+  isOpenInitial: boolean;
+  onClose: () => void;
+}) => {
+  const [previewModalIsOpen, setPreviewModalIsOpen] = useState(isOpenInitial);
   const [transactionModalIsOpen, setTransactionModalIsOpen] = useState(false);
   const [amount, setAmount] = useState<string>("");
   const [lockedPeriodMonths, setLockedPeriodMonths] = useState<number>(3);
 
+  useEffect(() => {
+    if (isOpenInitial) {
+      setPreviewModalIsOpen(true);
+    }
+  }, [isOpenInitial]);
+
   const onClosePreviewModal = useCallback(() => {
     setPreviewModalIsOpen(false);
-  }, []);
+    onClose();
+  }, [onClose]);
 
   const onCloseTransactionModal = useCallback(() => {
     setTransactionModalIsOpen(false);
-  }, []);
+    onClose();
+  }, [onClose]);
 
   const onContinue = useCallback(() => {
     setPreviewModalIsOpen(false);

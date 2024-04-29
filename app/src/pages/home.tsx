@@ -12,7 +12,7 @@ import { TrustInYou } from "@/components/components_staking/TrustInYou";
 import { NetworkDropdown } from "../components/components_staking/NetworkDropdown";
 import LoggedInPageRoot from "@/components/components_staking/LoggedInPageRoot";
 
-export default function LeaderBoard() {
+export default function Home() {
   return (
     <LoggedInPageRoot className="text-color-1">
       <HeaderContentFooterGrid>

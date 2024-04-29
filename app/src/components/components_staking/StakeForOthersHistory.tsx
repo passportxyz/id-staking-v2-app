@@ -1,8 +1,8 @@
-import React, { ComponentPropsWithRef, useCallback, useEffect, useState } from "react";
+import React, { ComponentPropsWithRef, useCallback, useEffect, useRef, useState } from "react";
 import { PanelDiv } from "./PanelDiv";
 import { useWalletStore } from "@/context/walletStore";
-import { DisplayAddressOrENS, DisplayDuration, formatAmount, useConnectedChain, formatDate } from "@/utils/helpers";
-import { StakeData, useStakeHistoryQuery } from "@/utils/stakeHistory";
+import { DisplayAddressOrENS, DisplayDuration, formatAmount, formatDate } from "@/utils/helpers";
+import { StakeData, useCommunityStakeHistoryQuery } from "@/utils/stakeHistory";
 import { CommunityUpdateButton } from "./CommunityUpdateButton";
 import { Popover } from "@headlessui/react";
 import { CommunityRestakeModal } from "./CommunityRestakeModal";
@@ -73,26 +73,30 @@ const CommunityUnstakeButton = ({
   );
 };
 
-const Tbody = () => {
-  const connectedChain = useConnectedChain();
+const Tbody = ({ presetAddress, clearPresetAddress }: { presetAddress?: string; clearPresetAddress: () => void }) => {
   const address = useWalletStore((state) => state.address);
 
-  const { isPending, isError, data, error } = useStakeHistoryQuery(address);
-  const stakeForOthersHistory = data?.filter(
-    (stake: StakeData) => stake.staker === address && stake.stakee !== address && stake.chain === connectedChain.id
-  );
+  const { isPending, isError, data, error } = useCommunityStakeHistoryQuery(address);
 
   useEffect(() => {
     isError && console.error("Error getting StakeHistory:", error);
   }, [error, isError]);
 
   let tbody_contents;
-  if (!isPending && !isError && address && stakeForOthersHistory && stakeForOthersHistory.length > 0) {
+  if (!isPending && !isError && address && data && data.length > 0) {
     tbody_contents = (
       <>
-        {stakeForOthersHistory.map((stake, index) => (
-          <StakeLine key={index} stake={stake} address={address} />
-        ))}
+        {data
+          .sort((a, b) => new Date(b.lock_time).valueOf() - new Date(a.lock_time).valueOf())
+          .map((stake, index) => (
+            <StakeLine
+              key={index}
+              stake={stake}
+              address={address}
+              isPresetAddress={presetAddress?.toLowerCase() === stake.stakee.toLowerCase()}
+              clearPresetAddress={clearPresetAddress}
+            />
+          ))}
       </>
     );
   } else {
@@ -108,8 +112,18 @@ const Tbody = () => {
   return <tbody>{tbody_contents}</tbody>;
 };
 
-
-const StakeLine = ({ stake, address }: { stake: StakeData; address: string }) => {
+const StakeLine = ({
+  stake,
+  address,
+  isPresetAddress,
+  clearPresetAddress,
+}: {
+  stake: StakeData;
+  address: string;
+  isPresetAddress: boolean;
+  clearPresetAddress: () => void;
+}) => {
+  const ref = useRef<HTMLTableRowElement>(null);
   const unlockTime = new Date(stake.unlock_time);
   const unlockTimeStr = formatDate(unlockTime);
 
@@ -121,8 +135,14 @@ const StakeLine = ({ stake, address }: { stake: StakeData; address: string }) =>
 
   const amount = formatAmount(stake.amount);
 
+  useEffect(() => {
+    if (isPresetAddress && ref.current) {
+      ref.current.scrollIntoView({ behavior: "instant", block: "center" });
+    }
+  });
+
   return (
-    <tr>
+    <tr ref={ref}>
       <Td>
         <DisplayAddressOrENS user={stake.stakee} />
       </Td>
@@ -137,12 +157,12 @@ const StakeLine = ({ stake, address }: { stake: StakeData; address: string }) =>
         <span className={unlocked ? "text-color-2" : "text-focus"}>{unlockTimeStr}</span>
       </Td>
       <Td className="pr-8 py-1">
-        <CommunityUpdateButton stake={stake} />
+        <CommunityUpdateButton stake={stake} isOpenInitial={isPresetAddress} onClose={clearPresetAddress} />
       </Td>
       <Td>
         <Popover className="flex ">
           <Popover.Button className={"h-5 w-5"}>
-            <img src="/assets/vertical-submenu.svg" />
+            <img src="/assets/vertical-submenu.svg" alt="Menu" />
           </Popover.Button>
 
           <Popover.Panel className="absolute z-10 inline-block">
@@ -157,18 +177,20 @@ const StakeLine = ({ stake, address }: { stake: StakeData; address: string }) =>
   );
 };
 
-export const StakeForOthersHistory = ({}: any) => {
-  const connectedChain = useConnectedChain();
+export const StakeForOthersHistory = ({
+  presetAddress,
+  clearPresetAddress,
+}: {
+  presetAddress?: string;
+  clearPresetAddress: () => void;
+}) => {
   const address = useWalletStore((state) => state.address);
 
-  const { isPending, isError, data, error } = useStakeHistoryQuery(address);
-  const stakeForOthersHistory = data?.filter(
-    (stake: StakeData) => stake.staker === address && stake.stakee !== address && stake.chain === connectedChain.id
-  );
+  const { isPending, isError, data } = useCommunityStakeHistoryQuery(address);
 
   let restakeAllBtn;
-  if (!isPending && !isError && address && stakeForOthersHistory && stakeForOthersHistory.length > 0) {
-    restakeAllBtn = <CommunityRestakeAllButton address={address} stake={stakeForOthersHistory} />;
+  if (!isPending && !isError && address && data && data.length > 0) {
+    restakeAllBtn = <CommunityRestakeAllButton address={address} stake={data} />;
   } else {
     restakeAllBtn = (
       <button className="px-1 border rounded text-color-6 font-bold disabled:text-color-5 disabled:cursor-not-allowed">
@@ -191,7 +213,7 @@ export const StakeForOthersHistory = ({}: any) => {
             <Th>{restakeAllBtn}</Th>
           </tr>
         </thead>
-        <Tbody />
+        <Tbody presetAddress={presetAddress} clearPresetAddress={clearPresetAddress} />
       </table>
     </PanelDiv>
   );

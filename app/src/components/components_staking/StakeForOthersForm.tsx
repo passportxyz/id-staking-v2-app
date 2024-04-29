@@ -1,4 +1,4 @@
-import React, { ChangeEvent, useState, useMemo, useCallback } from "react";
+import React, { ChangeEvent, useState, useMemo, useCallback, useEffect } from "react";
 import { Button } from "@/components/Button";
 import { useAccount } from "wagmi";
 import { StakeFormInputSection } from "./StakeFormInputSection";
@@ -8,12 +8,14 @@ import { parseEther } from "viem";
 import { StakeForOthersModal } from "./StakeForOthersModal";
 import { useCommunityStakeHistoryQuery } from "@/utils/stakeHistory";
 import { getLockSeconds } from "@/utils/helpers";
+import { useChainInitializing } from "@/hooks/staking_hooks/useChainInitialization";
 
 type CommunityStakeInputs = {
   uuid: string;
   stakeeInput: string;
   amountInput: string;
   lockedPeriodMonths: number;
+  autoFocus: boolean;
 };
 
 type CommunityStakeChainParams = {
@@ -32,6 +34,7 @@ const createEmptyCommunityStake = (): CommunityStake => ({
   amount: 0n,
   lockedPeriodsSeconds: BigInt(getLockSeconds(new Date(), 3)),
   stakee: "0x0",
+  autoFocus: false,
 });
 
 const initialEmptyStake = createEmptyCommunityStake();
@@ -80,6 +83,7 @@ export const useCommunityStakesStore = create<{
 
       const newCommunityStake = {
         ...state.communityStakesById[uuid],
+        autoFocus: false,
         ...communityStake,
       };
       return {
@@ -108,10 +112,14 @@ const StakeForOthersFormSection = ({
   showClose,
   uuid,
   alreadyStakedOnAddress,
+  autoFocus,
+  onChange,
 }: {
   showClose: boolean;
   uuid: string;
   alreadyStakedOnAddress: boolean;
+  autoFocus?: boolean;
+  onChange?: () => void;
 }) => {
   const communityStake = useCommunityStakesStore((state) => state.communityStakesById[uuid]);
   const updateCommunityStake = useCommunityStakesStore((state) => state.updateCommunityStake);
@@ -119,30 +127,34 @@ const StakeForOthersFormSection = ({
 
   const setInputValue = useCallback(
     (value: string) => {
+      onChange?.();
       updateCommunityStake(uuid, { amountInput: value });
     },
-    [updateCommunityStake, uuid]
+    [updateCommunityStake, uuid, onChange]
   );
 
   const setStakeeAddress = useCallback(
     (address: string) => {
+      onChange?.();
       updateCommunityStake(uuid, { stakeeInput: address as `0x${string}` });
     },
-    [updateCommunityStake, uuid]
+    [updateCommunityStake, uuid, onChange]
   );
 
   const setLockedPeriod = useCallback(
     (lockPeriod: number) => {
+      onChange?.();
       updateCommunityStake(uuid, { lockedPeriodMonths: lockPeriod });
     },
-    [updateCommunityStake, uuid]
+    [updateCommunityStake, uuid, onChange]
   );
 
   const handleStakeeInputChange = useCallback(
     (event: ChangeEvent<HTMLInputElement>) => {
+      onChange?.();
       setStakeeAddress(event.target.value);
     },
-    [setStakeeAddress]
+    [setStakeeAddress, onChange]
   );
 
   return (
@@ -181,17 +193,26 @@ const StakeForOthersFormSection = ({
         lockedMonths={communityStake.lockedPeriodMonths}
         handleAmountChange={setInputValue}
         handleLockedMonthsChange={setLockedPeriod}
+        autoFocus={autoFocus}
       />
     </div>
   );
 };
 
-export const StakeForOthersForm = () => {
+export const StakeForOthersForm = ({
+  presetAddress,
+  clearPresetAddress,
+}: {
+  presetAddress?: string;
+  clearPresetAddress: () => void;
+}) => {
   const { address } = useAccount();
-  const { data } = useCommunityStakeHistoryQuery(address);
+  const { data, isPending } = useCommunityStakeHistoryQuery(address);
+  const chainInitializing = useChainInitializing();
 
   const communityStakes = useCommunityStakesStore((state) => state.communityStakes);
   const addCommunityStake = useCommunityStakesStore((state) => state.addCommunityStake);
+  const updateCommunityStake = useCommunityStakesStore((state) => state.updateCommunityStake);
 
   const previousStakedAddresses = useMemo(() => data?.map((stake) => stake.stakee.toLowerCase()) ?? [], [data]);
   const hasDuplicateAddresses = useMemo(
@@ -202,6 +223,14 @@ export const StakeForOthersForm = () => {
     [communityStakes]
   );
 
+  useEffect(() => {
+    if (presetAddress && !isPending && !chainInitializing) {
+      if (!previousStakedAddresses.includes(presetAddress.toLowerCase()) && communityStakes[0].stakeeInput === "") {
+        updateCommunityStake(communityStakes[0].uuid, { stakeeInput: presetAddress, autoFocus: true });
+      }
+    }
+  }, [presetAddress, isPending, communityStakes, updateCommunityStake, chainInitializing, previousStakedAddresses]);
+
   const stakeSections = useMemo(
     () =>
       communityStakes.map((communityStake, idx) => (
@@ -209,6 +238,8 @@ export const StakeForOthersForm = () => {
           key={idx}
           showClose={idx != 0}
           uuid={communityStake.uuid}
+          autoFocus={communityStake.autoFocus}
+          onChange={clearPresetAddress}
           alreadyStakedOnAddress={
             previousStakedAddresses.includes(communityStake.stakee.toLowerCase()) ||
             (communityStake.stakee !== "0x0" &&
@@ -218,7 +249,7 @@ export const StakeForOthersForm = () => {
           }
         />
       )),
-    [communityStakes, previousStakedAddresses]
+    [communityStakes, previousStakedAddresses, clearPresetAddress]
   );
 
   const anyIncomplete: boolean = useMemo(

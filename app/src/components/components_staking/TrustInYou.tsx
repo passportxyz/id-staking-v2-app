@@ -3,6 +3,7 @@ import { TrustInYouHistory } from "./TrustInYouHistory";
 import { StakeSection } from "./StakeSection";
 import { useStakeOnYouHistoryQuery } from "@/utils/stakeHistory";
 import { useAccount } from "wagmi";
+import { ShareWithFriends } from "./ShareWithFriends";
 
 export const TrustInYou = ({}: any) => {
   const { address } = useAccount();
@@ -22,6 +23,7 @@ export const TrustInYou = ({}: any) => {
       amount={stakedAmount}
       last={true}
     >
+      <ShareWithFriends />
       <TrustInYouHistory />
     </StakeSection>
   );
