@@ -1,6 +1,6 @@
 import { wagmiChains, wagmiTransports } from "./chains";
 
-import { createConnector, createConfig } from "@wagmi/core";
+import { createConnector, createConfig, watchConnectors, watchConnections, watchClient } from "@wagmi/core";
 import { Chain } from "viem";
 import { mainnet } from "viem/chains";
 import { onboard } from "./onboard";
@@ -91,7 +91,8 @@ export function web3OnboardWagmiConnector() {
     },
     async switchChain({ chainId }) {
       debugLog("w3o switchChain", chainId);
-      throw new Error("Not implemented, use the web3onboard methods instead");
+      console.log("switchChain not implemented, use the web3onboard methods instead");
+      throw new Error("Not implemented");
       // const chainIdHex = `0x${chainId?.toString(16)}`;
       // await onboard.setChain({ chainId: chainIdHex });
       // const chainConfig = chainConfigs.find((chain) => chain.id === chainId);

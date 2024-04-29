@@ -1,7 +1,7 @@
 import { init } from "@web3-onboard/react";
 import injectedModule from "@web3-onboard/injected-wallets";
-import walletConnectModule, { WalletConnectOptions } from "@web3-onboard/walletconnect";
-import { chainConfigs } from "./chains";
+import walletConnectModule from "@web3-onboard/walletconnect";
+import { chainConfigs, walletConnectOptionalChainIds, walletConnectRequiredChainIds } from "./chains";
 
 // Injected wallet - shows all available injected wallets
 
@@ -10,8 +10,10 @@ const injected = injectedModule();
 // web3Onboard modules
 const walletConnectProjectId = (process.env.NEXT_PUBLIC_WALLET_CONNECT_PROJECT_ID as string) || "default-project-id";
 
-const walletConnectOptions: WalletConnectOptions = {
+const walletConnectOptions = {
   projectId: walletConnectProjectId,
+  requiredChains: walletConnectRequiredChainIds,
+  optionalChains: walletConnectOptionalChainIds,
 };
 
 const onBoardExploreUrl =

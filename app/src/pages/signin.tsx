@@ -1,7 +1,7 @@
 /* eslint-disable react-hooks/exhaustive-deps, @next/next/no-img-element */
 // --- React Methods
 import React, { useEffect, useState, useMemo, useCallback } from "react";
-import { useAccount, useConnect, useConnectors, useSignMessage } from "wagmi";
+import { useAccount, useSignMessage } from "wagmi";
 import axios from "axios";
 
 // --- Shared data context
@@ -16,8 +16,6 @@ import { DoneToastContent, makeErrorToastProps } from "../components/DoneToastCo
 import { PlatformCard, PlatformScoreSpec } from "../components/components_staking/PlatformCard";
 import { TosModal } from "../components/components_staking/TosModal";
 import { useMutation, useQuery, DefaultError, useQueryClient } from "@tanstack/react-query";
-import { datadogLogs } from "@datadog/browser-logs";
-import { Button } from "@/components/Button";
 import { PasswordPage } from "@/components/PasswordPage";
 import { useNavigateWithCommonParams } from "@/hooks/hooks_staking/useNavigateWithCommonParams";
 
@@ -208,8 +206,6 @@ const RealHome = () => {
   const { connect: connectDatastore, dbAccessTokenStatus } = useDatastoreConnectionContext();
   const toast = useToast();
   const { isConnected } = useAccount();
-  const { connect } = useConnect();
-  const connectors = useConnectors();
   const [tosModalIsOpen, setTosModalIsOpen] = useState(false);
   const [isLoggingIn, setIsLoggingIn] = useState(false);
 
@@ -242,13 +238,12 @@ const RealHome = () => {
     if (!isConnected && dbAccessTokenStatus === "connected") {
       // TODO: this is an error situation. What to do here?
       console.error("db connected but wallet not!");
-      connect({ connector: connectors[0] });
     }
 
     if (isConnected && dbAccessTokenStatus === "connected" && isTosAccepted) {
       navigate("/home");
     }
-  }, [connect, isConnected, connectors, dbAccessTokenStatus, navigate, isTosAccepted]);
+  }, [isConnected, dbAccessTokenStatus, navigate, isTosAccepted]);
 
   useEffect(() => {
     if (connectError) {

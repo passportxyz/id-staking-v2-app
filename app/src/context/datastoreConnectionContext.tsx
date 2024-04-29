@@ -185,10 +185,12 @@ export const useDatastoreConnection = () => {
             console.log("Buffer library is not injected (this is good)");
           }
           let session: DIDSession = await DIDSession.get(accountId, authMethod, { resources: ["ceramic://*"] });
+          console.log("Session created", session);
 
           if (session) {
             await loadDbAccessToken(address, session.did);
             setDid(session.did);
+            console.log("Did set", session.did);
 
             // session.isExpired looks like a static variable so this looks like a bug,
             // but isExpired is a getter, so it's actually checking the current status

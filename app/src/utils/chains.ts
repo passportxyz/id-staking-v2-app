@@ -34,6 +34,10 @@ let enabledChainConfigs: ChainConfig[] = [];
 export let wagmiChains: Chain[] = [];
 export let wagmiTransports: Record<Config["chains"][number]["id"], HttpTransport> = {};
 
+// Some wallets (e.g. Rainbow mobile) don't support some testnets in the required chain list
+export let walletConnectRequiredChainIds: number[] = [];
+export let walletConnectOptionalChainIds: number[] = [];
+
 if (enableMainnet) {
   enabledChainConfigs.push({
     id: ethChainId,
@@ -47,6 +51,7 @@ if (enableMainnet) {
   });
   wagmiChains.push(mainnet);
   wagmiTransports[mainnet.id] = http(MAINNET_RPC_URL);
+  walletConnectRequiredChainIds.push(ethChainId);
 }
 
 if (enableOpMainnet) {
@@ -62,6 +67,7 @@ if (enableOpMainnet) {
   });
   wagmiChains.push(optimism);
   wagmiTransports[optimism.id] = http(OP_RPC_URL);
+  walletConnectOptionalChainIds.push(optimismChainId);
 }
 
 if (enableOpSepolia) {
@@ -78,6 +84,7 @@ if (enableOpSepolia) {
   });
   wagmiChains.push(optimismSepolia);
   wagmiTransports[optimismSepolia.id] = http(OP_SEPOLIA_RPC_URL);
+  walletConnectOptionalChainIds.push(sepoliaOPChainId);
 }
 
 export const chainConfigs: ChainConfig[] = enabledChainConfigs;
