@@ -112,7 +112,8 @@ const LegacyCommunityUnstakeButton = ({
 
 // Combines current and legacy community stakes
 const useCommunityStakes = (): {
-  data: StakeData[];
+  data: StakeData[] | undefined;
+  legacyData: StakeData[];
   isLoading: boolean;
   isPending: boolean;
   isError: boolean;
@@ -130,9 +131,9 @@ const useCommunityStakes = (): {
     error: legacyError,
   } = useLegacyCommunityStakes(address, chain);
 
-  const aggregatedData = (data || []).concat(legacyData);
   return {
-    data: aggregatedData,
+    data,
+    legacyData,
     isLoading: isLoading || legacyIsLoading,
     isPending: isPending || legacyIsPending,
     isError: isError || legacyIsError,
@@ -143,7 +144,7 @@ const useCommunityStakes = (): {
 const Tbody = ({ presetAddress, clearPresetAddress }: { presetAddress?: string; clearPresetAddress: () => void }) => {
   const address = useWalletStore((state) => state.address);
 
-  const { data, isPending, isError, error } = useCommunityStakes();
+  const { data, legacyData, isPending, isError, error } = useCommunityStakes();
 
   useEffect(() => {
     isError && console.error("Error getting StakeHistory:", error);
@@ -155,6 +156,7 @@ const Tbody = ({ presetAddress, clearPresetAddress }: { presetAddress?: string; 
       <>
         {data
           .sort((a, b) => new Date(b.lock_time).valueOf() - new Date(a.lock_time).valueOf())
+          .concat(legacyData)
           .map((stake, index) => (
             <StakeLine
               key={index}

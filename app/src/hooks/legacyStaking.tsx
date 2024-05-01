@@ -99,9 +99,13 @@ const useLegacySelfStakeQuery = (address: `0x${string}` | undefined, chain: Chai
 // This is the only reliable way to get the query key for this query
 export const useLegacySelfStakeQueryKey = (address: `0x${string}` | undefined, chain: ChainConfig | undefined) => {
   const query = useLegacySelfStakeQuery(address, chain);
+  const queryKeyStringified = JSON.stringify(query.queryKey);
   return useMemo(() => {
     return query.queryKey;
-  }, [JSON.stringify(query.queryKey)]);
+    // The queryKey isn't properly memoized, so we use the stringified version
+    // as our memo dependency
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [queryKeyStringified]);
 };
 
 export const useLegacySelfStake = (address: `0x${string}` | undefined, chain: ChainConfig): LegacyStakeQuery => {

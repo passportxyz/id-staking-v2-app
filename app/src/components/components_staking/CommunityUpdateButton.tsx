@@ -221,7 +221,7 @@ export const CommunityUpdateButton = ({
 
       <button
         onClick={() => setPreviewModalIsOpen(true)}
-        disabled={stake.type === "v1Community"}
+        disabled={Boolean(stake.legacy)}
         className="text-color-6 font-bold disabled:text-color-5 disabled:cursor-not-allowed"
       >
         Update stake
