@@ -1,5 +1,6 @@
 import React, { ComponentPropsWithRef, Fragment, useCallback, useEffect, useMemo } from "react";
 import IdentityStakingAbi from "../../abi/IdentityStaking.json";
+import LegacyIdentityStaking from "../../abi/LegacyIdentityStaking.json";
 import { useStakeHistoryQueryKey } from "@/utils/stakeHistory";
 import { DisplayAddressOrENS, DisplayDuration, formatAmount, useConnectedChain } from "@/utils/helpers";
 import { useStakeTxHandler } from "@/hooks/hooks_staking/useStakeTxHandler";
@@ -9,6 +10,7 @@ import { PanelDiv } from "./PanelDiv";
 import { LoadButton } from "../LoadButton";
 import { Button } from "@chakra-ui/react";
 import { StakeData } from "@/utils/stakeHistory";
+import { LEGACY_COMMUNITY_STAKE_BASE_KEY } from "@/hooks/legacyStaking";
 
 const useUnstakeCommunityStake = ({ address }: { address: string }) => {
   const chain = useConnectedChain();
@@ -39,6 +41,38 @@ const useUnstakeCommunityStake = ({ address }: { address: string }) => {
   );
 };
 
+const useUnstakeV1CommunityStake = ({ address }: { address: string }) => {
+  const chain = useConnectedChain();
+  const queryKey = useMemo(() => [LEGACY_COMMUNITY_STAKE_BASE_KEY, address], [address]);
+  const { isLoading, writeContract, isConfirmed } = useStakeTxHandler({ queryKey, txTitle: "Unstake" });
+
+  const unstakeCommunityStake = useCallback(
+    async (stakedData: StakeData[]) => {
+      stakedData.map((stake) => {
+        if (chain.legacyContractAddr && stake.legacy) {
+          const { round, stakees } = stake.legacy;
+          writeContract({
+            address: chain.legacyContractAddr,
+            abi: LegacyIdentityStaking,
+            functionName: "unstakeUsers",
+            args: [round?.round_id, stakees],
+          });
+        }
+      });
+    },
+    [writeContract, chain.legacyContractAddr]
+  );
+
+  return useMemo(
+    () => ({
+      isLoading,
+      unstakeCommunityStake,
+      isConfirmed,
+    }),
+    [isLoading, unstakeCommunityStake, isConfirmed]
+  );
+};
+
 const Th = ({ className, children, ...props }: ComponentPropsWithRef<"th"> & { children: React.ReactNode }) => (
   <th className={`${className} p-2 pb-4 text-color-6`} {...props}>
     {children}
@@ -49,7 +83,32 @@ const Td = ({ className, ...props }: ComponentPropsWithRef<"td">) => (
   <td className={`${className} p-2 py-4`} {...props} />
 );
 
+const LegacyStakeLine = ({ stake }: { stake: StakeData }) => {
+  const unlockTime = new Date(stake.unlock_time);
+  const lockTime = new Date(stake.lock_time);
+
+  const lockSeconds = Math.floor((unlockTime.getTime() - lockTime.getTime()) / 1000);
+
+  return stake.legacy?.stakees?.map((stakee, index) => (
+    <tr key={stakee}>
+      <Td className="text-start">
+        <div className="justify-start flex">
+          <DisplayAddressOrENS user={stakee} />
+        </div>
+      </Td>
+      <Td className="text-end">{formatAmount(stake.legacy?.amounts?.[index] || "0")} GTC</Td>
+      <Td className="text-end">
+        <DisplayDuration seconds={lockSeconds} />
+      </Td>
+    </tr>
+  ));
+};
+
 const StakeLine = ({ stake }: { stake: StakeData }) => {
+  if (stake.legacy) {
+    return <LegacyStakeLine stake={stake} />;
+  }
+
   const unlockTime = new Date(stake.unlock_time);
   const lockTime = new Date(stake.lock_time);
 
@@ -60,7 +119,9 @@ const StakeLine = ({ stake }: { stake: StakeData }) => {
   return (
     <tr>
       <Td className="text-start">
-        <DisplayAddressOrENS className="justify-start" user={stake.stakee} />
+        <div className="justify-start flex">
+          <DisplayAddressOrENS user={stake.stakee} />
+        </div>
       </Td>
       <Td className="text-end">{amount} GTC</Td>
       <Td className="text-end">
@@ -70,19 +131,21 @@ const StakeLine = ({ stake }: { stake: StakeData }) => {
   );
 };
 
-export const CommunityUnstakeModal = ({
-  address,
+const GenericCommunityUnstakeModal = ({
   stakedData,
   isOpen,
   onClose,
+  isLoading,
+  isConfirmed,
+  unstake,
 }: {
-  address: string;
   stakedData: StakeData[];
   isOpen: boolean;
   onClose: () => void;
+  isLoading: boolean;
+  isConfirmed: boolean;
+  unstake: (stakedData: StakeData[]) => void;
 }) => {
-  const { isLoading, unstakeCommunityStake, isConfirmed } = useUnstakeCommunityStake({ address });
-
   useEffect(() => {
     if (isConfirmed) {
       onClose();
@@ -141,11 +204,7 @@ export const CommunityUnstakeModal = ({
                     </div>
 
                     <div className="mt-4 flex flex-col items-center">
-                      <LoadButton
-                        className="w-full"
-                        onClick={() => unstakeCommunityStake(stakedData)}
-                        isLoading={isLoading}
-                      >
+                      <LoadButton className="w-full" onClick={() => unstake(stakedData)} isLoading={isLoading}>
                         Unstake
                       </LoadButton>
                       <Button variant="custom" className="mt-4 px-8" onClick={onClose}>
@@ -160,5 +219,55 @@ export const CommunityUnstakeModal = ({
         </Dialog>
       </Transition>
     </>
+  );
+};
+
+export const CommunityUnstakeModal = ({
+  address,
+  stakedData,
+  isOpen,
+  onClose,
+}: {
+  address: string;
+  stakedData: StakeData[];
+  isOpen: boolean;
+  onClose: () => void;
+}) => {
+  const { isLoading, unstakeCommunityStake, isConfirmed } = useUnstakeCommunityStake({ address });
+
+  return (
+    <GenericCommunityUnstakeModal
+      stakedData={stakedData}
+      isOpen={isOpen}
+      onClose={onClose}
+      isLoading={isLoading}
+      isConfirmed={isConfirmed}
+      unstake={unstakeCommunityStake}
+    />
+  );
+};
+
+export const LegacyCommunityUnstakeModal = ({
+  address,
+  stakedData,
+  isOpen,
+  onClose,
+}: {
+  address: string;
+  stakedData: StakeData[];
+  isOpen: boolean;
+  onClose: () => void;
+}) => {
+  const { isLoading, unstakeCommunityStake, isConfirmed } = useUnstakeV1CommunityStake({ address });
+
+  return (
+    <GenericCommunityUnstakeModal
+      stakedData={stakedData}
+      isOpen={isOpen}
+      onClose={onClose}
+      isLoading={isLoading}
+      isConfirmed={isConfirmed}
+      unstake={unstakeCommunityStake}
+    />
   );
 };

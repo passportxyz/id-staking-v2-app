@@ -1,10 +1,12 @@
 import React, { ComponentPropsWithRef, useCallback, useEffect, useState } from "react";
 import { PanelDiv } from "./PanelDiv";
 import { useWalletStore } from "@/context/walletStore";
+import { useLegacySelfStake } from "@/hooks/legacyStaking";
 import { SelfRestakeModal } from "./SelfRestakeModal";
-import { DisplayAddressOrENS, DisplayDuration, formatAmount, formatDate } from "@/utils/helpers";
+import { DisplayAddressOrENS, DisplayDuration, formatAmount, useConnectedChain, formatDate } from "@/utils/helpers";
+
 import { StakeData, useYourStakeHistoryQuery } from "@/utils/stakeHistory";
-import { SelfUnstakeModal } from "./SelfUnstakeModal";
+import { SelfUnstakeModal, LegacySelfUnstakeModal } from "./SelfUnstakeModal";
 
 const Th = ({ className, ...props }: ComponentPropsWithRef<"th">) => (
   <th className={`${className} p-2 pb-4 text-center`} {...props} />
@@ -18,10 +20,12 @@ const SelfRestakeButton = ({
   lockSeconds,
   address,
   amount,
+  disabled,
 }: {
   lockSeconds: number;
   address: string;
   amount: string;
+  disabled: boolean;
 }) => {
   const [modalIsOpen, setModalIsOpen] = useState(false);
   const onClose = useCallback(() => setModalIsOpen(false), []);
@@ -35,18 +39,36 @@ const SelfRestakeButton = ({
         isOpen={modalIsOpen}
         onClose={onClose}
       />
-      <button onClick={() => setModalIsOpen(true)}>Restake</button>
+      <button
+        onClick={() => setModalIsOpen(true)}
+        disabled={disabled}
+        className="disabled:text-color-5 disabled:cursor-not-allowed"
+      >
+        Restake
+      </button>
     </>
   );
 };
 
-const SelfUnstakeButton = ({ address, unlocked, amount }: { address: string; unlocked: boolean; amount: string }) => {
+const SelfUnstakeButton = ({ address, unlocked, stake }: { address: string; unlocked: boolean; stake: StakeData }) => {
   const [modalIsOpen, setModalIsOpen] = useState(false);
   const onClose = useCallback(() => setModalIsOpen(false), []);
+  const modal = stake.legacy?.round?.round_id ? (
+    <LegacySelfUnstakeModal
+      address={address}
+      amount={stake.amount}
+      roundId={stake.legacy.round.round_id}
+      isOpen={modalIsOpen}
+      onClose={onClose}
+    />
+  ) : (
+    <SelfUnstakeModal address={address} amount={stake.amount} isOpen={modalIsOpen} onClose={onClose} />
+  );
 
   return (
     <>
-      <SelfUnstakeModal address={address} amount={amount} isOpen={modalIsOpen} onClose={onClose} />
+      {modal}
+
       <button
         onClick={() => setModalIsOpen(true)}
         disabled={!unlocked}
@@ -58,9 +80,34 @@ const SelfUnstakeButton = ({ address, unlocked, amount }: { address: string; unl
   );
 };
 
+// Combines current and legacy self stakes
+const useSelfStakes = () => {
+  const address = useWalletStore((state) => state.address);
+  const chain = useConnectedChain();
+
+  const { isPending, isError, data, error, isLoading } = useYourStakeHistoryQuery(address);
+  const {
+    data: legacyData,
+    isPending: legacyIsPending,
+    isLoading: legacyIsLoading,
+    isError: legacyIsError,
+    error: legacyError,
+  } = useLegacySelfStake(address, chain);
+
+  const aggregatedData = (data || []).concat(legacyData);
+
+  return {
+    data: aggregatedData,
+    isLoading: isLoading || legacyIsLoading,
+    isPending: isPending || legacyIsPending,
+    isError: isError || legacyIsError,
+    error: error || legacyError,
+  };
+};
+
 const Tbody = () => {
   const address = useWalletStore((state) => state.address);
-  const { isPending, isError, data, error } = useYourStakeHistoryQuery(address);
+  const { isPending, isError, data, error } = useSelfStakes();
 
   useEffect(() => {
     isError && console.error("Error getting StakeHistory:", error);
@@ -103,9 +150,7 @@ const StakeLine = ({ stake, address }: { stake: StakeData; address: string }) =>
 
   return (
     <tr>
-      <Td>
-        <DisplayAddressOrENS user={stake.staker} />
-      </Td>
+      <Td>{stake.legacy ? stake.legacy.round?.name : <DisplayAddressOrENS user={stake.staker} />}</Td>
       <Td>{amount} GTC</Td>
       <Td className="hidden lg:table-cell">{unlocked ? "Unlocked" : "Locked"}</Td>
       <Td className="hidden lg:table-cell">
@@ -117,9 +162,14 @@ const StakeLine = ({ stake, address }: { stake: StakeData; address: string }) =>
         <span className={unlocked ? "text-color-2" : "text-focus"}>{unlockTimeStr}</span>
       </Td>
       <Td className="pr-8 py-1">
-        <SelfRestakeButton lockSeconds={lockSeconds} amount={stake.amount} address={address} />
+        <SelfRestakeButton
+          lockSeconds={lockSeconds}
+          amount={stake.amount}
+          address={address}
+          disabled={Boolean(stake.legacy)}
+        />
         <br />
-        <SelfUnstakeButton address={address} unlocked={unlocked} amount={stake.amount} />
+        <SelfUnstakeButton address={address} unlocked={unlocked} stake={stake} />
       </Td>
     </tr>
   );

@@ -35,7 +35,7 @@ export const onTxReceiptError = (txTitle: any, hash: any, receiptError: any, toa
   );
 };
 
-export const useStakeTxHandler = ({ txTitle, queryKey }: { txTitle: string; queryKey?: string[] }) => {
+export const useStakeTxHandler = ({ txTitle, queryKey }: { txTitle: string; queryKey?: Readonly<Array<unknown>> }) => {
   const connectedChain = useConnectedChain();
   const toast = useToast();
   const queryClient = useQueryClient();

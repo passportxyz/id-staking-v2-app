@@ -26,6 +26,7 @@ export type ChainConfig = {
   rpcUrl: string;
   gtcContractAddr: `0x${string}`;
   stakingContractAddr: `0x${string}`;
+  legacyContractAddr: `0x${string}` | undefined;
   icon: string;
   explorer: string;
 };
@@ -42,6 +43,7 @@ if (enableMainnet) {
     rpcUrl: MAINNET_RPC_URL,
     gtcContractAddr: "0xde30da39c46104798bb5aa3fe8b9e0e1f348163f",
     stakingContractAddr: "0xCc90105D4A2aa067ee768120AdA19886021dF422",
+    legacyContractAddr: "0x0E3efD5BE54CC0f4C64e0D186b0af4b7F2A0e95F",
     icon: "./assets/eth-network-logo-white.svg",
     explorer: "https://etherscan.io/",
   });
@@ -57,6 +59,7 @@ if (enableOpMainnet) {
     rpcUrl: OP_RPC_URL,
     gtcContractAddr: "0x1EBA7a6a72c894026Cd654AC5CDCF83A46445B08",
     stakingContractAddr: "0xf58Bb56E6e6EA7834478b470615e037df825C442",
+    legacyContractAddr: undefined,
     icon: "./assets/eth-op-logo.svg",
     explorer: "https://optimistic.etherscan.io/",
   });
@@ -73,6 +76,8 @@ if (enableOpSepolia) {
     rpcUrl: OP_SEPOLIA_RPC_URL,
     gtcContractAddr: "0xA4a53A625Ba96CFdFE2d138BeA8D13a167A343E2",
     stakingContractAddr: "0xc80e07d81828960F613baa57288192E56d417dA5",
+    // legacyContractAddr: "0x0E3efD5BE54CC0f4C64e0D186b0af4b7F2A0e95F",
+    legacyContractAddr: undefined,
     icon: "./assets/eth-op-logo.svg",
     explorer: "https://sepolia-optimism.etherscan.io/",
   });
