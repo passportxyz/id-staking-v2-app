@@ -76,6 +76,7 @@ if (enableOpSepolia) {
     rpcUrl: OP_SEPOLIA_RPC_URL,
     gtcContractAddr: "0xA4a53A625Ba96CFdFE2d138BeA8D13a167A343E2",
     stakingContractAddr: "0xc80e07d81828960F613baa57288192E56d417dA5",
+    // legacyContractAddr: "0x0E3efD5BE54CC0f4C64e0D186b0af4b7F2A0e95F",
     legacyContractAddr: undefined,
     icon: "./assets/eth-op-logo.svg",
     explorer: "https://sepolia-optimism.etherscan.io/",

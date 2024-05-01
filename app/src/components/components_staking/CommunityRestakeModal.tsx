@@ -22,14 +22,13 @@ const useExtendCommunityStake = ({ address }: { address: string }) => {
         const lockTime = new Date(stakedData[0].lock_time);
 
         const lockSeconds = Math.floor((unlockTime.getTime() - lockTime.getTime()) / 1000);
-        
+
         return writeContract({
           address: chain.stakingContractAddr,
           abi: IdentityStakingAbi,
           functionName: "extendCommunityStake",
           args: [stakedData[0].stakee, BigInt(lockSeconds)],
         });
-
       } else {
         const stakeeList = stakedData.map((stake) => stake.stakee);
         const lockedList = stakedData.map((stake) => {
@@ -37,7 +36,7 @@ const useExtendCommunityStake = ({ address }: { address: string }) => {
           const lockTime = new Date(stake.lock_time);
 
           const lockSeconds = Math.floor((unlockTime.getTime() - lockTime.getTime()) / 1000);
-          return lockSeconds
+          return lockSeconds;
         });
 
         return writeContract({
@@ -46,10 +45,7 @@ const useExtendCommunityStake = ({ address }: { address: string }) => {
           functionName: "extendMultipleCommunityStake",
           args: [stakeeList, lockedList],
         });
-
       }
-
-      
     },
     [writeContract, chain.stakingContractAddr]
   );
@@ -85,7 +81,9 @@ const StakeLine = ({ stake }: { stake: StakeData }) => {
   return (
     <tr>
       <Td className="text-start">
-        <DisplayAddressOrENS className="justify-start" user={stake.stakee} />
+        <div className="flex justify-start">
+          <DisplayAddressOrENS user={stake.stakee} />
+        </div>
       </Td>
       <Td className="text-end">{amount} GTC</Td>
       <Td className="text-end">

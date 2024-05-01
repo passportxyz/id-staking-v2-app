@@ -1,11 +1,11 @@
 import React, { ComponentPropsWithRef, useCallback, useEffect, useState } from "react";
 import { PanelDiv } from "./PanelDiv";
 import { useWalletStore } from "@/context/walletStore";
-import { useSelfStake } from "@/hooks/legacyStaking";
+import { useLegacySelfStake } from "@/hooks/legacyStaking";
 import { SelfRestakeModal } from "./SelfRestakeModal";
 import { DisplayAddressOrENS, DisplayDuration, formatAmount, useConnectedChain, formatDate } from "@/utils/helpers";
 
-import { LegacyRoundMeta, StakeData, useYourStakeHistoryQuery } from "@/utils/stakeHistory";
+import { StakeData, useYourStakeHistoryQuery } from "@/utils/stakeHistory";
 import { SelfUnstakeModal, LegacySelfUnstakeModal } from "./SelfUnstakeModal";
 
 const Th = ({ className, ...props }: ComponentPropsWithRef<"th">) => (
@@ -53,18 +53,17 @@ const SelfRestakeButton = ({
 const SelfUnstakeButton = ({ address, unlocked, stake }: { address: string; unlocked: boolean; stake: StakeData }) => {
   const [modalIsOpen, setModalIsOpen] = useState(false);
   const onClose = useCallback(() => setModalIsOpen(false), []);
-  const modal =
-    stake.type === "v1Single" && stake.round_id ? (
-      <LegacySelfUnstakeModal
-        address={address}
-        amount={stake.amount}
-        roundId={stake.round_id}
-        isOpen={modalIsOpen}
-        onClose={onClose}
-      />
-    ) : (
-      <SelfUnstakeModal address={address} amount={stake.amount} isOpen={modalIsOpen} onClose={onClose} />
-    );
+  const modal = stake.legacy?.round?.round_id ? (
+    <LegacySelfUnstakeModal
+      address={address}
+      amount={stake.amount}
+      roundId={stake.legacy.round.round_id}
+      isOpen={modalIsOpen}
+      onClose={onClose}
+    />
+  ) : (
+    <SelfUnstakeModal address={address} amount={stake.amount} isOpen={modalIsOpen} onClose={onClose} />
+  );
 
   return (
     <>
@@ -81,22 +80,44 @@ const SelfUnstakeButton = ({ address, unlocked, stake }: { address: string; unlo
   );
 };
 
-const Tbody = () => {
-  const connectedChain = useConnectedChain();
+// Combines current and legacy self stakes
+const useSelfStakes = () => {
   const address = useWalletStore((state) => state.address);
-  const { isPending, isError, data, error } = useYourStakeHistoryQuery(address);
-  const legacyData = useSelfStake(address, connectedChain);
+  const chain = useConnectedChain();
+
+  const { isPending, isError, data, error, isLoading } = useYourStakeHistoryQuery(address);
+  const {
+    data: legacyData,
+    isPending: legacyIsPending,
+    isLoading: legacyIsLoading,
+    isError: legacyIsError,
+    error: legacyError,
+  } = useLegacySelfStake(address, chain);
 
   const aggregatedData = (data || []).concat(legacyData);
+
+  return {
+    data: aggregatedData,
+    isLoading: isLoading || legacyIsLoading,
+    isPending: isPending || legacyIsPending,
+    isError: isError || legacyIsError,
+    error: error || legacyError,
+  };
+};
+
+const Tbody = () => {
+  const address = useWalletStore((state) => state.address);
+  const { isPending, isError, data, error } = useSelfStakes();
+
   useEffect(() => {
     isError && console.error("Error getting StakeHistory:", error);
   }, [error, isError]);
 
   let tbody_contents;
-  if (!isPending && !isError && address && aggregatedData && aggregatedData.length > 0) {
+  if (!isPending && !isError && address && data && data.length > 0) {
     tbody_contents = (
       <>
-        {aggregatedData.map((stake, index) => (
+        {data.map((stake, index) => (
           <StakeLine key={index} stake={stake} address={address} />
         ))}
       </>
@@ -129,9 +150,7 @@ const StakeLine = ({ stake, address }: { stake: StakeData; address: string }) =>
 
   return (
     <tr>
-      <Td>
-        <DisplayAddressOrENS user={stake.staker} />
-      </Td>
+      <Td>{stake.legacy ? stake.legacy.round?.name : <DisplayAddressOrENS user={stake.staker} />}</Td>
       <Td>{amount} GTC</Td>
       <Td className="hidden lg:table-cell">{unlocked ? "Unlocked" : "Locked"}</Td>
       <Td className="hidden lg:table-cell">
@@ -147,7 +166,7 @@ const StakeLine = ({ stake, address }: { stake: StakeData; address: string }) =>
           lockSeconds={lockSeconds}
           amount={stake.amount}
           address={address}
-          disabled={stake.type === "v1Single"}
+          disabled={Boolean(stake.legacy)}
         />
         <br />
         <SelfUnstakeButton address={address} unlocked={unlocked} stake={stake} />

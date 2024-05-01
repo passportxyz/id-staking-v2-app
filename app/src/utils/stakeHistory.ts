@@ -9,15 +9,19 @@ export type LegacyRoundMeta = {
   unlock_time: string;
   lock_time: string;
   round_id: number;
+  name: string;
 };
 
 export type StakeData = {
-  type?: "v1Single" | "v1Community" | "v2"; // undefine dis to be considered v2 by default
-  round_id?: number; // Only required for legacy (v1Single) staking
+  legacy?: {
+    type: "v1Single" | "v1Community";
+    round?: LegacyRoundMeta;
+    stakees?: `0x${string}`[]; // Only for v1Community
+    amounts?: string[]; // Only for v1Community
+  };
   chain: number;
   staker: `0x${string}`;
   stakee: `0x${string}`;
-  stakees?: `0x${string}`[]; // Only required for legacy (v1Community) staking
   amount: string;
   unlock_time: string;
   lock_time: string;
@@ -40,7 +44,7 @@ export const useStakeHistoryQuery = (address: string | undefined) => {
       });
 
       return response.data.items.map((item: StakeData) => {
-        // NOTE: Modify the respose format
+        // NOTE: Modify the response format
         // Remove the `.` symbol form the `amount` to not modify the current implementation at the moment
         // This fix is required because initially the API return the amount value like an big integer
         // The API returned data format was changed to match the data format returned by the `/registry/gtc-stake` API.

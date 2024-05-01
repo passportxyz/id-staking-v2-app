@@ -5,6 +5,7 @@ import { useStakeHistoryQueryKey } from "@/utils/stakeHistory";
 import { DisplayAddressOrENS, formatAmount, useConnectedChain } from "@/utils/helpers";
 import { StakeModal, DataLine } from "./StakeModal";
 import { useStakeTxHandler } from "@/hooks/hooks_staking/useStakeTxHandler";
+import { useLegacySelfStakeQueryKey } from "@/hooks/legacyStaking";
 
 const useWithdrawSelfStake = ({ address }: { address: string }) => {
   const chain = useConnectedChain();
@@ -72,7 +73,8 @@ export const SelfUnstakeModal = ({
 
 const useWithdrawLegacySelfStake = ({ address, roundId }: { address: string; roundId: number }) => {
   const chain = useConnectedChain();
-  const queryKey = useStakeHistoryQueryKey(address);
+  const queryKey = useLegacySelfStakeQueryKey(address as `0x{string}`, chain);
+
   const { isLoading, writeContract, isConfirmed } = useStakeTxHandler({ queryKey, txTitle: "Unstake" });
 
   const withdrawSelfStake = useCallback(
@@ -84,8 +86,7 @@ const useWithdrawLegacySelfStake = ({ address, roundId }: { address: string; rou
           functionName: "unstake",
           args: [roundId, BigInt(amount)],
         });
-      }
-      else {
+      } else {
         console.error("Legacy contract address not found (this is probably a misconfiguration)");
       }
     },
