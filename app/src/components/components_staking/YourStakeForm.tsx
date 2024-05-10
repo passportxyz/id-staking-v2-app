@@ -1,9 +1,9 @@
 import React, { useState, useEffect, useCallback, useMemo } from "react";
 import { Button } from "@/components/Button";
-import { useWalletStore } from "@/context/walletStore";
 import { StakeData, useYourStakeHistoryQuery } from "@/utils/stakeHistory";
 import { SelfStakeModal } from "./SelfStakeModal";
 import { StakeFormInputSection } from "./StakeFormInputSection";
+import { useAccount } from "wagmi";
 
 const TWELVE_MONTHS_IN_SECONDS = 12 * 30 * 24 * 60 * 60;
 const SIX_MONTHS_IN_SECONDS = 6 * 30 * 24 * 60 * 60;
@@ -38,7 +38,7 @@ export const useInitializeStakeForm = ({
 };
 
 export const YourStakeForm: React.FC = ({}) => {
-  const address = useWalletStore((state) => state.address);
+  const { address } = useAccount();
   const { data, isLoading } = useYourStakeHistoryQuery(address);
   const stake = useMemo<StakeData | undefined>(() => data?.[0], [data]);
   const [previousUnlockTime, setPreviousUnlockTime] = useState<Date | undefined>();

@@ -1,14 +1,13 @@
 // --- React components/methods
 import React, { useEffect } from "react";
 
-import { useAccountCenter } from "@web3-onboard/react";
-
 const shouldMinimize = () => {
   return window.innerWidth < 1120 || window.pageYOffset > 120 || (window.pageYOffset > 50 && window.innerWidth < 1024);
 };
 
 const ManageAccountCenter = ({ children }: { children: React.ReactNode }) => {
-  const updateAccountCenter = useAccountCenter();
+  // TODO
+  const updateAccountCenter = (props: any) => {};
   const position = "topRight";
 
   useEffect(() => {

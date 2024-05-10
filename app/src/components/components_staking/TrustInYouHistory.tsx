@@ -1,8 +1,8 @@
 import React, { ComponentPropsWithRef, useEffect } from "react";
 import { PanelDiv } from "./PanelDiv";
-import { useWalletStore } from "@/context/walletStore";
 import { DisplayAddressOrENS, DisplayDuration, formatAmount, formatDate } from "@/utils/helpers";
 import { StakeData, useStakeOnYouHistoryQuery } from "@/utils/stakeHistory";
+import { useAccount } from "wagmi";
 
 const Th = ({ className, children, ...props }: ComponentPropsWithRef<"th"> & { children: React.ReactNode }) => (
   <th className={`${className} p-2 pb-4 text-center`} {...props}>
@@ -46,7 +46,7 @@ const StakeLine = ({ stake }: { stake: StakeData }) => {
 };
 
 const Tbody = () => {
-  const address = useWalletStore((state) => state.address);
+  const { address } = useAccount();
   const { isPending, isError, data, error } = useStakeOnYouHistoryQuery(address);
 
   useEffect(() => {

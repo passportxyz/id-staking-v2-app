@@ -1,11 +1,8 @@
 /* eslint-disable react-hooks/exhaustive-deps, @next/next/no-img-element */
 // --- React Methods
-import React, { useEffect, useState, useMemo, useCallback } from "react";
-import { useAccount, useConnect, useConnectors, useSignMessage } from "wagmi";
+import React, { useEffect, useState, useMemo, useCallback, useRef } from "react";
+import { useAccount, useConnect, useConnectors, useSignMessage, useWalletClient } from "wagmi";
 import axios from "axios";
-
-// --- Shared data context
-import { useWalletStore } from "../context/walletStore";
 
 // --- Components
 import PageRoot from "../components/PageRoot";
@@ -16,10 +13,10 @@ import { DoneToastContent, makeErrorToastProps } from "../components/DoneToastCo
 import { PlatformCard, PlatformScoreSpec } from "../components/components_staking/PlatformCard";
 import { TosModal } from "../components/components_staking/TosModal";
 import { useMutation, useQuery, DefaultError, useQueryClient } from "@tanstack/react-query";
-import { datadogLogs } from "@datadog/browser-logs";
-import { Button } from "@/components/Button";
 import { PasswordPage } from "@/components/PasswordPage";
 import { useNavigateWithCommonParams } from "@/hooks/hooks_staking/useNavigateWithCommonParams";
+import { useWeb3Modal, useWeb3ModalState } from "@web3modal/wagmi/react";
+import { isServerOnMaintenance } from "@/utils/helpers";
 
 export const useTosQueryKey = (address: string | undefined): string[] => {
   return useMemo(() => ["tos", address || ""], [address]);
@@ -84,11 +81,11 @@ export const useTosGetMessageQuery = (address: string | undefined, accepted?: bo
 };
 
 export const useTosAcceptMutation = (address?: string) => {
-  const { dbAccessToken, dbAccessTokenStatus } = useDatastoreConnectionContext();
+  const { dbAccessToken } = useDatastoreConnectionContext();
   return useMutation<any, DefaultError, TosSignedMessage>({
     mutationFn: async (tosSigned: TosSignedMessage) => {
       console.log("Saving signature ...");
-      const response = await axios.post(
+      await axios.post(
         `${process.env.NEXT_PUBLIC_SCORER_ENDPOINT}/ceramic-cache/tos/signed-message/IST/${address}`,
         tosSigned,
         {
@@ -102,7 +99,7 @@ export const useTosAcceptMutation = (address?: string) => {
 };
 
 const useTos = () => {
-  const address = useWalletStore((state) => state.address);
+  const { address } = useAccount();
   const tosCheck = useTosQuery(address);
   const tosMessageToSign = useTosGetMessageQuery(address, tosCheck.data?.accepted);
   const signer = useSignMessage();
@@ -203,15 +200,30 @@ export default function Home() {
 
 // Once we are out of the beta, we can rename this to Home and delete the above
 const RealHome = () => {
-  const connectWallet = useWalletStore((state) => state.connect);
-  const connectError = useWalletStore((state) => state.error);
+  const { open: openWeb3Modal } = useWeb3Modal();
+  const { open: web3ModalIsOpen } = useWeb3ModalState();
   const { connect: connectDatastore, dbAccessTokenStatus } = useDatastoreConnectionContext();
+  const { data: walletClient } = useWalletClient();
   const toast = useToast();
-  const { isConnected } = useAccount();
+  const { isConnected, address } = useAccount();
   const { connect } = useConnect();
   const connectors = useConnectors();
   const [tosModalIsOpen, setTosModalIsOpen] = useState(false);
   const [isLoggingIn, setIsLoggingIn] = useState(false);
+  const isConnectingToDatabaseRef = useRef<boolean>(false);
+  const [needsConnectionToDatabase, setNeedsConnectionToDatabase] = useState(false);
+
+  useEffect(() => {
+    if (!web3ModalIsOpen && !isConnected && isLoggingIn) {
+      setIsLoggingIn(false);
+    }
+  }, [web3ModalIsOpen, isConnected, isLoggingIn]);
+
+  useEffect(() => {
+    if (web3ModalIsOpen) {
+      setIsLoggingIn(true);
+    }
+  }, [web3ModalIsOpen]);
 
   const { isPendingCheck, isTosAccepted, onAcceptTos } = useTos();
 
@@ -221,10 +233,10 @@ const RealHome = () => {
   }, []);
 
   useEffect(() => {
-    if (isLoggingIn && !isPendingCheck && !isTosAccepted && !connectError) {
+    if (isLoggingIn && !isPendingCheck && !isTosAccepted) {
       setTosModalIsOpen(true);
     }
-  }, [isLoggingIn, isPendingCheck, isTosAccepted, connectError]);
+  }, [isLoggingIn, isPendingCheck, isTosAccepted]);
 
   const gtcStakingStampPlatform: PlatformScoreSpec = {
     name: "GTC Staking",
@@ -237,46 +249,79 @@ const RealHome = () => {
 
   const navigate = useNavigateWithCommonParams();
 
-  // Route user to dashboard when wallet is connected
-  useEffect(() => {
-    if (!isConnected && dbAccessTokenStatus === "connected") {
-      // TODO: this is an error situation. What to do here?
-      console.error("db connected but wallet not!");
-      connect({ connector: connectors[0] });
-    }
-
-    if (isConnected && dbAccessTokenStatus === "connected" && isTosAccepted) {
-      navigate("/home");
-    }
-  }, [connect, isConnected, connectors, dbAccessTokenStatus, navigate, isTosAccepted]);
-
-  useEffect(() => {
-    if (connectError) {
-      setIsLoggingIn(false);
+  const showConnectionError = useCallback(
+    (e: any) => {
       toast({
         duration: 6000,
         isClosable: true,
         render: (result: any) => (
           <DoneToastContent
             title={"Connection Error"}
-            body={(connectError as Error).message}
+            body={(e as Error).message}
             icon="../assets/verification-failed-bright.svg"
             result={result}
           />
         ),
       });
-    }
-  }, [connectError]);
+    },
+    [toast]
+  );
 
-  const signIn = async () => {
+  // Route user to dashboard when wallet is connected
+  useEffect(() => {
+    if (isConnected && dbAccessTokenStatus === "connected" && isTosAccepted) {
+      navigate("/home");
+    }
+  }, [connect, isConnected, connectors, dbAccessTokenStatus, navigate, isTosAccepted]);
+
+  const signIn = useCallback(async () => {
     try {
       setIsLoggingIn(true);
-      await connectWallet(connectDatastore);
+      if (!isConnected) {
+        await openWeb3Modal();
+      }
+      setNeedsConnectionToDatabase(true);
     } catch (e) {
       console.error("Error connecting wallet", e);
+      showConnectionError(e);
       setIsLoggingIn(false);
     }
-  };
+  }, [openWeb3Modal, showConnectionError]);
+
+  useEffect(() => {
+    (async () => {
+      if (
+        !isConnectingToDatabaseRef.current &&
+        needsConnectionToDatabase &&
+        isLoggingIn &&
+        isConnected &&
+        address &&
+        walletClient
+      ) {
+        isConnectingToDatabaseRef.current = true;
+        console.log("Connecting to database");
+        try {
+          await connectDatastore(address, walletClient);
+        } catch (e) {
+          console.error("Error connecting to database", e);
+          showConnectionError(e);
+          setIsLoggingIn(false);
+        }
+        setNeedsConnectionToDatabase(false);
+        isConnectingToDatabaseRef.current = false;
+      }
+    })();
+  }, [
+    address,
+    connectDatastore,
+    isConnected,
+    isLoggingIn,
+    needsConnectionToDatabase,
+    showConnectionError,
+    walletClient,
+  ]);
+
+  const maintenanceMode = useMemo(isServerOnMaintenance, []);
 
   const notificationClass =
     "flex items-center justify-between h-14 rounded-lg border w-1/3 bg-gradient-to-t from-background-6 to-background";
@@ -336,11 +381,12 @@ const RealHome = () => {
                 Score with ease, safeguarding against Sybil threats.
               </div>
               <SIWEButton
-                enableEthBranding={false}
+                enableEthBranding={true}
                 data-testid="connectWalletButton"
                 onClick={signIn}
                 className="col-span-2 mt-4 lg:w-3/4"
                 isLoading={isLoggingIn}
+                disabled={maintenanceMode}
               />
             </div>
             {/* <div>Right panel - TO BE DONE</div> */}

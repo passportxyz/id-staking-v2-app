@@ -3,13 +3,9 @@ import React, { Fragment, useMemo } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { ChevronDownIcon } from "@heroicons/react/24/outline";
 import { Menu, Transition } from "@headlessui/react";
-import { useAccount } from "wagmi";
-import { useDatastoreConnectionContext } from "../context/datastoreConnectionContext";
+import { useAccount, useDisconnect } from "wagmi";
 import { ContentTooltip } from "./Tooltip";
-import {
-  useAddCommonParamsToLink,
-  useNavigateWithCommonParams,
-} from "@/hooks/hooks_staking/useNavigateWithCommonParams";
+import { useAddCommonParamsToLink } from "@/hooks/hooks_staking/useNavigateWithCommonParams";
 
 type MinimalHeaderProps = {
   className?: string;
@@ -44,16 +40,18 @@ const getAssets = () => {
 
 const MinimalHeader = ({ className, hideMenu }: MinimalHeaderProps): JSX.Element => {
   const assets = useMemo(() => getAssets(), []);
-
-  const { address } = useAccount();
-  const { disconnect } = useDatastoreConnectionContext();
-  const navigate = useNavigateWithCommonParams();
+  const { disconnectAsync } = useDisconnect();
+  const { isConnected } = useAccount();
 
   const handleLogoClick = async () => {
-    if (address) {
-      await disconnect(address);
+    if (isConnected) {
+      try {
+        await disconnectAsync();
+        // LoggedInPageRoot will handle the redirect
+      } catch (e) {
+        console.error("Failed to disconnect", e); // eslint-disable-line no-
+      }
     }
-    navigate("/");
   };
 
   return (

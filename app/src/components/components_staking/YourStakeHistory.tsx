@@ -1,12 +1,12 @@
 import React, { ComponentPropsWithRef, useCallback, useEffect, useState } from "react";
 import { PanelDiv } from "./PanelDiv";
-import { useWalletStore } from "@/context/walletStore";
 import { useLegacySelfStake } from "@/hooks/legacyStaking";
 import { SelfRestakeModal } from "./SelfRestakeModal";
 import { DisplayAddressOrENS, DisplayDuration, formatAmount, useConnectedChain, formatDate } from "@/utils/helpers";
 
 import { StakeData, useYourStakeHistoryQuery } from "@/utils/stakeHistory";
 import { SelfUnstakeModal, LegacySelfUnstakeModal } from "./SelfUnstakeModal";
+import { useAccount } from "wagmi";
 
 const Th = ({ className, ...props }: ComponentPropsWithRef<"th">) => (
   <th className={`${className} p-2 pb-4 text-center`} {...props} />
@@ -82,7 +82,7 @@ const SelfUnstakeButton = ({ address, unlocked, stake }: { address: string; unlo
 
 // Combines current and legacy self stakes
 const useSelfStakes = () => {
-  const address = useWalletStore((state) => state.address);
+  const { address } = useAccount();
   const chain = useConnectedChain();
 
   const { isPending, isError, data, error, isLoading } = useYourStakeHistoryQuery(address);
@@ -106,7 +106,7 @@ const useSelfStakes = () => {
 };
 
 const Tbody = () => {
-  const address = useWalletStore((state) => state.address);
+  const { address } = useAccount();
   const { isPending, isError, data, error } = useSelfStakes();
 
   useEffect(() => {

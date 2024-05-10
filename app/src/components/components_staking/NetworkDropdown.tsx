@@ -1,7 +1,7 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
-import { chainConfigs, ChainConfig, wagmiConfig } from "@/utils/chains";
-import { useBalance } from "wagmi";
-import { useWalletStore } from "@/context/walletStore";
+import { chainConfigs, ChainConfig } from "@/utils/chains";
+import { wagmiConfig } from "@/utils/wagmi";
+import { useAccount, useBalance } from "wagmi";
 import { DropDownIcon } from "./DropDownIcon";
 import { useConnectedChain, useOutsideClick } from "@/utils/helpers";
 import { switchChain } from "@wagmi/core";
@@ -23,7 +23,7 @@ const ChainMenuItem = ({
   isPendingWalletApproval: boolean;
   className?: string;
 }) => {
-  const address = useWalletStore((state) => state.address);
+  const { address } = useAccount();
   const balance = useBalance({
     address,
     token: chain.gtcContractAddr,

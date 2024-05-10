@@ -1,6 +1,5 @@
 import React, { ComponentPropsWithRef, useCallback, useEffect, useRef, useState } from "react";
 import { PanelDiv } from "./PanelDiv";
-import { useWalletStore } from "@/context/walletStore";
 import { DisplayAddressOrENS, DisplayDuration, formatAmount, useConnectedChain, formatDate } from "@/utils/helpers";
 import { StakeData, useCommunityStakeHistoryQuery, useStakeHistoryQuery } from "@/utils/stakeHistory";
 import { useLegacyCommunityStakes } from "@/hooks/legacyStaking";
@@ -8,6 +7,7 @@ import { CommunityUpdateButton } from "./CommunityUpdateButton";
 import { Popover } from "@headlessui/react";
 import { CommunityRestakeModal } from "./CommunityRestakeModal";
 import { CommunityUnstakeModal, LegacyCommunityUnstakeModal } from "./CommunityUnstakeModal";
+import { useAccount } from "wagmi";
 
 const Th = ({ className, children, ...props }: ComponentPropsWithRef<"th"> & { children: React.ReactNode }) => (
   <th className={`${className} p-2 pb-4 text-center`} {...props}>
@@ -119,7 +119,7 @@ const useCommunityStakes = (): {
   isError: boolean;
   error?: any;
 } => {
-  const address = useWalletStore((state) => state.address);
+  const { address } = useAccount();
   const chain = useConnectedChain();
 
   const { data, isLoading, isPending, isError, error } = useCommunityStakeHistoryQuery(address);
@@ -142,7 +142,7 @@ const useCommunityStakes = (): {
 };
 
 const Tbody = ({ presetAddress, clearPresetAddress }: { presetAddress?: string; clearPresetAddress: () => void }) => {
-  const address = useWalletStore((state) => state.address);
+  const { address } = useAccount();
 
   const { data, legacyData, isPending, isError, error } = useCommunityStakes();
 
@@ -260,7 +260,7 @@ export const StakeForOthersHistory = ({
   presetAddress?: string;
   clearPresetAddress: () => void;
 }) => {
-  const address = useWalletStore((state) => state.address);
+  const { address } = useAccount();
 
   const { isPending, isError, data } = useCommunityStakeHistoryQuery(address);
 
