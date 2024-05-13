@@ -35,5 +35,9 @@ export const wagmiConfig = createConfig({
 createWeb3Modal({
   wagmiConfig,
   projectId,
-  enableOnramp: true, // TODO do we want this? Potentially very useful if users can get GTC through it
+  themeMode: "dark",
+  themeVariables: {
+    "--w3m-font-family": "var(--font-body)",
+    "--w3m-accent": "rgb(var(--color-foreground-4))",
+  },
 });

@@ -15,6 +15,7 @@ export const DataLine = ({ label, value }: { label: string; value: React.ReactNo
 export const StakeModal = ({
   title,
   buttonText,
+  buttonSubtext,
   onButtonClick,
   buttonLoading,
   buttonDisabled,
@@ -24,6 +25,7 @@ export const StakeModal = ({
 }: {
   title: string;
   buttonText: string;
+  buttonSubtext?: string;
   onButtonClick: () => void;
   buttonLoading: boolean;
   buttonDisabled?: boolean;
@@ -72,6 +74,7 @@ export const StakeModal = ({
                         onClick={onButtonClick}
                         isLoading={buttonLoading}
                         disabled={buttonDisabled}
+                        subtext={buttonSubtext}
                       >
                         {buttonText}
                       </LoadButton>

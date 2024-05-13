@@ -40,8 +40,6 @@ export const DatastoreConnectionContext = createContext<DatastoreConnectionConte
 
 // In the app, the context hook should be used. This is only exported for testing
 export const useDatastoreConnection = () => {
-  const toast = useToast();
-
   const { isConnected } = useAccount();
   const { disconnect } = useDisconnect();
 
@@ -137,24 +135,13 @@ export const useDatastoreConnection = () => {
             setCheckSessionIsValid(() => () => !session.isExpired);
           }
         } catch (error) {
-          toast({
-            duration: 6000,
-            isClosable: true,
-            render: (result: any) => (
-              <DoneToastContent
-                title={"Connection Error"}
-                body={(error as Error).message}
-                icon="../assets/verification-failed-bright.svg"
-                result={result}
-              />
-            ),
-          });
           datadogRum.addError(error);
           disconnect();
+          throw error;
         }
       }
     },
-    [loadDbAccessToken, toast]
+    [loadDbAccessToken, disconnect]
   );
 
   return {

@@ -6,6 +6,7 @@ import { Menu, Transition } from "@headlessui/react";
 import { useAccount, useDisconnect } from "wagmi";
 import { ContentTooltip } from "./Tooltip";
 import { useAddCommonParamsToLink } from "@/hooks/hooks_staking/useNavigateWithCommonParams";
+import { AccountCenter } from "./AccountCenter";
 
 type MinimalHeaderProps = {
   className?: string;
@@ -49,7 +50,7 @@ const MinimalHeader = ({ className, hideMenu }: MinimalHeaderProps): JSX.Element
         await disconnectAsync();
         // LoggedInPageRoot will handle the redirect
       } catch (e) {
-        console.error("Failed to disconnect", e); // eslint-disable-line no-
+        console.error("Failed to disconnect", e);
       }
     }
   };
@@ -70,8 +71,10 @@ const MinimalHeader = ({ className, hideMenu }: MinimalHeaderProps): JSX.Element
           <LinksDropdown className="md:hidden flex" />
         </div>
       )}
-      {/* Placeholder for wallet UI */}
-      <div className="flex-1" />
+      {/* This is really just a placeholder div, because AccountCenter uses fixed positioning */}
+      <div className="flex-1">
+        <AccountCenter />
+      </div>
     </div>
   );
 };

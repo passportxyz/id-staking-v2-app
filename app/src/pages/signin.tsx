@@ -1,7 +1,7 @@
 /* eslint-disable react-hooks/exhaustive-deps, @next/next/no-img-element */
 // --- React Methods
 import React, { useEffect, useState, useMemo, useCallback, useRef } from "react";
-import { useAccount, useConnect, useConnectors, useSignMessage, useWalletClient } from "wagmi";
+import { useAccount, useConnect, useConnectors, useDisconnect, useSignMessage, useWalletClient } from "wagmi";
 import axios from "axios";
 
 // --- Components
@@ -17,6 +17,7 @@ import { PasswordPage } from "@/components/PasswordPage";
 import { useNavigateWithCommonParams } from "@/hooks/hooks_staking/useNavigateWithCommonParams";
 import { useWeb3Modal, useWeb3ModalState } from "@web3modal/wagmi/react";
 import { isServerOnMaintenance } from "@/utils/helpers";
+import { AccountCenter } from "@/components/AccountCenter";
 
 export const useTosQueryKey = (address: string | undefined): string[] => {
   return useMemo(() => ["tos", address || ""], [address]);
@@ -108,6 +109,7 @@ const useTos = () => {
   const queryClient = useQueryClient();
   const tosQueryKey = useTosQueryKey(address);
   const toast = useToast();
+  const [isSigning, setIsSigning] = useState(false);
 
   useEffect(() => {
     if (tosMessageToSign.isError) {
@@ -169,6 +171,7 @@ const useTos = () => {
 
   const onAcceptTos = useCallback(async () => {
     console.log("accepting tos ...", tosMessageToSign.data);
+    setIsSigning(true);
     if (tosMessageToSign.data) {
       try {
         const signature = await signer.signMessageAsync({ message: tosMessageToSign.data.text });
@@ -184,11 +187,12 @@ const useTos = () => {
     } else {
       console.error("tosMessageToSign.data is undefined");
     }
+    setIsSigning(false);
   }, [tosMessageToSign.data, acceptTos, signer, queryClient, tosQueryKey]);
 
   return useMemo(
-    () => ({ isTosAccepted, onAcceptTos, isPendingCheck: tosCheck.isPending }),
-    [isTosAccepted, onAcceptTos, tosCheck.isPending]
+    () => ({ isTosAccepted, onAcceptTos, isPendingCheck: tosCheck.isPending || isSigning }),
+    [isTosAccepted, onAcceptTos, tosCheck.isPending, isSigning]
   );
 };
 
@@ -197,6 +201,13 @@ export default function Home() {
 
   return authorized ? <RealHome /> : <PasswordPage onAuthorized={() => setAuthorized(true)} />;
 }
+
+type LoginStep =
+  | "NOT_STARTED"
+  | "OPENING_WALLET_MODAL"
+  | "USING_WALLET_MODAL"
+  | "CONNECTING_DATABASE"
+  | "VERIFYING_TOS";
 
 // Once we are out of the beta, we can rename this to Home and delete the above
 const RealHome = () => {
@@ -207,36 +218,48 @@ const RealHome = () => {
   const toast = useToast();
   const { isConnected, address } = useAccount();
   const { connect } = useConnect();
+  const { disconnect } = useDisconnect();
   const connectors = useConnectors();
   const [tosModalIsOpen, setTosModalIsOpen] = useState(false);
-  const [isLoggingIn, setIsLoggingIn] = useState(false);
+  const [loginStep, setLoginStep] = useState<LoginStep>("NOT_STARTED");
   const isConnectingToDatabaseRef = useRef<boolean>(false);
-  const [needsConnectionToDatabase, setNeedsConnectionToDatabase] = useState(false);
 
   useEffect(() => {
-    if (!web3ModalIsOpen && !isConnected && isLoggingIn) {
-      setIsLoggingIn(false);
+    if (loginStep === "OPENING_WALLET_MODAL" && (web3ModalIsOpen || isConnected)) {
+      setLoginStep("USING_WALLET_MODAL");
     }
-  }, [web3ModalIsOpen, isConnected, isLoggingIn]);
+  }, [web3ModalIsOpen, isConnected, loginStep]);
 
   useEffect(() => {
-    if (web3ModalIsOpen) {
-      setIsLoggingIn(true);
+    if (!web3ModalIsOpen && !isConnected && loginStep === "USING_WALLET_MODAL") {
+      setLoginStep("NOT_STARTED");
     }
-  }, [web3ModalIsOpen]);
+  }, [web3ModalIsOpen, isConnected, loginStep]);
+
+  useEffect(() => {
+    if (web3ModalIsOpen && loginStep === "NOT_STARTED") {
+      disconnect();
+    }
+  }, [web3ModalIsOpen, loginStep]);
+
+  useEffect(() => {
+    if (loginStep === "USING_WALLET_MODAL" && isConnected) {
+      setLoginStep("CONNECTING_DATABASE");
+    }
+  }, [loginStep, isConnected]);
 
   const { isPendingCheck, isTosAccepted, onAcceptTos } = useTos();
 
   const closeTosModal = useCallback(() => {
     setTosModalIsOpen(false);
-    setIsLoggingIn(false);
+    setLoginStep("NOT_STARTED");
   }, []);
 
   useEffect(() => {
-    if (isLoggingIn && !isPendingCheck && !isTosAccepted) {
+    if (loginStep === "VERIFYING_TOS" && !isPendingCheck && !isTosAccepted) {
       setTosModalIsOpen(true);
     }
-  }, [isLoggingIn, isPendingCheck, isTosAccepted]);
+  }, [loginStep, isPendingCheck, isTosAccepted]);
 
   const gtcStakingStampPlatform: PlatformScoreSpec = {
     name: "GTC Staking",
@@ -276,24 +299,22 @@ const RealHome = () => {
 
   const signIn = useCallback(async () => {
     try {
-      setIsLoggingIn(true);
+      setLoginStep("OPENING_WALLET_MODAL");
       if (!isConnected) {
         await openWeb3Modal();
       }
-      setNeedsConnectionToDatabase(true);
     } catch (e) {
       console.error("Error connecting wallet", e);
       showConnectionError(e);
-      setIsLoggingIn(false);
+      setLoginStep("NOT_STARTED");
     }
-  }, [openWeb3Modal, showConnectionError]);
+  }, [openWeb3Modal, isConnected, showConnectionError]);
 
   useEffect(() => {
     (async () => {
       if (
         !isConnectingToDatabaseRef.current &&
-        needsConnectionToDatabase &&
-        isLoggingIn &&
+        loginStep === "CONNECTING_DATABASE" &&
         isConnected &&
         address &&
         walletClient
@@ -302,24 +323,16 @@ const RealHome = () => {
         console.log("Connecting to database");
         try {
           await connectDatastore(address, walletClient);
+          setLoginStep("VERIFYING_TOS");
         } catch (e) {
           console.error("Error connecting to database", e);
           showConnectionError(e);
-          setIsLoggingIn(false);
+          setLoginStep("NOT_STARTED");
         }
-        setNeedsConnectionToDatabase(false);
         isConnectingToDatabaseRef.current = false;
       }
     })();
-  }, [
-    address,
-    connectDatastore,
-    isConnected,
-    isLoggingIn,
-    needsConnectionToDatabase,
-    showConnectionError,
-    walletClient,
-  ]);
+  }, [loginStep, isConnected, address, walletClient, connectDatastore, showConnectionError]);
 
   const maintenanceMode = useMemo(isServerOnMaintenance, []);
 
@@ -328,7 +341,13 @@ const RealHome = () => {
 
   return (
     <PageRoot className="text-color-2" backgroundGradientStyle="top-only">
-      <TosModal isOpen={tosModalIsOpen} onClose={closeTosModal} onButtonClick={onAcceptTos} />
+      {isConnected && <AccountCenter />}
+      <TosModal
+        isOpen={tosModalIsOpen}
+        onClose={closeTosModal}
+        onButtonClick={onAcceptTos}
+        isPending={isPendingCheck}
+      />
       <div className="flex h-full min-h-default items-center justify-center self-center p-8">
         <div className="absolute top-0 right-0 h-auto w-full  gradient-mask-t-0 md:h-full md:w-auto md:gradient-mask-l-0">
           <svg width="674" height="746" viewBox="0 0 674 746" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -381,12 +400,21 @@ const RealHome = () => {
                 Score with ease, safeguarding against Sybil threats.
               </div>
               <SIWEButton
-                enableEthBranding={true}
+                enableEthBranding={false}
                 data-testid="connectWalletButton"
                 onClick={signIn}
                 className="col-span-2 mt-4 lg:w-3/4"
-                isLoading={isLoggingIn}
+                isLoading={loginStep !== "NOT_STARTED"}
                 disabled={maintenanceMode}
+                subtext={(() => {
+                  if (loginStep === "USING_WALLET_MODAL") {
+                    return "Connect your wallet";
+                  } else if (loginStep === "CONNECTING_DATABASE") {
+                    return "Sign message in wallet";
+                  } else if (loginStep === "VERIFYING_TOS") {
+                    return "Accept the terms of service";
+                  }
+                })()}
               />
             </div>
             {/* <div>Right panel - TO BE DONE</div> */}

@@ -7,7 +7,6 @@ import { QueryClientProvider, QueryClient } from "@tanstack/react-query";
 
 import { themes, ThemeWrapper } from "../utils/theme";
 
-import ManageAccountCenter from "../components/ManageAccountCenter";
 import { DatastoreConnectionContextProvider } from "../context/datastoreConnectionContext";
 
 import { WagmiProvider } from "wagmi";
@@ -51,13 +50,11 @@ export default function App({ Component, pageProps }: AppProps) {
       <WagmiProvider config={wagmiConfig}>
         <QueryClientProvider client={queryClient}>
           <DatastoreConnectionContextProvider>
-            <ManageAccountCenter>
-              <RenderOnlyOnClient>
-                <ThemeWrapper initChakra={true} defaultTheme={themes.LUNARPUNK_DARK_MODE}>
-                  <Component {...pageProps} />
-                </ThemeWrapper>
-              </RenderOnlyOnClient>
-            </ManageAccountCenter>
+            <RenderOnlyOnClient>
+              <ThemeWrapper initChakra={true} defaultTheme={themes.LUNARPUNK_DARK_MODE}>
+                <Component {...pageProps} />
+              </ThemeWrapper>
+            </RenderOnlyOnClient>
           </DatastoreConnectionContextProvider>
         </QueryClientProvider>
       </WagmiProvider>

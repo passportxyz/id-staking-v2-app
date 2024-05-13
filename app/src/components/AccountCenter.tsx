@@ -1,22 +1,16 @@
 // --- React components/methods
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 
 const shouldMinimize = () => {
-  return window.innerWidth < 1120 || window.pageYOffset > 120 || (window.pageYOffset > 50 && window.innerWidth < 1024);
+  return window.scrollY > 120 || (window.screenY > 50 && window.innerWidth < 1024);
 };
 
-const ManageAccountCenter = ({ children }: { children: React.ReactNode }) => {
-  // TODO
-  const updateAccountCenter = (props: any) => {};
-  const position = "topRight";
+export const AccountCenter = () => {
+  const [minimized, setMinimized] = useState(false);
 
   useEffect(() => {
     const onEvent = () => {
-      if (shouldMinimize()) {
-        updateAccountCenter({ minimal: true, position, enabled: true });
-      } else {
-        updateAccountCenter({ minimal: false, position, enabled: true });
-      }
+      setMinimized(shouldMinimize());
     };
 
     // run on mount to set initial state
@@ -37,9 +31,16 @@ const ManageAccountCenter = ({ children }: { children: React.ReactNode }) => {
       window.removeEventListener("scroll", onEvent);
       window.removeEventListener("resize", onEvent);
     };
-  }, [updateAccountCenter]);
+  }, []);
 
-  return <>{children}</>;
+  return (
+    <div className="fixed right-2 md:right-10 lg:right-20 top-3 rounded-2xl w-fit h-fit bg-background z-10 flex justify-end">
+      <div className="hidden xl:block">
+        <w3m-button balance={minimized ? "hide" : "show"} size="sm" />
+      </div>
+      <div className="xl:hidden block">
+        <w3m-button balance="hide" size="sm" />
+      </div>
+    </div>
+  );
 };
-
-export default ManageAccountCenter;
