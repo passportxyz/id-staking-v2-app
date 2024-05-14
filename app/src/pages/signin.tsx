@@ -204,7 +204,6 @@ export default function Home() {
 
 type LoginStep =
   | "NOT_STARTED"
-  | "PENDING_MODAL_OPEN"
   | "PENDING_WALLET_CONNECTION"
   | "PENDING_DATABASE_CONNECTION"
   | "PENDING_TOS_VERIFICATION"
