@@ -3,13 +3,10 @@ import React, { Fragment, useMemo } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { ChevronDownIcon } from "@heroicons/react/24/outline";
 import { Menu, Transition } from "@headlessui/react";
-import { useAccount } from "wagmi";
-import { useDatastoreConnectionContext } from "../context/datastoreConnectionContext";
+import { useAccount, useDisconnect } from "wagmi";
 import { ContentTooltip } from "./Tooltip";
-import {
-  useAddCommonParamsToLink,
-  useNavigateWithCommonParams,
-} from "@/hooks/hooks_staking/useNavigateWithCommonParams";
+import { useAddCommonParamsToLink } from "@/hooks/hooks_staking/useNavigateWithCommonParams";
+import { AccountCenter } from "./AccountCenter";
 
 type MinimalHeaderProps = {
   className?: string;
@@ -44,16 +41,18 @@ const getAssets = () => {
 
 const MinimalHeader = ({ className, hideMenu }: MinimalHeaderProps): JSX.Element => {
   const assets = useMemo(() => getAssets(), []);
-
-  const { address } = useAccount();
-  const { disconnect } = useDatastoreConnectionContext();
-  const navigate = useNavigateWithCommonParams();
+  const { disconnectAsync } = useDisconnect();
+  const { isConnected } = useAccount();
 
   const handleLogoClick = async () => {
-    if (address) {
-      await disconnect(address);
+    if (isConnected) {
+      try {
+        await disconnectAsync();
+        // LoggedInPageRoot will handle the redirect
+      } catch (e) {
+        console.error("Failed to disconnect", e);
+      }
     }
-    navigate("/");
   };
 
   return (
@@ -72,8 +71,10 @@ const MinimalHeader = ({ className, hideMenu }: MinimalHeaderProps): JSX.Element
           <LinksDropdown className="md:hidden flex" />
         </div>
       )}
-      {/* Placeholder for wallet UI */}
-      <div className="flex-1" />
+      {/* This is really just a placeholder div, because AccountCenter uses fixed positioning */}
+      <div className="flex-1">
+        <AccountCenter />
+      </div>
     </div>
   );
 };

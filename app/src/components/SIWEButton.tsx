@@ -2,7 +2,7 @@ import React from "react";
 import { LoadButton, LoadingButtonProps } from "./LoadButton";
 
 const SIWEButton = (props: LoadingButtonProps & { enableEthBranding: boolean }) => {
-  const { enableEthBranding, ...rest } = props;
+  const { enableEthBranding, subtext, ...rest } = props;
   return (
     <LoadButton {...rest} className={(props.className || "") + " rounded-sm"}>
       {enableEthBranding && (
@@ -15,11 +15,14 @@ const SIWEButton = (props: LoadingButtonProps & { enableEthBranding: boolean }) 
           <path d="M9.22009 0V11.1098L0 15.2971L9.22009 0Z" fill="#828384" />
         </svg>
       )}
-      <span className="hidden group-disabled:inline">Loading...</span>
-      {/* <span className="inline group-disabled:hidden">
-        Sign in {enableEthBranding ? "with Ethereum" : "using signature"}
-      </span> */}
-      <span className="inline group-disabled:hidden">Connect Wallet</span>
+      <div className="flex flex-col items-center">
+        <span className="hidden group-disabled:inline">Loading...</span>
+        {/* <span className="inline group-disabled:hidden">
+          Sign in {enableEthBranding ? "with Ethereum" : "using signature"}
+        </span> */}
+        <span className="inline group-disabled:hidden">Connect Wallet</span>
+        <div className={`text-xs ${subtext ? "block" : "hidden"}`}>({subtext})</div>
+      </div>
     </LoadButton>
   );
 };

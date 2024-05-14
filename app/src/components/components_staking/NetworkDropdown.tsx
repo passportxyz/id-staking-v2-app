@@ -1,10 +1,9 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
-import { chainConfigs, ChainConfig, wagmiConfig } from "@/utils/chains";
-import { useBalance } from "wagmi";
-import { useWalletStore } from "@/context/walletStore";
+import { chainConfigs, ChainConfig } from "@/utils/chains";
+import { useAccount, useBalance } from "wagmi";
 import { DropDownIcon } from "./DropDownIcon";
 import { useConnectedChain, useOutsideClick } from "@/utils/helpers";
-import { switchChain } from "@wagmi/core";
+import { useSwitchChain } from "wagmi";
 
 const ChainMenuItem = ({
   chain,
@@ -23,7 +22,7 @@ const ChainMenuItem = ({
   isPendingWalletApproval: boolean;
   className?: string;
 }) => {
-  const address = useWalletStore((state) => state.address);
+  const { address } = useAccount();
   const balance = useBalance({
     address,
     token: chain.gtcContractAddr,
@@ -70,6 +69,7 @@ export const NetworkDropdown: React.FC = ({}) => {
   const [tempSelectedChain, setTempSelectedChain] = useState<ChainConfig>(selectedChain);
   const [menuIsOpen, setMenuIsOpen] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
+  const { switchChainAsync } = useSwitchChain();
   useOutsideClick(ref, () => setMenuIsOpen(false));
 
   useEffect(() => {
@@ -109,8 +109,8 @@ export const NetworkDropdown: React.FC = ({}) => {
                 setMenuIsOpen(false);
                 if (idx) {
                   try {
-                    await switchChain(wagmiConfig, {
-                      chainId: chain.id as (typeof wagmiConfig)["chains"][number]["id"],
+                    await switchChainAsync({
+                      chainId: chain.id,
                     });
                   } catch (e) {
                     setTempSelectedChain(oldChain);

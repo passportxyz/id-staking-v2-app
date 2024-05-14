@@ -1,4 +1,4 @@
-import { http, createConfig, Config } from "wagmi";
+import { http, Config } from "wagmi";
 import { mainnet, optimism, optimismSepolia } from "wagmi/chains";
 import { HttpTransport, Chain } from "viem";
 
@@ -32,8 +32,8 @@ export type ChainConfig = {
 };
 
 let enabledChainConfigs: ChainConfig[] = [];
-let wagmiChains: Chain[] = [];
-let wagmiTransports: Record<Config["chains"][number]["id"], HttpTransport> = {};
+export let wagmiChains: Chain[] = [];
+export let wagmiTransports: Record<Config["chains"][number]["id"], HttpTransport> = {};
 
 if (enableMainnet) {
   enabledChainConfigs.push({
@@ -95,10 +95,3 @@ if (enabledChainConfigs.length === 0) {
 *********************************************************************************\n"
   );
 }
-
-export const wagmiConfig = createConfig({
-  // If wagmiChains.length we have a misconfiguration (and we log above).
-  // So we just set mainnet in wagmi to keep it happy
-  chains: wagmiChains.length > 0 ? (wagmiChains as [Chain, ...Chain[]]) : [mainnet],
-  transports: wagmiTransports,
-});

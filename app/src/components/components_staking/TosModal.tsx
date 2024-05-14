@@ -1,17 +1,14 @@
-import React, { useCallback, useEffect, useState } from "react";
-import { StakeModal, DataLine } from "./StakeModal";
-import { DisplayAddressOrENS, DisplayDuration, formatAmount, formatDate } from "@/utils/helpers";
-import { StakeData } from "@/utils/stakeHistory";
-import { parseEther } from "viem";
-import { useStakeTxWithApprovalCheck } from "@/hooks/hooks_staking/useStakeTxWithApprovalCheck";
-import { all } from "axios";
+import React, { useState } from "react";
+import { StakeModal } from "./StakeModal";
 
 export const TosModal = ({
+  isPending,
   isOpen,
   onClose,
   onButtonClick,
   buttonDisabled,
 }: {
+  isPending: boolean;
   isOpen: boolean;
   onClose: () => void;
   onButtonClick: () => void;
@@ -72,7 +69,8 @@ export const TosModal = ({
       title={"Acknowledge and Agree to Continue"}
       buttonText={"Proceed"}
       onButtonClick={onButtonClick}
-      buttonLoading={false}
+      buttonSubtext={isPending ? "(Sign message in wallet)" : ""}
+      buttonLoading={isPending}
       isOpen={isOpen}
       onClose={onClose}
       buttonDisabled={buttonDisabled || !allTermsAccepted}
@@ -80,7 +78,8 @@ export const TosModal = ({
       <div>
         Before Staking Your Identity, Please Agree to the Following:
         <div className="flex flex-col pt-12 pb-4 w-full">{termsCheckBoxes}</div>
-        <b>Please note:</b> All three boxes must be checked to enable the &quot;Proceed&quot; button and continue to the app.
+        <b>Please note:</b> All three boxes must be checked to enable the &quot;Proceed&quot; button and continue to the
+        app.
       </div>
     </StakeModal>
   );
