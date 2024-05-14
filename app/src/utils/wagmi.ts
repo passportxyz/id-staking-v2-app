@@ -22,6 +22,8 @@ const metadata = {
 export const wagmiConfig = createConfig({
   chains,
   transports,
+  // Prevent build warnings
+  ssr: typeof window === "undefined",
   connectors: [
     walletConnect({ projectId, metadata, showQrModal: false }),
     injected({ shimDisconnect: true }),

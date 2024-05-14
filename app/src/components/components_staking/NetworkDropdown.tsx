@@ -1,10 +1,9 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import { chainConfigs, ChainConfig } from "@/utils/chains";
-import { wagmiConfig } from "@/utils/wagmi";
 import { useAccount, useBalance } from "wagmi";
 import { DropDownIcon } from "./DropDownIcon";
 import { useConnectedChain, useOutsideClick } from "@/utils/helpers";
-import { switchChain } from "@wagmi/core";
+import { useSwitchChain } from "wagmi";
 
 const ChainMenuItem = ({
   chain,
@@ -70,6 +69,7 @@ export const NetworkDropdown: React.FC = ({}) => {
   const [tempSelectedChain, setTempSelectedChain] = useState<ChainConfig>(selectedChain);
   const [menuIsOpen, setMenuIsOpen] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
+  const { switchChainAsync } = useSwitchChain();
   useOutsideClick(ref, () => setMenuIsOpen(false));
 
   useEffect(() => {
@@ -109,8 +109,8 @@ export const NetworkDropdown: React.FC = ({}) => {
                 setMenuIsOpen(false);
                 if (idx) {
                   try {
-                    await switchChain(wagmiConfig, {
-                      chainId: chain.id as (typeof wagmiConfig)["chains"][number]["id"],
+                    await switchChainAsync({
+                      chainId: chain.id,
                     });
                   } catch (e) {
                     setTempSelectedChain(oldChain);

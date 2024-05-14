@@ -36,7 +36,7 @@
     "tailwind-gradient-mask-image": "^1.2.0",
     "uuid": "^9.0.1",
     "viem": "^2.10.3",
-    "wagmi": "^2.8.5",
+    "wagmi": "^2.8.7",
     "zustand": "^4.5.2"
   },
   "devDependencies": {

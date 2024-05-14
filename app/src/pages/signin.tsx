@@ -204,73 +204,93 @@ export default function Home() {
 
 type LoginStep =
   | "NOT_STARTED"
-  | "OPENING_WALLET_MODAL"
-  | "USING_WALLET_MODAL"
-  | "CONNECTING_DATABASE"
-  | "VERIFYING_TOS";
+  | "PENDING_MODAL_OPEN"
+  | "PENDING_WALLET_CONNECTION"
+  | "PENDING_DATABASE_CONNECTION"
+  | "PENDING_TOS_VERIFICATION"
+  | "DONE";
 
-// Once we are out of the beta, we can rename this to Home and delete the above
-const RealHome = () => {
-  const { open: openWeb3Modal } = useWeb3Modal();
+// Isolate login status updates and some workaround logic for web3modal
+const useLoginFlow = ({
+  isTosAccepted,
+}: {
+  isTosAccepted?: boolean;
+}): {
+  loginStep: LoginStep;
+  isLoggingIn: boolean;
+  initiateLogin: () => void;
+  resetLogin: () => void;
+} => {
+  const { isConnected } = useAccount();
+  const { dbAccessTokenStatus } = useDatastoreConnectionContext();
   const { open: web3ModalIsOpen } = useWeb3ModalState();
-  const { connect: connectDatastore, dbAccessTokenStatus } = useDatastoreConnectionContext();
-  const { data: walletClient } = useWalletClient();
-  const toast = useToast();
-  const { isConnected, address } = useAccount();
-  const { connect } = useConnect();
+  const [web3modalWasOpen, setWeb3modalWasOpen] = useState(false);
   const { disconnect } = useDisconnect();
-  const connectors = useConnectors();
-  const [tosModalIsOpen, setTosModalIsOpen] = useState(false);
+  const [enabled, setEnabled] = useState(false);
   const [loginStep, setLoginStep] = useState<LoginStep>("NOT_STARTED");
-  const isConnectingToDatabaseRef = useRef<boolean>(false);
 
   useEffect(() => {
-    if (loginStep === "OPENING_WALLET_MODAL" && (web3ModalIsOpen || isConnected)) {
-      setLoginStep("USING_WALLET_MODAL");
-    }
-  }, [web3ModalIsOpen, isConnected, loginStep]);
+    const loginStep = (() => {
+      // Stop login if web3modal was closed
+      if (web3modalWasOpen && !web3ModalIsOpen && !isConnected) {
+        setEnabled(false);
+        return "NOT_STARTED";
+      }
 
+      if (!enabled) return "NOT_STARTED";
+      else if (!isConnected) return "PENDING_WALLET_CONNECTION";
+      else if (dbAccessTokenStatus !== "connected") return "PENDING_DATABASE_CONNECTION";
+      else if (!isTosAccepted) return "PENDING_TOS_VERIFICATION";
+      else return "DONE";
+    })();
+    setLoginStep(loginStep);
+  }, [enabled, isConnected, dbAccessTokenStatus, isTosAccepted, web3ModalIsOpen, web3modalWasOpen]);
+
+  // It takes a couple render cycles for web3ModalIsOpen to
+  // be updated, so we need to keep track of the previous state
   useEffect(() => {
-    if (!web3ModalIsOpen && !isConnected && loginStep === "USING_WALLET_MODAL") {
-      setLoginStep("NOT_STARTED");
-    }
-  }, [web3ModalIsOpen, isConnected, loginStep]);
+    setWeb3modalWasOpen(web3ModalIsOpen);
+  }, [web3ModalIsOpen]);
 
+  // Workaround for bug where if you disconnect from the modal on
+  // the dashboard, the web3ModalIsOpen state is incorrect
+  // until we call disconnect
   useEffect(() => {
     if (web3ModalIsOpen && loginStep === "NOT_STARTED") {
       disconnect();
     }
   }, [web3ModalIsOpen, loginStep]);
 
-  useEffect(() => {
-    if (loginStep === "USING_WALLET_MODAL" && isConnected) {
-      setLoginStep("CONNECTING_DATABASE");
-    }
-  }, [loginStep, isConnected]);
+  const isLoggingIn = loginStep !== "DONE" && loginStep !== "NOT_STARTED";
+
+  const initiateLogin = useCallback(() => {
+    setEnabled(true);
+  }, []);
+
+  const resetLogin = useCallback(() => {
+    setEnabled(false);
+  }, []);
+
+  return useMemo(
+    () => ({ loginStep, isLoggingIn, initiateLogin, resetLogin }),
+    [loginStep, isLoggingIn, initiateLogin, resetLogin]
+  );
+};
+
+// Once we are out of the beta, we can rename this to Home and delete the above
+const RealHome = () => {
+  const { isConnected, address } = useAccount();
+  const { open: openWeb3Modal } = useWeb3Modal();
+  const { connect: connectDatastore } = useDatastoreConnectionContext();
+  const { data: walletClient } = useWalletClient();
+  const toast = useToast();
+  const [tosModalIsOpen, setTosModalIsOpen] = useState(false);
+  const isConnectingToDatabaseRef = useRef<boolean>(false);
+  const navigate = useNavigateWithCommonParams();
 
   const { isPendingCheck, isTosAccepted, onAcceptTos } = useTos();
 
-  const closeTosModal = useCallback(() => {
-    setTosModalIsOpen(false);
-    setLoginStep("NOT_STARTED");
-  }, []);
-
-  useEffect(() => {
-    if (loginStep === "VERIFYING_TOS" && !isPendingCheck && !isTosAccepted) {
-      setTosModalIsOpen(true);
-    }
-  }, [loginStep, isPendingCheck, isTosAccepted]);
-
-  const gtcStakingStampPlatform: PlatformScoreSpec = {
-    name: "GTC Staking",
-    description: "Stake GTC to boost your trust in the Gitcoin ecosystem.",
-    possiblePoints: 7.57,
-    earnedPoints: 0,
-    icon: "./assets/gtcStakingLogoIcon.svg",
-    connectMessage: "Connect Wallet",
-  };
-
-  const navigate = useNavigateWithCommonParams();
+  const { loginStep, isLoggingIn, initiateLogin, resetLogin } = useLoginFlow({ isTosAccepted });
 
   const showConnectionError = useCallback(
     (e: any) => {
@@ -290,23 +310,28 @@ const RealHome = () => {
     [toast]
   );
 
-  // Route user to dashboard when wallet is connected
   useEffect(() => {
-    if (isConnected && dbAccessTokenStatus === "connected" && isTosAccepted) {
+    if (loginStep === "DONE") {
       navigate("/home");
     }
-  }, [connect, isConnected, connectors, dbAccessTokenStatus, navigate, isTosAccepted]);
+  }, [loginStep, navigate]);
+
+  useEffect(() => {
+    if (loginStep === "PENDING_TOS_VERIFICATION" && !isPendingCheck && !isTosAccepted) {
+      setTosModalIsOpen(true);
+    }
+  }, [loginStep, isPendingCheck, isTosAccepted]);
 
   const signIn = useCallback(async () => {
     try {
-      setLoginStep("OPENING_WALLET_MODAL");
+      initiateLogin();
       if (!isConnected) {
         await openWeb3Modal();
       }
     } catch (e) {
       console.error("Error connecting wallet", e);
       showConnectionError(e);
-      setLoginStep("NOT_STARTED");
+      resetLogin();
     }
   }, [openWeb3Modal, isConnected, showConnectionError]);
 
@@ -314,8 +339,7 @@ const RealHome = () => {
     (async () => {
       if (
         !isConnectingToDatabaseRef.current &&
-        loginStep === "CONNECTING_DATABASE" &&
-        isConnected &&
+        loginStep === "PENDING_DATABASE_CONNECTION" &&
         address &&
         walletClient
       ) {
@@ -323,16 +347,29 @@ const RealHome = () => {
         console.log("Connecting to database");
         try {
           await connectDatastore(address, walletClient);
-          setLoginStep("VERIFYING_TOS");
         } catch (e) {
           console.error("Error connecting to database", e);
           showConnectionError(e);
-          setLoginStep("NOT_STARTED");
+          resetLogin();
         }
         isConnectingToDatabaseRef.current = false;
       }
     })();
-  }, [loginStep, isConnected, address, walletClient, connectDatastore, showConnectionError]);
+  }, [loginStep, address, walletClient, connectDatastore, showConnectionError]);
+
+  const closeTosModal = useCallback(() => {
+    setTosModalIsOpen(false);
+    resetLogin();
+  }, []);
+
+  const gtcStakingStampPlatform: PlatformScoreSpec = {
+    name: "GTC Staking",
+    description: "Stake GTC to boost your trust in the Gitcoin ecosystem.",
+    possiblePoints: 7.57,
+    earnedPoints: 0,
+    icon: "./assets/gtcStakingLogoIcon.svg",
+    connectMessage: "Connect Wallet",
+  };
 
   const maintenanceMode = useMemo(isServerOnMaintenance, []);
 
@@ -404,14 +441,14 @@ const RealHome = () => {
                 data-testid="connectWalletButton"
                 onClick={signIn}
                 className="col-span-2 mt-4 lg:w-3/4"
-                isLoading={loginStep !== "NOT_STARTED"}
+                isLoading={isLoggingIn}
                 disabled={maintenanceMode}
                 subtext={(() => {
-                  if (loginStep === "USING_WALLET_MODAL") {
+                  if (loginStep === "PENDING_WALLET_CONNECTION") {
                     return "Connect your wallet";
-                  } else if (loginStep === "CONNECTING_DATABASE") {
+                  } else if (loginStep === "PENDING_DATABASE_CONNECTION") {
                     return "Sign message in wallet";
-                  } else if (loginStep === "VERIFYING_TOS") {
+                  } else if (loginStep === "PENDING_TOS_VERIFICATION") {
                     return "Accept the terms of service";
                   }
                 })()}
