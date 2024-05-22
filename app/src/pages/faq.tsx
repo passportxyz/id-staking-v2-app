@@ -99,16 +99,16 @@ export default function FAQ() {
           <SubHeader text="FAQ" />
           <Accordion allowMultiple>
             {faqs.map((faq, index) => (
-              <AccordionItem key={index} border={0} marginTop={2}>
+              <AccordionItem key={index} border={0}>
                 <h2>
                   <AccordionButton px={0}>
                     <div className="text-foreground-2 flex text-left">{faq.heading}</div>
                   </AccordionButton>
                 </h2>
-                <AccordionPanel pb={4} px={0}>
+                <AccordionPanel px={0}>
                   <div className="text-foreground-2 flex text-left">{parse(faq.document)}</div>
                 </AccordionPanel>
-                <hr className="border-foreground-4 mt-2" />
+                <hr className="border-foreground-4 my-2" />
               </AccordionItem>
             ))}
           </Accordion>
