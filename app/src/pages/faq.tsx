@@ -31,7 +31,7 @@ const faqs = [
   {
     heading: "Why should I stake GTC on my identity?",
     document:
-      "Staking GTC on your identity or other trusted individuals increases your Passport score, which can unlock additional benefits and opportunities within the Passport ecosystem and beyond. It's a way to verify your commitment to being a genuine participant in web3 spaces.",
+      '<p>Staking GTC on your identity or other trusted individuals increases your Passport score, which can unlock additional benefits and opportunities within the <a href="https://www.passport.xyz/ecosystem" target="_blank">Passport ecosystem</a> and beyond. It\'s a way to verify your commitment to being a genuine participant in web3 spaces.</p>',
   },
   {
     heading: "What is slashing?",
@@ -41,7 +41,7 @@ const faqs = [
   {
     heading: "What triggers slashing?",
     document:
-      'Slashing can be triggered by behaviors that compromise the trustworthiness of the <a href="https://www.passport.xyz/ecosystem" target="_blank">Passport ecosystem</a>, such as participating in Sybil attacks or other fraudulent activities.',
+      '<p>Slashing can be triggered by behaviors that compromise the trustworthiness of the <a href="https://www.passport.xyz/ecosystem" target="_blank">Passport ecosystem</a>, such as participating in Sybil attacks or other fraudulent activities.</p>',
   },
   {
     heading: "What is the Onchain Trust Graph?",
@@ -61,7 +61,7 @@ const faqs = [
   {
     heading: "How do I get GTC to stake on my identity?",
     document:
-      "GTC can be acquired from various exchanges. Websites like CoinMarketCap offer lists of exchanges where GTC is available. For newcomers, educational resources such as Bankless Academy can provide valuable insights into navigating the web3 space.",
+      '<p>GTC can be acquired from various exchanges. Websites like <a href="https://coinmarketcap.com/currencies/gitcoin/" target="_blank">CoinMarketCap</a> offer lists of exchanges where GTC is available. For newcomers, educational resources such as <a href="https://app.banklessacademy.com/lessons" target="_blank">Bankless Academy</a> can provide valuable insights into navigating the web3 space.</p>',
   },
   {
     heading: "How much GTC do I need to stake?",
@@ -97,24 +97,23 @@ export default function FAQ() {
         <Header />
         <BodyWrapper className="">
           <SubHeader text="FAQ" />
-          {faqs.map((faq, index) => (
-            <Accordion key={index}>
-              <AccordionItem
-                borderTop={0}
-                borderBottomColor={LUNARPUNK_DARK_MODE.colors.foreground2}
-                borderBottom={"solid"}
-              >
-                <h2>
-                  <AccordionButton px={0}>
-                    <div className="text-foreground-2 flex text-left">{faq.heading}</div>
-                  </AccordionButton>
-                </h2>
-                <AccordionPanel pb={4} px={0}>
-                  <p className="text-foreground-2 flex text-left">{parse(faq.document)}</p>
-                </AccordionPanel>
-              </AccordionItem>
-            </Accordion>
-          ))}
+          <Accordion allowMultiple>
+            {faqs.map((faq, index) => (
+              <>
+                <AccordionItem key={index} border={0} marginY={3}>
+                  <h2>
+                    <AccordionButton px={0}>
+                      <div className="text-foreground-2 flex text-left">{faq.heading}</div>
+                    </AccordionButton>
+                  </h2>
+                  <AccordionPanel pb={4} px={0}>
+                    <p className="text-foreground-2 flex text-left">{parse(faq.document)}</p>
+                  </AccordionPanel>
+                </AccordionItem>
+                <hr className="border-foreground-4" />
+              </>
+            ))}
+          </Accordion>
         </BodyWrapper>
       </HeaderContentFooterGrid>
     </LoggedInPageRoot>

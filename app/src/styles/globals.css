@@ -27,3 +27,7 @@
 .override-text-color * {
   color: inherit !important;
 }
+
+.chakra-accordion a {
+  text-decoration: underline;
+}
