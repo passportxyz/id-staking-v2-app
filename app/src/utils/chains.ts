@@ -1,13 +1,18 @@
 import { http, Config } from "wagmi";
-import { mainnet, optimism, optimismSepolia } from "wagmi/chains";
+import { mainnet, optimism, optimismSepolia, arbitrum } from "wagmi/chains";
 import { HttpTransport, Chain } from "viem";
 
 const MAINNET_RPC_URL = process.env.NEXT_PUBLIC_MAINNET_RPC_URL as string;
 const OP_RPC_URL = process.env.NEXT_PUBLIC_OP_RPC_URL as string;
 const OP_SEPOLIA_RPC_URL = process.env.NEXT_PUBLIC_OP_SEPOLIA_RPC_URL as string;
+
+const ARBITRUM_RPC_URL = process.env.NEXT_PUBLIC_ARBITRUM_RPC_URL as string;
+
 const enableMainnet = process.env.NEXT_PUBLIC_ENABLE_MAINNET === "on";
 const enableOpMainnet = process.env.NEXT_PUBLIC_ENABLE_OP_MAINNET === "on";
 const enableOpSepolia = process.env.NEXT_PUBLIC_ENABLE_OP_SEPOLIA === "on";
+
+const enableArbitrumMainnet = process.env.NEXT_PUBLIC_ENABLE_ARBITRUM_MAINNET === "on";
 
 const ethChainId = Number("0x1");
 const sepoliaChainId = Number("0xaa36a7");
@@ -18,6 +23,8 @@ const lineaChainId = Number("0xe708");
 const lineaGoerliChainId = Number("0xe704");
 const optimismChainId = Number("0xa");
 const sepoliaOPChainId = Number("0xaa37dc");
+
+const arbitrumChainId = Number("0xa4b1");
 
 export type ChainConfig = {
   id: number;
@@ -83,6 +90,22 @@ if (enableOpSepolia) {
   });
   wagmiChains.push(optimismSepolia);
   wagmiTransports[optimismSepolia.id] = http(OP_SEPOLIA_RPC_URL);
+}
+
+if (enableArbitrumMainnet) {
+  enabledChainConfigs.push({
+    id: arbitrumChainId,
+    token: "ETH",
+    label: "Arbitrum",
+    rpcUrl: ARBITRUM_RPC_URL,
+    gtcContractAddr: "0x7f9a7DB853Ca816B9A138AEe3380Ef34c437dEe0",
+    stakingContractAddr: "0xd2747B3e715483A870793a6Cfa04006C00Cd597D",
+    legacyContractAddr: undefined,
+    icon: "./assets/arbitrum-icon.svg",
+    explorer: "https://arbiscan.io/",
+  });
+  wagmiChains.push(arbitrum);
+  wagmiTransports[arbitrum.id] = http(ARBITRUM_RPC_URL);
 }
 
 export const chainConfigs: ChainConfig[] = enabledChainConfigs;
