@@ -132,9 +132,9 @@ const ENTRIES = [
         </ul>
         <p>
           Any infringement of this policy, such as the replication of a single Stamp across several Passports, will
-          result in 'slashing' penalties. These consequences can range from the loss of rewards to a reduction in
-          staking benefits or other appropriate punitive measures. Slashing acts as a powerful deterrent against actions
-          that compromise the ecosystem’s integrity and fairness.
+          result in &apos;slashing&apos; penalties. These consequences can range from the loss of rewards to a reduction
+          in staking benefits or other appropriate punitive measures. Slashing acts as a powerful deterrent against
+          actions that compromise the ecosystem’s integrity and fairness.
         </p>
         <p>
           Passport is dedicated to enforcing these rules rigorously, continuously updating our policies to guard against
@@ -209,10 +209,6 @@ const ENTRIES = [
     ),
   },
   {
-    title: "Provisions for Unexpected Events",
-    body: <p>Outline the course of action in case of unexpected technical issues or events affecting Passport.</p>,
-  },
-  {
     title: "Amendments to the Terms of Service",
     body: (
       <p>
@@ -225,20 +221,23 @@ const ENTRIES = [
     title: "Governing Law and Dispute Resolution",
     body: (
       <p>
-        These Terms are governed by the British Virgin Islands. Disputes will be resolved through our appeals process as
-        outlined in Passport’s Identity and Appeals process.
+        These Terms are governed by the British Virgin Islands. Disputes will be resolved through our appeals process,
+        which is currently being finalized. Details will be provided once the process is available.
       </p>
     ),
   },
   {
     title: "Termination",
-    body: <p>Passport may terminate a user's access to Passport for breach of these Terms.</p>,
+    body: <p>Passport may terminate a user&apos;s access to Passport for breach of these Terms.</p>,
   },
   {
     title: "Contact Information",
     body: (
       <p>
-        For questions about these Terms, please contact [Passport contact information] and refer to the Privacy Policy
+        For questions about these Terms, please contact support@passport.xyz and refer to the{" "}
+        <a className="underline" href="https://www.gitcoin.co/privacy" target="_blank">
+          Privacy Policy
+        </a>{" "}
         for further information.
       </p>
     ),
