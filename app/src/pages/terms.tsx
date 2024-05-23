@@ -234,7 +234,11 @@ const ENTRIES = [
     title: "Contact Information",
     body: (
       <p>
-        For questions about these Terms, please contact support@passport.xyz and refer to the{" "}
+        For questions about these Terms, please contact{" "}
+        <a className="underline" href="mailto:support@passport.xyz">
+          support@passport.xyz
+        </a>{" "}
+        and refer to the{" "}
         <a className="underline" href="https://www.gitcoin.co/privacy" target="_blank">
           Privacy Policy
         </a>{" "}
