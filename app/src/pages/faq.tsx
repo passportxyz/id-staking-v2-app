@@ -10,12 +10,9 @@ import Header from "../components/Header";
 import BodyWrapper from "../components/BodyWrapper";
 import HeaderContentFooterGrid from "../components/HeaderContentFooterGrid";
 
-// --Chakra UI Elements
-import { Accordion, AccordionButton, AccordionItem, AccordionPanel } from "@chakra-ui/react";
 import { SubHeader } from "@/components/SubHeader";
-import { palette, themes } from "@/utils/theme";
-import { LUNARPUNK_DARK_MODE } from "@/utils/theme/themes";
 import parse from "html-react-parser";
+import { Disclosure } from "@headlessui/react";
 
 const faqs = [
   {
@@ -95,23 +92,16 @@ export default function FAQ() {
     <LoggedInPageRoot className="text-color-1">
       <HeaderContentFooterGrid>
         <Header />
-        <BodyWrapper className="">
+        <BodyWrapper className="mb-20">
           <SubHeader text="FAQ" />
-          <Accordion allowMultiple>
-            {faqs.map((faq, index) => (
-              <AccordionItem key={index} border={0}>
-                <h2>
-                  <AccordionButton px={0}>
-                    <div className="text-foreground-2 flex text-left">{faq.heading}</div>
-                  </AccordionButton>
-                </h2>
-                <AccordionPanel px={0}>
-                  <div className="text-foreground-2 flex text-left">{parse(faq.document)}</div>
-                </AccordionPanel>
-                <hr className="border-foreground-4 my-2" />
-              </AccordionItem>
-            ))}
-          </Accordion>
+          {faqs.map((faq, index) => (
+            <Disclosure key={index} as="div" className="py-4 border-b border-foreground-4 faq">
+              <Disclosure.Button className="group text-foreground-2 flex text-left">{faq.heading}</Disclosure.Button>
+              <Disclosure.Panel className="mt-2 text-foreground-2 flex text-left">
+                {parse(faq.document)}
+              </Disclosure.Panel>
+            </Disclosure>
+          ))}
         </BodyWrapper>
       </HeaderContentFooterGrid>
     </LoggedInPageRoot>
