@@ -13,6 +13,9 @@ const config: Config = {
       xl: "1280px",
     },
     extend: {
+      textDecoration: {
+        a: "underline",
+      },
       backgroundImage: {
         "radial-gradient-top": "radial-gradient(farthest-corner at 50% 5%, rgba(8,47,42,1), rgba(0,0,0,0) 80%)",
         "radial-gradient-side": "radial-gradient(farthest-corner at 90% 80%, rgba(8,47,42,1), rgba(0,0,0,0) 40%)",

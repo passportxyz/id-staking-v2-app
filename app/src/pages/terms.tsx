@@ -10,17 +10,7 @@ import Header from "../components/Header";
 import BodyWrapper from "../components/BodyWrapper";
 import HeaderContentFooterGrid from "../components/HeaderContentFooterGrid";
 
-// --Chakra UI Elements
-import {
-  Modal,
-  ModalBody,
-  ModalContent,
-  ModalFooter,
-  ModalOverlay,
-  Spinner,
-  useDisclosure,
-  useToast,
-} from "@chakra-ui/react";
+import { SubHeader } from "@/components/SubHeader";
 
 export default function Terms() {
   const headerStyle = "text-xl pt-8 pb-4 text-color-6";
@@ -30,7 +20,7 @@ export default function Terms() {
       <HeaderContentFooterGrid>
         <Header hideMenu={true} />
         <BodyWrapper className="">
-          <h1 className="text-2xl pt-6 pb-2 text-color-6 text-center">TERMS OF SERVICE</h1>
+          <SubHeader text="TERMS OF SERVICE" />
           <p className="text-center">Last Revised March 2024</p>
 
           <h2 className={headerStyle}>1. Introduction</h2>
@@ -53,10 +43,10 @@ export default function Terms() {
           </p>
           <h2 className={headerStyle}>4. Technical Knowledge and Risk Acknowledgement [CONSIDERATION]</h2>
           <p className={sectionStyle}>
-            In using Passport, it&apos;s crucial that users have a foundational understanding of blockchain technology and
-            the specific mechanisms we employ, such as staking and slashing, to maintain the integrity and security of
-            the ecosystem. To assist with this, we provide access to a variety of resources: Our Open-Source Codebase:
-            Explore the technical underpinnings of Passport by visiting our GitHub repository
+            In using Passport, it&apos;s crucial that users have a foundational understanding of blockchain technology
+            and the specific mechanisms we employ, such as staking and slashing, to maintain the integrity and security
+            of the ecosystem. To assist with this, we provide access to a variety of resources: Our Open-Source
+            Codebase: Explore the technical underpinnings of Passport by visiting our GitHub repository
             https://github.com/gitcoinco/id-staking-v2 https://github.com/gitcoinco/id-staking-v2-app[insert link here].
             This resource is invaluable for those wishing to understand the code that powers our platform. Technical
             Documentation: For detailed explanations of the staking and slashing processes, including the criteria and
@@ -89,9 +79,9 @@ export default function Terms() {
             unique to one Passport and cannot be reused or shared across multiple Passports. This rule is critical in
             safeguarding the ecosystem against attempts to manipulate the system, ensuring a fair and equitable
             environment for all participants. Any infringement of this policy, such as the replication of a single Stamp
-            across several Passports, will result in &apos;slashing&apos; penalties. These consequences can range from the loss of
-            rewards to a reduction in staking benefits or other appropriate punitive measures. Slashing acts as a
-            powerful deterrent against actions that compromise the ecosystem’s integrity and fairness. Passport is
+            across several Passports, will result in &apos;slashing&apos; penalties. These consequences can range from
+            the loss of rewards to a reduction in staking benefits or other appropriate punitive measures. Slashing acts
+            as a powerful deterrent against actions that compromise the ecosystem’s integrity and fairness. Passport is
             dedicated to enforcing these rules rigorously, continuously updating our policies to guard against new forms
             of abuse or manipulation. Our aim is not merely to maintain a secure and trustworthy platform but to nurture
             a community where fairness and integrity reign supreme. By participating in the Passport ecosystem, you
@@ -119,17 +109,17 @@ export default function Terms() {
             resulting from user-uploaded content. Negligence or Misconduct: Any acts of negligence, wrongful conduct, or
             intentional misconduct by users that result in claims or damages to any party, including other users of
             Passport or third parties. This indemnification responsibility entails that users will cover all costs,
-            damages, and expenses, including reasonable attorneys&apos; fees, that arise from claims brought against Gitcoin
-            due to the users’ actions or content provided while using Passport. The clause is designed to protect
-            Gitcoin and its ecosystem from financial losses and legal implications stemming from users’ activities that
-            fail to comply with the Terms of Service or applicable laws. By using Passport, users acknowledge their
-            understanding of these indemnification responsibilities and agree to act in a manner that upholds the
-            integrity of the platform, adhering to both the letter and spirit of these Terms.
+            damages, and expenses, including reasonable attorneys&apos; fees, that arise from claims brought against
+            Gitcoin due to the users’ actions or content provided while using Passport. The clause is designed to
+            protect Gitcoin and its ecosystem from financial losses and legal implications stemming from users’
+            activities that fail to comply with the Terms of Service or applicable laws. By using Passport, users
+            acknowledge their understanding of these indemnification responsibilities and agree to act in a manner that
+            upholds the integrity of the platform, adhering to both the letter and spirit of these Terms.
           </p>
           <h2 className={headerStyle}>11. Limitation of Liability and Warranty Disclaimer</h2>
           <p className={sectionStyle}>
-            Passport is provided &apos;as is&apos; without warranties. Passport is not liable for damages arising from the use of
-            Passport.
+            Passport is provided &apos;as is&apos; without warranties. Passport is not liable for damages arising from
+            the use of Passport.
           </p>
           <h2 className={headerStyle}>12. Provisions for Unexpected Events [CONSIDERATION]</h2>
           <p className={sectionStyle}>
@@ -142,11 +132,13 @@ export default function Terms() {
           </p>
           <h2 className={headerStyle}>14. Governing Law and Dispute Resolution</h2>
           <p className={sectionStyle}>
-            These Terms are governed by [applicable jurisdiction&apos;s laws]. Disputes will be resolved through our appeals
-            process as outlined in Passport’s Identity and Appeals process.
+            These Terms are governed by [applicable jurisdiction&apos;s laws]. Disputes will be resolved through our
+            appeals process as outlined in Passport’s Identity and Appeals process.
           </p>
           <h2 className={headerStyle}>15. Termination</h2>
-          <p className={sectionStyle}>Passport may terminate a user&apos;s access to Passport for breach of these Terms.</p>
+          <p className={sectionStyle}>
+            Passport may terminate a user&apos;s access to Passport for breach of these Terms.
+          </p>
           <h2 className={headerStyle}>16. Contact Information</h2>
           <p className={sectionStyle}>
             For questions about these Terms, please contact [Passport contact information] and refer to the Privacy

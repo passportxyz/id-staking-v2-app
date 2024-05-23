@@ -27,3 +27,7 @@
 .override-text-color * {
   color: inherit !important;
 }
+
+.faq a {
+  text-decoration: underline;
+}

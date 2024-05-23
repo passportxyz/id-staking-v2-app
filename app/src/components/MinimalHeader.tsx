@@ -26,7 +26,6 @@ const LINKS = [
   {
     to: "/faq",
     text: "FAQ",
-    comingSoon: true,
   },
 ];
 
