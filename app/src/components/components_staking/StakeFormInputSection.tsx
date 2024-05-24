@@ -74,7 +74,7 @@ export const StakeAmountInput = ({
     <input
       className={`w-full rounded-lg bg-background ${
         includePlusAmountPrefix ? "pl-10" : "pl-4"
-      } pr-4 py-1 col-start-1 row-start-1 border border-foreground-4 h-12 outline-none`}
+      } pr-4 py-1 col-start-1 row-start-1 transition ease-in-out duration-200 border border-foreground-4 hover:border-foreground-2 focus:border-foreground-2 h-12 outline-none`}
       type="number"
       value={amount}
       placeholder={`Input a custom amount or choose one from below`}
