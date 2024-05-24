@@ -60,7 +60,7 @@ export const PasswordPage = ({ onAuthorized }: { onAuthorized: () => void }) => 
             <div>Password</div>
             <div className="flex gap-4 mt-1 flex-col md:flex-row">
               <input
-                className="border border-background-7/50 rounded-lg p-2 bg-transparent"
+                className="border border-background-7/50 rounded-lg p-2 bg-transparent outline-none"
                 type="password"
                 onChange={(e) => setInput(e.target.value)}
                 onKeyDown={(e) => e.key === "Enter" && checkPassword()}

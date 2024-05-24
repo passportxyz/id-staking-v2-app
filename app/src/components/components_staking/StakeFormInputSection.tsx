@@ -74,7 +74,7 @@ export const StakeAmountInput = ({
     <input
       className={`w-full rounded-lg bg-background ${
         includePlusAmountPrefix ? "pl-10" : "pl-4"
-      } pr-4 py-1 col-start-1 row-start-1 border border-foreground-4`}
+      } pr-4 py-1 col-start-1 row-start-1 border border-foreground-4 h-12 outline-none`}
       type="number"
       value={amount}
       placeholder={`Input a custom amount or choose one from below`}
@@ -165,9 +165,9 @@ export type FormButtonProps = ButtonHTMLAttributes<HTMLButtonElement> & {
 export const FormButton = ({ variant, className, ...props }: FormButtonProps) => {
   const variantClassName = useMemo(() => {
     if (variant === "active") {
-      return "text-color-4 bg-gradient-to-r from-foreground-2 to-foreground-2 hover:to-foreground-4";
+      return "text-color-4 bg-foreground-2";
     } else {
-      return "text-color-4 bg-gradient-to-r from-foreground-4 to-foreground-4 hover:to-foreground-2";
+      return "text-color-4 bg-foreground-4 hover:bg-foreground-2";
     }
   }, [variant]);
 
@@ -176,7 +176,7 @@ export const FormButton = ({ variant, className, ...props }: FormButtonProps) =>
       className={`group flex items-center justify-center gap-4 py-2 text-base text-color-1
         disabled:cursor-not-allowed disabled:bg-foreground-3 disabled:brightness-75 
         !px-1 rounded-lg leading-none whitespace-nowrap
-        ${variantClassName} focus:border-transparent focus:outline focus:outline-1 focus:outline-focus ${className}`}
+        ${variantClassName} transition-all ease-in-out duration-200 focus:border-transparent focus:outline focus:outline-1 focus:outline-focus ${className}`}
       {...props}
     />
   );

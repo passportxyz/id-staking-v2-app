@@ -78,7 +78,7 @@ export const YourStakeForm: React.FC = ({}) => {
       />
       {selfStakeModal}
       <Button
-        className="w-full font-bold"
+        className="w-full font-bold h-14"
         onClick={() => setModalIsOpen(true)}
         disabled={isLoading || !(isUpdate || (inputValue && parseFloat(inputValue) > 0))}
       >

@@ -9,6 +9,7 @@ export const palette = Object.entries({
   green: "#22645c",
   darkPurple: "#08205f",
   iceBlue: "#c1f6ff",
+  iceBlueSaturated: "#80ecff",
   turquoise: "#074853",
   paleYellow: "#d2dc95",
   red: "#ff5c00",
