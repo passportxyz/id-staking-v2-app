@@ -17,7 +17,7 @@ export const Button = ({ variant, className, ...props }: ButtonProps) => {
       return "text-color-1 bg-background border border-foreground-3 hover:border-foreground-4";
     } else {
       // primary, default
-      return "text-color-4 bg-gradient-to-r  from-foreground-2 to-foreground-2 hover:to-foreground-4";
+      return "text-color-4 bg-background-8 hover:bg-background-9";
     }
   }, [variant]);
 
@@ -25,6 +25,7 @@ export const Button = ({ variant, className, ...props }: ButtonProps) => {
     <button
       className={`group flex items-center justify-center gap-4 rounded-md px-5 py-2 font-alt text-base text-color-1
         disabled:cursor-not-allowed disabled:bg-foreground-3 disabled:brightness-75
+        transition-colors duration-200 ease-in-out
         ${variantClassName} focus:border-transparent focus:outline focus:outline-1 focus:outline-focus ${className}`}
       {...props}
     />

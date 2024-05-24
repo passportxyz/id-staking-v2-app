@@ -165,7 +165,7 @@ const StakeForOthersFormSection = ({
           <input
             className={`px-4 py-1 w-full rounded-lg border ${
               alreadyStakedOnAddress ? "border-focus" : "border-foreground-4"
-            } bg-background text-color-2`}
+            } bg-background text-color-2 outline-none h-12 transition ease-in-out duration-200 border border-foreground-4 hover:border-foreground-2 focus:border-foreground-2`}
             type="text"
             value={communityStake.stakeeInput}
             placeholder="anotherperson.eth"
@@ -297,7 +297,7 @@ export const StakeForOthersForm = ({
           </svg>
           <span className="pl-4">Add another address</span>
         </button>
-        <Button className="flex-1 w-1/2 font-bold" onClick={() => setModalIsOpen(true)} disabled={anyIncomplete}>
+        <Button className="flex-1 w-1/2 font-bold h-14" onClick={() => setModalIsOpen(true)} disabled={anyIncomplete}>
           Stake
         </Button>
       </div>

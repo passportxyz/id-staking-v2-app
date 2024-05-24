@@ -123,7 +123,7 @@ const CommunityUpdateModalPreview = ({
           type="text"
           value={stake.stakee}
           disabled
-          className="w-full px-4 py-1 bg-gradient-to-r text-color-3 opacity-50 from-background-8 to-background-7 mb-4 mt-1 rounded-lg"
+          className="w-full px-4 py-1 bg-gradient-to-r text-color-3 opacity-50 from-background-8 to-background-7 mb-4 mt-1 rounded-lg outline-none"
         />
         <div className="flex justify-between w-full items-center">
           Amount
