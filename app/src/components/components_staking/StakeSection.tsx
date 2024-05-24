@@ -65,7 +65,8 @@ export const StakeSection = ({
     <div className="col-span-full">
       <Disclosure defaultOpen={initialOpen}>
         <Disclosure.Button
-          className={`flex items-center py-6 px-1 md:px-2 rounded-lg border border-foreground-4 bg-gradient-to-r from-background to-background-5`}
+          className={`flex items-center py-6 px-1 md:px-2 rounded-lg border border-foreground-4 bg-gradient-to-r from-background to-background-5
+          cursor-pointer transition ease-in-out duration-200 opacity-70 hover:opacity-100`}
           onClick={handleClick}
           as="div"
         >
