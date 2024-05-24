@@ -1,14 +1,18 @@
 import React, { ChangeEvent, useState, useMemo, useCallback, useEffect } from "react";
 import { Button } from "@/components/Button";
-import { useAccount } from "wagmi";
+import { createConfig, http, useAccount, useEnsResolver } from "wagmi";
 import { StakeFormInputSection } from "./StakeFormInputSection";
 import { v4 as uuidv4 } from "uuid";
 import { create } from "zustand";
-import { parseEther } from "viem";
+import { Chain, parseEther } from "viem";
 import { StakeForOthersModal } from "./StakeForOthersModal";
 import { useCommunityStakeHistoryQuery } from "@/utils/stakeHistory";
 import { getLockSeconds } from "@/utils/helpers";
 import { useChainInitializing } from "@/hooks/staking_hooks/useChainInitialization";
+import { getEnsAddress } from "@wagmi/core";
+import { wagmiChains, wagmiTransports } from "@/utils/chains";
+import { mainnet } from "viem/chains";
+import { normalize } from "viem/ens";
 
 type CommunityStakeInputs = {
   uuid: string;
@@ -22,6 +26,7 @@ type CommunityStakeChainParams = {
   stakee: `0x${string}`;
   amount: bigint;
   lockedPeriodsSeconds: bigint;
+  ensResolution?: string;
 };
 
 type CommunityStake = CommunityStakeInputs & CommunityStakeChainParams;
@@ -77,7 +82,6 @@ export const useCommunityStakesStore = create<{
       }
 
       if (communityStake.stakeeInput !== undefined) {
-        // TODO: shall we resolve ENS names here ???
         communityStake.stakee = communityStake.stakeeInput as `0x${string}`;
       }
 
@@ -134,8 +138,28 @@ const StakeForOthersFormSection = ({
   );
 
   const setStakeeAddress = useCallback(
-    (address: string) => {
+    async (address: string) => {
       onChange?.();
+      if (address.includes(".eth")) {
+        // check for ens resolution
+        const mainnetChain = wagmiChains.find((chain: Chain) => chain.id === mainnet.id);
+        if (!mainnetChain) {
+          return;
+        }
+        const config = createConfig({
+          chains: [mainnet],
+          transports: {
+            [mainnet.id]: wagmiTransports[mainnet.id],
+          },
+        });
+        const ensAddress = await getEnsAddress(config, {
+          chainId: mainnet.id,
+          name: normalize(address),
+        });
+        if (ensAddress) {
+          updateCommunityStake(uuid, { ensResolution: ensAddress });
+        }
+      }
       updateCommunityStake(uuid, { stakeeInput: address as `0x${string}` });
     },
     [updateCommunityStake, uuid, onChange]
@@ -275,7 +299,12 @@ export const StakeForOthersForm = ({
       address ? (
         <StakeForOthersModal
           address={address}
-          stakees={communityStakes.map((cStake) => cStake.stakee)}
+          stakees={communityStakes.map((cStake) => {
+            if (cStake.ensResolution) {
+              return cStake.ensResolution as `0x${string}`;
+            }
+            return cStake.stakee;
+          })}
           amounts={communityStakes.map((cStake) => cStake.amount)}
           lockedPeriodsSeconds={communityStakes.map((cStake) => cStake.lockedPeriodsSeconds)}
           isOpen={modalIsOpen}

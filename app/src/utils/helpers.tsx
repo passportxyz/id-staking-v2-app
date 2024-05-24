@@ -9,7 +9,7 @@ import { ethers } from "ethers";
 import React, { useMemo } from "react";
 import moment from "moment";
 import { chainConfigs } from "./chains";
-import { useChainId } from "wagmi";
+import { useChainId, useEnsName } from "wagmi";
 
 export function generateUID(length: number) {
   return window
@@ -196,9 +196,23 @@ export const DisplayDuration = ({ seconds }: { seconds: number }) => {
   return <div title={long}>{short}</div>;
 };
 
+export const useEnsDisplay = (address: string) => {
+  const ensResult = useEnsName({ address: address as `0x${string}`, blockTag: "latest", chainId: 1 });
+
+  return {
+    address,
+    ens: ensResult.isSuccess ? ensResult.data : undefined,
+  };
+};
+
 // Provide custom max, or use defaults which scale with the screen size
 export const DisplayAddressOrENS = ({ user, max, className }: { user: string; max?: number; className?: string }) => {
+  const ensResult = useEnsDisplay(user);
   const maxLen = max || 12;
+
+  if (ensResult.ens) {
+    return <div>{ensResult.ens}</div>;
+  }
 
   if (user.length <= maxLen) {
     return <div>{user}</div>;
