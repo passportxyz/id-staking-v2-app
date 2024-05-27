@@ -26,7 +26,7 @@ export const Button = ({ variant, className, ...props }: ButtonProps) => {
       className={`group flex items-center justify-center gap-4 rounded-md px-5 py-2 font-alt text-base text-color-1
         disabled:cursor-not-allowed disabled:bg-foreground-3 disabled:brightness-75
         transition-colors duration-200 ease-in-out
-        ${variantClassName} focus:border-transparent focus:outline focus:outline-1 focus:outline-focus ${className}`}
+        ${variantClassName} focus:border-transparent focus:outline-none ${className}`}
       {...props}
     />
   );
