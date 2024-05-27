@@ -61,7 +61,7 @@ const ENTRIES = [
     body: (
       <>
         <p>
-          In using Passport, it's crucial that users have a foundational understanding of blockchain technology and the
+          In using Passport, it&apos;s crucial that users have a foundational understanding of blockchain technology and the
           specific mechanisms we employ, such as staking and slashing, to maintain the integrity and security of the
           ecosystem. To assist with this, we provide access to a variety of resources:
         </p>
@@ -186,7 +186,7 @@ const ENTRIES = [
         </ul>
         <p>
           This indemnification responsibility entails that users will cover all costs, damages, and expenses, including
-          reasonable attorneys' fees, that arise from claims brought against Gitcoin due to the users’ actions or
+          reasonable attorneys&apos; fees, that arise from claims brought against Gitcoin due to the users’ actions or
           content provided while using Passport. The clause is designed to protect Gitcoin and its ecosystem from
           financial losses and legal implications stemming from users’ activities that fail to comply with the Terms of
           Service or applicable laws.
@@ -203,7 +203,7 @@ const ENTRIES = [
     title: "Limitation of Liability and Warranty Disclaimer",
     body: (
       <p>
-        Passport is provided 'as is' without warranties. Passport is not liable for damages arising from the use of
+        Passport is provided &apos;as is&apos; without warranties. Passport is not liable for damages arising from the use of
         Passport.
       </p>
     ),

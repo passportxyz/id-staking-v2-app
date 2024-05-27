@@ -42,7 +42,7 @@ const ENTRIES = [
         <a href="https://www.passport.xyz/ecosystem" target="_blank">
           Passport ecosystem
         </a>{" "}
-        and beyond. It's a way to verify your commitment to being a genuine participant in web3 spaces.
+        and beyond. It&apos;s a way to verify your commitment to being a genuine participant in web3 spaces.
       </p>
     ),
   },
@@ -51,7 +51,7 @@ const ENTRIES = [
     body: (
       <p>
         Slashing is an automated penalty mechanism that confiscates and eventually burns the staked GTC of users who
-        violate Passport’s trust protocols. This process helps maintain the community's integrity by deterring malicious
+        violate Passport’s trust protocols. This process helps maintain the community&apos;s integrity by deterring malicious
         behaviors.
       </p>
     ),
@@ -117,7 +117,7 @@ const ENTRIES = [
     title: "How much GTC do I need to stake?",
     body: (
       <p>
-        There is no minimum requirement for staking GTC on your identity or your friends'. However, the more GTC you
+        There is no minimum requirement for staking GTC on your identity or your friends&apos;. However, the more GTC you
         stake, the higher your Passport score.
       </p>
     ),
@@ -127,7 +127,7 @@ const ENTRIES = [
     body: (
       <p>
         While Identity Staking involves certain costs, such as purchasing GTC and gas fees, there are other ways to
-        improve your Passport score without financial investment. Keeping an eye on Passport's social media for events
+        improve your Passport score without financial investment. Keeping an eye on Passport&apos;s social media for events
         and opportunities is a good strategy.
       </p>
     ),
