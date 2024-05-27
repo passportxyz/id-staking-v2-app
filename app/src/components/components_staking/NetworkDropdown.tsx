@@ -90,7 +90,9 @@ export const NetworkDropdown: React.FC = ({}) => {
     <div className="flex justify-end col-span-full">
       <div className="relative h-12 w-full md:w-96" ref={ref}>
         <div
-          className={`absolute top-0 left-0 border rounded-lg border-foreground-4 w-full bg-gradient-to-r from-background to-background-6 transition-all ${
+          className={`absolute top-0 left-0 border rounded-lg ease-in-out duration-200 border-foreground-4 opacity-70 
+          hover:opacity-100 hover:border-foreground-2 focus:border-foreground-2 focus:opacity-100 
+          w-full bg-gradient-to-r from-background to-background-6 transition-all ${
             menuIsOpen ? "z-10" : ""
           }`}
         >

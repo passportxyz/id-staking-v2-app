@@ -1,6 +1,7 @@
 import React, { ButtonHTMLAttributes, ChangeEvent, useEffect, useMemo, useRef } from "react";
 import { PanelDiv } from "./PanelDiv";
 import { getUnlockTime } from "@/utils/helpers";
+import { FormButton } from "../Button";
 
 export const PresetAmountsSelection = ({
   amount,
@@ -155,29 +156,5 @@ export const StakeFormInputSection = ({
         />
       </div>
     </PanelDiv>
-  );
-};
-
-export type FormButtonProps = ButtonHTMLAttributes<HTMLButtonElement> & {
-  variant?: "active" | "inactive";
-};
-
-export const FormButton = ({ variant, className, ...props }: FormButtonProps) => {
-  const variantClassName = useMemo(() => {
-    if (variant === "active") {
-      return "text-color-4 bg-foreground-2";
-    } else {
-      return "text-color-4 bg-foreground-4 hover:bg-foreground-2";
-    }
-  }, [variant]);
-
-  return (
-    <button
-      className={`group flex items-center justify-center gap-4 py-2 text-base text-color-1
-        disabled:cursor-not-allowed disabled:bg-foreground-3 disabled:brightness-75 
-        !px-1 rounded-lg leading-none whitespace-nowrap
-        ${variantClassName} transition-all ease-in-out duration-200 focus:border-transparent focus:outline focus:outline-1 focus:outline-focus ${className}`}
-      {...props}
-    />
   );
 };

@@ -171,7 +171,7 @@ export default function FAQ() {
           {ENTRIES.map((entry, index) => (
             <Disclosure key={index} as="div" className="py-4 border-b border-foreground-4 faq">
               <Disclosure.Button className="group text-foreground-2 flex text-left">{entry.title}</Disclosure.Button>
-              <Disclosure.Panel className="mt-2 text-foreground-2 flex text-left">{entry.body}</Disclosure.Panel>
+              <Disclosure.Panel className="mt-2 text-foreground-1 flex text-left">{entry.body}</Disclosure.Panel>
             </Disclosure>
           ))}
         </BodyWrapper>
