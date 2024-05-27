@@ -39,7 +39,7 @@ export const PlatformCard = ({ platform, className }: PlatformCardProps): JSX.El
       <div
         onMouseEnter={() => setHovering(true)}
         onMouseLeave={() => setHovering(false)}
-        className={`group relative flex h-full cursor-pointer flex-col rounded-lg border p-0 transition-all ease-out hover:shadow-even-md ${platformClasses}`}
+        className={`group relative flex h-full flex-col rounded-lg border p-0 transition-all ease-out hover:shadow-even-md ${platformClasses}`}
       >
         <div className="m-6 flex h-full flex-col justify-between">
           <div className="flex w-full items-center justify-between">

@@ -364,7 +364,7 @@ const RealHome = () => {
   const gtcStakingStampPlatform: PlatformScoreSpec = {
     name: "GTC Staking",
     description: "Stake GTC to boost your trust in the Gitcoin ecosystem.",
-    possiblePoints: 7.57,
+    possiblePoints: 14.18,
     earnedPoints: 0,
     icon: "./assets/gtcStakingLogoIcon.svg",
     connectMessage: "Connect Wallet",
