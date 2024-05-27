@@ -432,8 +432,9 @@ const RealHome = () => {
               </div>
               <div className="col-span-2 mb-4 text-2xl leading-none text-foreground-2 md:text-5xl"></div>
               <div className="col-span-2 max-w-md text-sm lg:max-w-sm text-foreground">
-                Reinforce your identity and increase your unique humanity score by staking GTC. Secure your Passport
-                Score with ease, safeguarding against Sybil threats.
+                Increase your Passport’s Cost of Forgery while also increasing your Unique Humanity Score. Staking GTC
+                allows real humans to attest to their unique humanity and builds financial incentives to be a good
+                actor.
               </div>
               <SIWEButton
                 enableEthBranding={false}
