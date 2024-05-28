@@ -1,6 +1,6 @@
 import React, { ChangeEvent, useState, useMemo, useCallback, useEffect } from "react";
 import { Button } from "@/components/Button";
-import { createConfig, http, useAccount, useEnsResolver } from "wagmi";
+import { useAccount } from "wagmi";
 import { StakeFormInputSection } from "./StakeFormInputSection";
 import { v4 as uuidv4 } from "uuid";
 import { create } from "zustand";
@@ -10,9 +10,10 @@ import { useCommunityStakeHistoryQuery } from "@/utils/stakeHistory";
 import { getLockSeconds } from "@/utils/helpers";
 import { useChainInitializing } from "@/hooks/staking_hooks/useChainInitialization";
 import { getEnsAddress } from "@wagmi/core";
-import { wagmiChains, wagmiTransports } from "@/utils/chains";
+import { wagmiChains } from "@/utils/chains";
 import { mainnet } from "viem/chains";
 import { normalize } from "viem/ens";
+import { wagmiConfig } from "@/utils/wagmi";
 
 type CommunityStakeInputs = {
   uuid: string;
@@ -140,24 +141,23 @@ const StakeForOthersFormSection = ({
   const setStakeeAddress = useCallback(
     async (address: string) => {
       onChange?.();
-      if (address.includes(".eth")) {
+      if (address.endsWith(".eth")) {
         // check for ens resolution
         const mainnetChain = wagmiChains.find((chain: Chain) => chain.id === mainnet.id);
         if (!mainnetChain) {
           return;
         }
-        const config = createConfig({
-          chains: [mainnet],
-          transports: {
-            [mainnet.id]: wagmiTransports[mainnet.id],
-          },
-        });
-        const ensAddress = await getEnsAddress(config, {
-          chainId: mainnet.id,
-          name: normalize(address),
-        });
-        if (ensAddress) {
-          updateCommunityStake(uuid, { ensResolution: ensAddress });
+        try {
+          const ensAddress = await getEnsAddress(wagmiConfig, {
+            chainId: mainnet.id,
+            name: normalize(address),
+          });
+          if (ensAddress) {
+            updateCommunityStake(uuid, { ensResolution: ensAddress });
+          }
+        } catch (e) {
+          // Catching error here, as normalize might fail, and we don't want to crash
+          console.error("Failed to resolve ENS name: ", address);
         }
       }
       updateCommunityStake(uuid, { stakeeInput: address as `0x${string}` });
