@@ -13,7 +13,6 @@ import { DoneToastContent, makeErrorToastProps } from "../components/DoneToastCo
 import { PlatformCard, PlatformScoreSpec } from "../components/components_staking/PlatformCard";
 import { TosModal } from "../components/components_staking/TosModal";
 import { useMutation, useQuery, DefaultError, useQueryClient } from "@tanstack/react-query";
-import { PasswordPage } from "@/components/PasswordPage";
 import { useNavigateWithCommonParams } from "@/hooks/hooks_staking/useNavigateWithCommonParams";
 import { useWeb3Modal, useWeb3ModalState } from "@web3modal/wagmi/react";
 import { isServerOnMaintenance } from "@/utils/helpers";
@@ -196,12 +195,6 @@ const useTos = () => {
   );
 };
 
-export default function Home() {
-  const [authorized, setAuthorized] = useState(false);
-
-  return authorized ? <RealHome /> : <PasswordPage onAuthorized={() => setAuthorized(true)} />;
-}
-
 type LoginStep =
   | "NOT_STARTED"
   | "PENDING_WALLET_CONNECTION"
@@ -277,7 +270,7 @@ const useLoginFlow = ({
 };
 
 // Once we are out of the beta, we can rename this to Home and delete the above
-const RealHome = () => {
+export default function Home() {
   const { isConnected, address } = useAccount();
   const { open: openWeb3Modal } = useWeb3Modal();
   const { connect: connectDatastore } = useDatastoreConnectionContext();
@@ -521,4 +514,4 @@ const RealHome = () => {
       </div>
     </PageRoot>
   );
-};
+}
