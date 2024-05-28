@@ -87,7 +87,7 @@ export const NetworkDropdown: React.FC = ({}) => {
   );
 
   return (
-    <div className="flex justify-end col-span-full">
+    <div className="flex justify-end col-span-full grid ">
       <div className="relative h-12 w-full md:w-96" ref={ref}>
         <div
           className={`absolute top-0 left-0 border rounded-lg ease-in-out duration-200 border-foreground-4 opacity-70 
@@ -123,6 +123,7 @@ export const NetworkDropdown: React.FC = ({}) => {
           ))}
         </div>
       </div>
+      <span className="justify-self-end text-color-2"> Choose a network above to stake </span>
     </div>
   );
 };
