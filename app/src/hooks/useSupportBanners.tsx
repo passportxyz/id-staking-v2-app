@@ -42,7 +42,7 @@ export const useSupportBanners = (): {
     if (dbAccessTokenStatus === "connected" && dbAccessToken) {
       const banners: {
         data: Omit<SupportBannerProps, "dismiss">[];
-      } = await axios.get(`${process.env.NEXT_PUBLIC_SCORER_ENDPOINT}/passport-admin/banners`, {
+      } = await axios.get(`${process.env.NEXT_PUBLIC_SCORER_ENDPOINT}/passport-admin/banners?application=id_staking_v2`, {
         headers: {
           Authorization: `Bearer ${dbAccessToken}`,
         },
