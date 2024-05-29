@@ -16,29 +16,22 @@ export const TosModal = ({
 }) => {
   const terms = [
     <>
-      I acknowledge that I may be subject to slashing for non-compliant behavior. The rules governing such behavior may
-      change. Learn more about slashing.{" "}
-      <a href="https://github.com/gitcoinco/id-staking-v2/blob/main/README.md" target="blank" className="text-color-6">
-        Learn more about slashing.
+      I understand that I may be slashed for what is deemed Sybil behavior when using Passport. Slashing criteria will
+      continue to evolve over time.{" "}
+      <a href="https://support.passport.xyz/passport-knowledge-base/gtc-staking/passport-slashing">
+        Learn more about slashing conditions.
       </a>
     </>,
     <>
-      I understand that using specific Passport Stamps (e.g., Holonym, Civic, and Google Stamps) are allowed only in one
-      active Passport that I use in Passport-protected apps, and misuse may lead to slashing.{" "}
-      <a
-        href="https://docs.passport.gitcoin.co/building-with-passport/major-concepts/deduplicating-stamps"
-        target="blank"
-        className="text-color-6"
-      >
+      I understand that credentials/Stamps may be verified on multiple Passports (i.e., the same Google account can be
+      verified on two wallets), BUT those wallets should never be submitted to the same application.{" "}
+      <a href="https://docs.passport.xyz/building-with-passport/major-concepts/deduplicating-stamps">
         Learn more about Passport Stamps and wallets.
       </a>
     </>,
     <>
-      I have read, understood, and agree to the{" "}
-      <a href="#/terms" className="text-color-6">
-        Terms and Conditions
-      </a>{" "}
-      of Passport&apos;s Identity Staking.
+      I have read, understand, and agree to the{" "}
+      <a href="https://stake.passport.xyz/#/terms">Terms and Conditions of Passport&apos;s Identity Staking.</a>
     </>,
   ];
 
