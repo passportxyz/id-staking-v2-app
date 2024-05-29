@@ -46,9 +46,11 @@ export const useStakeTxHandler = ({ txTitle, queryKey }: { txTitle: string; quer
     isSuccess: isConfirmed,
     isError: isReceiptError,
     error: receiptError,
+    data: txReceipt
   } = useWaitForTransactionReceipt({
     hash,
   });
+  const blockNumber = txReceipt?.blockNumber;
 
   useEffect(() => {
     (async () => {
@@ -80,10 +82,11 @@ export const useStakeTxHandler = ({ txTitle, queryKey }: { txTitle: string; quer
 
   return useMemo(
     () => ({
+      blockNumber,
       isLoading,
       isConfirmed,
       writeContract,
     }),
-    [isLoading, isConfirmed, writeContract]
+    [blockNumber, isLoading, isConfirmed, writeContract]
   );
 };

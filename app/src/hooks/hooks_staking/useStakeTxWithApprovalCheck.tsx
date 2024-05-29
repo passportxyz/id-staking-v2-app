@@ -32,6 +32,7 @@ export const useStakeTxWithApprovalCheck = ({ address }: { address: `0x${string}
     isLoading: stakeIsLoading,
     writeContract: stakeWriteContract,
     isConfirmed,
+    blockNumber,
   } = useStakeTxHandler({
     queryKey,
     txTitle: "Stake",
@@ -94,6 +95,7 @@ export const useStakeTxWithApprovalCheck = ({ address }: { address: `0x${string}
               );
             }
             setApprovalIsLoading(false);
+            // TODO: we should probably not continue if the approval fails
             submitStakeTx(functionName, functionArgs);
           } catch (e) {
             setApprovalIsLoading(false);
@@ -119,7 +121,13 @@ export const useStakeTxWithApprovalCheck = ({ address }: { address: `0x${string}
   const isLoading = allowanceCheckIsLoading || approvalIsLoading || stakeIsLoading;
 
   return useMemo(
-    () => ({ stake, isLoading, isConfirmed, approvalIsLoading }),
-    [stake, isLoading, isConfirmed, approvalIsLoading]
+    () => ({
+      stake,
+      isLoading,
+      isConfirmed,
+      approvalIsLoading,
+      blockNumber,
+    }),
+    [blockNumber, stake, isLoading, isConfirmed, approvalIsLoading]
   );
 };

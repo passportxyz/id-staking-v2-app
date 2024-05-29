@@ -25,6 +25,7 @@ export type StakeData = {
   amount: string;
   unlock_time: string;
   lock_time: string;
+  last_updated_in_block: bigint;
 };
 
 export const useStakeHistoryQueryKey = (address: string | undefined): string[] => {
@@ -51,6 +52,7 @@ export const useStakeHistoryQuery = (address: string | undefined) => {
         return {
           ...item,
           amount: item.amount.replace(".", ""),
+          last_updated_in_block: BigInt(item.last_updated_in_block),
         };
       });
     },

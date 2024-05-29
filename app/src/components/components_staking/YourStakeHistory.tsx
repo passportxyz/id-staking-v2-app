@@ -2,11 +2,12 @@ import React, { ComponentPropsWithRef, useCallback, useEffect, useState } from "
 import { PanelDiv } from "./PanelDiv";
 import { useLegacySelfStake } from "@/hooks/legacyStaking";
 import { SelfRestakeModal } from "./SelfRestakeModal";
+import { useSelfStakeTxInfo } from "./SelfStakeModal";
 import { DisplayAddressOrENS, DisplayDuration, formatAmount, useConnectedChain, formatDate } from "@/utils/helpers";
 
 import { StakeData, useYourStakeHistoryQuery } from "@/utils/stakeHistory";
 import { SelfUnstakeModal, LegacySelfUnstakeModal } from "./SelfUnstakeModal";
-import { useAccount } from "wagmi";
+import { useAccount, useChainId } from "wagmi";
 
 const Th = ({ className, ...props }: ComponentPropsWithRef<"th">) => (
   <th className={`${className} p-2 pb-4 text-center`} {...props} />
@@ -81,7 +82,7 @@ const SelfUnstakeButton = ({ address, unlocked, stake }: { address: string; unlo
 };
 
 // Combines current and legacy self stakes
-const useSelfStakes = () => {
+export const useSelfStakes = () => {
   const { address } = useAccount();
   const chain = useConnectedChain();
 
@@ -107,14 +108,21 @@ const useSelfStakes = () => {
 
 const Tbody = () => {
   const { address } = useAccount();
+  const chainId = useChainId();
   const { isPending, isError, data, error } = useSelfStakes();
+  const { selfStakeTxInfoMap } = useSelfStakeTxInfo();
+  const stakeTxInfo = address ? selfStakeTxInfoMap[chainId]?.[address] : null;
+  const blockNumber = stakeTxInfo?.blockNumber;
+
+  // Verify that the expected block has been indexed already
+  const hasBlockBeenIndexed = blockNumber ? data?.some((stake) => stake.last_updated_in_block >= blockNumber) : true;
 
   useEffect(() => {
     isError && console.error("Error getting StakeHistory:", error);
   }, [error, isError]);
 
   let tbody_contents;
-  if (!isPending && !isError && address && data && data.length > 0) {
+  if (!isPending && !isError && address && data && data.length > 0 && hasBlockBeenIndexed) {
     tbody_contents = (
       <>
         {data.map((stake, index) => (
@@ -123,13 +131,19 @@ const Tbody = () => {
       </>
     );
   } else {
-    const status = isError ? "Error loading stakes" : isPending ? "Loading..." : "No stakes found";
+    const status = isError
+      ? "Error loading stakes"
+      : isPending || !hasBlockBeenIndexed
+      ? "Loading..."
+      : "No stakes found";
     tbody_contents = (
-      <tr>
-        <Td colSpan={5} className="text-center">
-          {status}
-        </Td>
-      </tr>
+      <>
+        <tr>
+          <Td colSpan={6} className="text-center">
+            {status}
+          </Td>
+        </tr>
+      </>
     );
   }
   return <tbody>{tbody_contents}</tbody>;
