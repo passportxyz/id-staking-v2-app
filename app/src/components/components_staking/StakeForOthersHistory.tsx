@@ -7,7 +7,8 @@ import { CommunityUpdateButton } from "./CommunityUpdateButton";
 import { Popover } from "@headlessui/react";
 import { CommunityRestakeModal } from "./CommunityRestakeModal";
 import { CommunityUnstakeModal, LegacyCommunityUnstakeModal } from "./CommunityUnstakeModal";
-import { useAccount } from "wagmi";
+import { useAccount, useChainId } from "wagmi";
+import { useCommunityStakeTxStore } from "@/hooks/hooks_staking/useCommunityStakeTxStore";
 
 const Th = ({ className, children, ...props }: ComponentPropsWithRef<"th"> & { children: React.ReactNode }) => (
   <th className={`${className} p-2 pb-4 text-center`} {...props}>
@@ -143,15 +144,21 @@ const useCommunityStakes = (): {
 
 const Tbody = ({ presetAddress, clearPresetAddress }: { presetAddress?: string; clearPresetAddress: () => void }) => {
   const { address } = useAccount();
-
+  const chainId = useChainId();
   const { data, legacyData, isPending, isError, error } = useCommunityStakes();
+  const { communityStakeTxInfoMap } = useCommunityStakeTxStore();
+  const stakeTxInfo = address ? communityStakeTxInfoMap[chainId]?.[address] : null;
+  const blockNumber = stakeTxInfo?.blockNumber;
+
+  // Verify that the expected block has been indexed already
+  const hasBlockBeenIndexed = blockNumber ? data?.some((stake) => stake.last_updated_in_block >= blockNumber) : true;
 
   useEffect(() => {
     isError && console.error("Error getting StakeHistory:", error);
   }, [error, isError]);
 
   let tbody_contents;
-  if (!isPending && !isError && address && data && data.length > 0) {
+  if (!isPending && !isError && address && data && data.length > 0 && hasBlockBeenIndexed) {
     tbody_contents = (
       <>
         {data
@@ -169,7 +176,11 @@ const Tbody = ({ presetAddress, clearPresetAddress }: { presetAddress?: string; 
       </>
     );
   } else {
-    const status = isError ? "Error loading stakes" : isPending ? "Loading..." : "No stakes found";
+    const status = isError
+      ? "Error loading stakes"
+      : isPending || !hasBlockBeenIndexed
+      ? "Loading..."
+      : "No stakes found";
     tbody_contents = (
       <tr>
         <Td colSpan={5} className="text-center">

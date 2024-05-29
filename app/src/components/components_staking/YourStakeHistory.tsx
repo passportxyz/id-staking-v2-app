@@ -2,7 +2,7 @@ import React, { ComponentPropsWithRef, useCallback, useEffect, useState } from "
 import { PanelDiv } from "./PanelDiv";
 import { useLegacySelfStake } from "@/hooks/legacyStaking";
 import { SelfRestakeModal } from "./SelfRestakeModal";
-import { useSelfStakeTxInfo } from "./SelfStakeModal";
+import { useSelfStakeTxStore } from "@/hooks/hooks_staking/useSelfStakeTxStore";
 import { DisplayAddressOrENS, DisplayDuration, formatAmount, useConnectedChain, formatDate } from "@/utils/helpers";
 
 import { StakeData, useYourStakeHistoryQuery } from "@/utils/stakeHistory";
@@ -110,7 +110,7 @@ const Tbody = () => {
   const { address } = useAccount();
   const chainId = useChainId();
   const { isPending, isError, data, error } = useSelfStakes();
-  const { selfStakeTxInfoMap } = useSelfStakeTxInfo();
+  const { selfStakeTxInfoMap } = useSelfStakeTxStore();
   const stakeTxInfo = address ? selfStakeTxInfoMap[chainId]?.[address] : null;
   const blockNumber = stakeTxInfo?.blockNumber;
 
