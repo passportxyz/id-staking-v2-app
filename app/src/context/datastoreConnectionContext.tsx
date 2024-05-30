@@ -62,6 +62,11 @@ export const useDatastoreConnection = () => {
 
   const { dbAccessTokenStatus, dbAccessToken, connectedAddress, did, update } = useDatastoreConnectionStore();
 
+  /**
+   * The purpose of this useEffect is to disconnect the user if the address of the wallet changes
+   * We want to avoid being connected to the BE with 1 address and with another address in the wallet
+   * as this is an undesired state
+   */
   useEffect(() => {
     if (address !== connectedAddress && dbAccessTokenStatus !== "idle") {
       disconnect();
