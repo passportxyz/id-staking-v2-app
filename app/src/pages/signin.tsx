@@ -7,6 +7,7 @@ import axios from "axios";
 // --- Components
 import PageRoot from "../components/PageRoot";
 import SIWEButton from "../components/SIWEButton";
+import Footer from "../components/components_staking/Footer";
 import { useDatastoreConnectionContext } from "../context/datastoreConnectionContext";
 import { useToast } from "@chakra-ui/react";
 import { DoneToastContent, makeErrorToastProps } from "../components/DoneToastContent";
@@ -369,7 +370,7 @@ export default function Home() {
     "flex items-center justify-between h-14 rounded-lg border w-1/3 bg-gradient-to-t from-background-6 to-background";
 
   return (
-    <PageRoot className="text-color-2" backgroundGradientStyle="top-only">
+    <PageRoot className="text-color-2 min-h-screen" backgroundGradientStyle="top-only">
       {isConnected && <AccountCenter />}
       <TosModal
         isOpen={tosModalIsOpen}
@@ -512,6 +513,7 @@ export default function Home() {
           </div>
         </div>
       </div>
+      <Footer />
     </PageRoot>
   );
 }
