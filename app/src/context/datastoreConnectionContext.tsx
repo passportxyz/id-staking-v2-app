@@ -1,11 +1,12 @@
 import { createContext, useContext, useEffect, useState, useMemo, useCallback } from "react";
 import { datadogRum } from "@datadog/browser-rum";
-import { DoneToastContent } from "../components/DoneToastContent";
-import { EthereumWebAuth, getAccountId } from "@didtools/pkh-ethereum";
+import { EthereumWebAuth } from "@didtools/pkh-ethereum";
 import { DIDSession } from "did-session";
 import { DID } from "dids";
 import axios from "axios";
 import { useAccount, useDisconnect } from "wagmi";
+import { watchAccount } from "@wagmi/core";
+import { wagmiConfig } from "@/utils/wagmi";
 
 // Adding the @ts-ignore below because of the following error:
 //    Type error: Could not find a declaration file for module 'caip'. '/Users/nutrina/Projects/gitcoin/id-staking-v2-app/app/node_modules/caip/dist/index.mjs' implicitly has an 'any' type.
@@ -30,6 +31,7 @@ export type DatastoreConnectionContextState = {
   did?: DID;
   connect: (address: string, provider: Eip1193Provider) => Promise<void>;
   checkSessionIsValid: () => boolean;
+  connectedAddress?: string;
 };
 
 export const DatastoreConnectionContext = createContext<DatastoreConnectionContextState>({
@@ -40,14 +42,21 @@ export const DatastoreConnectionContext = createContext<DatastoreConnectionConte
 
 // In the app, the context hook should be used. This is only exported for testing
 export const useDatastoreConnection = () => {
-  const { isConnected } = useAccount();
+  const { isConnected, address } = useAccount();
   const { disconnect } = useDisconnect();
 
   const [dbAccessTokenStatus, setDbAccessTokenStatus] = useState<DbAuthTokenStatus>("idle");
   const [dbAccessToken, setDbAccessToken] = useState<string | undefined>();
+  const [connectedAddress, setConnectedAddress] = useState<string | undefined>();
 
   const [did, setDid] = useState<DID>();
   const [checkSessionIsValid, setCheckSessionIsValid] = useState<() => boolean>(() => false);
+
+  useEffect(() => {
+    if (address !== connectedAddress && dbAccessTokenStatus !== "idle") {
+      disconnect();
+    }
+  }, [address, connectedAddress, dbAccessTokenStatus, disconnect]);
 
   useEffect(() => {
     // Clear status when wallet disconnected
@@ -107,6 +116,7 @@ export const useDatastoreConnection = () => {
       setDbAccessToken(dbAccessToken || undefined);
       const status = dbAccessToken ? "connected" : "failed";
       setDbAccessTokenStatus("connected");
+      setConnectedAddress(address);
     } catch (error) {
       setDbAccessTokenStatus("failed");
 
@@ -150,11 +160,13 @@ export const useDatastoreConnection = () => {
     dbAccessToken,
     dbAccessTokenStatus,
     checkSessionIsValid,
+    connectedAddress,
   };
 };
 
 export const DatastoreConnectionContextProvider = ({ children }: { children: any }) => {
-  const { dbAccessToken, dbAccessTokenStatus, connect, did, checkSessionIsValid } = useDatastoreConnection();
+  const { dbAccessToken, dbAccessTokenStatus, connect, did, checkSessionIsValid, connectedAddress } =
+    useDatastoreConnection();
 
   const providerProps = useMemo(
     () => ({
@@ -163,8 +175,9 @@ export const DatastoreConnectionContextProvider = ({ children }: { children: any
       dbAccessToken,
       dbAccessTokenStatus,
       checkSessionIsValid,
+      connectedAddress,
     }),
-    [dbAccessToken, dbAccessTokenStatus, did, connect, checkSessionIsValid]
+    [dbAccessToken, dbAccessTokenStatus, did, connect, checkSessionIsValid, connectedAddress]
   );
 
   return <DatastoreConnectionContext.Provider value={providerProps}>{children}</DatastoreConnectionContext.Provider>;
