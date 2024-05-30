@@ -1,11 +1,11 @@
 import { createContext, useContext, useEffect, useState, useMemo, useCallback } from "react";
 import { datadogRum } from "@datadog/browser-rum";
-import { DoneToastContent } from "../components/DoneToastContent";
-import { EthereumWebAuth, getAccountId } from "@didtools/pkh-ethereum";
+import { EthereumWebAuth } from "@didtools/pkh-ethereum";
 import { DIDSession } from "did-session";
 import { DID } from "dids";
 import axios from "axios";
 import { useAccount, useDisconnect } from "wagmi";
+import { create } from "zustand";
 
 // Adding the @ts-ignore below because of the following error:
 //    Type error: Could not find a declaration file for module 'caip'. '/Users/nutrina/Projects/gitcoin/id-staking-v2-app/app/node_modules/caip/dist/index.mjs' implicitly has an 'any' type.
@@ -13,10 +13,8 @@ import { useAccount, useDisconnect } from "wagmi";
 import { AccountId } from "caip";
 // import { MAX_VALID_DID_SESSION_AGE } from "@gitcoin/passport-identity";
 
-import { useToast } from "@chakra-ui/react";
 import { Eip1193Provider } from "ethers";
 import { createSignedPayload } from "../utils/helpers";
-import { datadogLogs } from "@datadog/browser-logs";
 
 const BUFFER_TIME_BEFORE_EXPIRATION = 60 * 60 * 1000;
 
@@ -29,32 +27,60 @@ export type DatastoreConnectionContextState = {
   dbAccessToken?: string;
   did?: DID;
   connect: (address: string, provider: Eip1193Provider) => Promise<void>;
-  checkSessionIsValid: () => boolean;
+  connectedAddress?: string;
 };
 
 export const DatastoreConnectionContext = createContext<DatastoreConnectionContextState>({
   dbAccessTokenStatus: "idle",
   connect: async () => {},
-  checkSessionIsValid: () => false,
 });
+
+const useDatastoreConnectionStore = create<
+  Pick<DatastoreConnectionContextState, "dbAccessTokenStatus" | "dbAccessToken" | "did" | "connectedAddress"> & {
+    update: (
+      data: Partial<
+        Pick<DatastoreConnectionContextState, "dbAccessTokenStatus" | "dbAccessToken" | "did" | "connectedAddress">
+      >
+    ) => void;
+  }
+>((set) => ({
+  dbAccessTokenStatus: "idle",
+  dbAccessToken: undefined,
+  did: undefined,
+  connectedAddress: undefined,
+  update: (
+    data: Partial<
+      Pick<DatastoreConnectionContextState, "dbAccessTokenStatus" | "dbAccessToken" | "did" | "connectedAddress">
+    >
+  ) => set(data),
+}));
 
 // In the app, the context hook should be used. This is only exported for testing
 export const useDatastoreConnection = () => {
-  const { isConnected } = useAccount();
+  const { isConnected, address } = useAccount();
   const { disconnect } = useDisconnect();
 
-  const [dbAccessTokenStatus, setDbAccessTokenStatus] = useState<DbAuthTokenStatus>("idle");
-  const [dbAccessToken, setDbAccessToken] = useState<string | undefined>();
+  const { dbAccessTokenStatus, dbAccessToken, connectedAddress, did, update } = useDatastoreConnectionStore();
 
-  const [did, setDid] = useState<DID>();
-  const [checkSessionIsValid, setCheckSessionIsValid] = useState<() => boolean>(() => false);
+  /**
+   * The purpose of this useEffect is to disconnect the user if the address of the wallet changes
+   * We want to avoid being connected to the BE with 1 address and with another address in the wallet
+   * as this is an undesired state
+   */
+  useEffect(() => {
+    if (address !== connectedAddress && dbAccessTokenStatus !== "idle") {
+      disconnect();
+    }
+  }, [address, connectedAddress, dbAccessTokenStatus, disconnect]);
 
   useEffect(() => {
     // Clear status when wallet disconnected
     if (!isConnected && dbAccessTokenStatus === "connected") {
       console.log("Clearing dbAccessTokenStatus");
-      setDbAccessTokenStatus("idle");
-      setDbAccessToken(undefined);
+      update({
+        dbAccessTokenStatus: "idle",
+        dbAccessToken: undefined,
+      });
     }
   }, [isConnected, dbAccessTokenStatus]);
 
@@ -87,7 +113,7 @@ export const useDatastoreConnection = () => {
     }
   };
 
-  const loadDbAccessToken = useCallback(async (address: string, did: DID) => {
+  const loadDbAccessToken = useCallback(async (address: string, did: DID): Promise<string> => {
     const dbCacheTokenKey = `dbcache-token-${address}`;
     // TODO: if we load the token from the localstorage we should validate it
     // let dbAccessToken = window.localStorage.getItem(dbCacheTokenKey);
@@ -104,15 +130,12 @@ export const useDatastoreConnection = () => {
       // Store the session in localstorage
       // @ts-ignore
       window.localStorage.setItem(dbCacheTokenKey, dbAccessToken);
-      setDbAccessToken(dbAccessToken || undefined);
-      const status = dbAccessToken ? "connected" : "failed";
-      setDbAccessTokenStatus("connected");
+      return dbAccessToken;
     } catch (error) {
-      setDbAccessTokenStatus("failed");
-
       // Should we logout the user here? They will be unable to write to passport
       const msg = `Error getting access token for did: ${did}`;
       datadogRum.addError(msg);
+      throw error;
     }
   }, []);
 
@@ -129,10 +152,22 @@ export const useDatastoreConnection = () => {
           let session: DIDSession = await DIDSession.get(accountId, authMethod, { resources: ["ceramic://*"] });
 
           if (session) {
-            await loadDbAccessToken(address, session.did);
-            setDid(session.did);
-
-            setCheckSessionIsValid(() => () => !session.isExpired);
+            try {
+              const newAccessToken = await loadDbAccessToken(address, session.did);
+              update({
+                did: session.did,
+                dbAccessToken: newAccessToken,
+                dbAccessTokenStatus: "connected",
+                connectedAddress: address,
+              });
+            } catch (error) {
+              update({
+                dbAccessTokenStatus: "failed",
+                dbAccessToken: undefined,
+                connectedAddress: undefined,
+                did: undefined,
+              });
+            }
           }
         } catch (error) {
           datadogRum.addError(error);
@@ -149,12 +184,12 @@ export const useDatastoreConnection = () => {
     connect,
     dbAccessToken,
     dbAccessTokenStatus,
-    checkSessionIsValid,
+    connectedAddress,
   };
 };
 
 export const DatastoreConnectionContextProvider = ({ children }: { children: any }) => {
-  const { dbAccessToken, dbAccessTokenStatus, connect, did, checkSessionIsValid } = useDatastoreConnection();
+  const { dbAccessToken, dbAccessTokenStatus, connect, did, connectedAddress } = useDatastoreConnection();
 
   const providerProps = useMemo(
     () => ({
@@ -162,9 +197,9 @@ export const DatastoreConnectionContextProvider = ({ children }: { children: any
       connect,
       dbAccessToken,
       dbAccessTokenStatus,
-      checkSessionIsValid,
+      connectedAddress,
     }),
-    [dbAccessToken, dbAccessTokenStatus, did, connect, checkSessionIsValid]
+    [dbAccessToken, dbAccessTokenStatus, did, connect, connectedAddress]
   );
 
   return <DatastoreConnectionContext.Provider value={providerProps}>{children}</DatastoreConnectionContext.Provider>;
