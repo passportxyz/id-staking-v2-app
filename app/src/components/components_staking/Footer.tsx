@@ -28,7 +28,7 @@ const Footer: React.FC = () => {
     <footer className="bg-gradient-to-r from-foreground-2 to-foreground-4 bottom-0 fixed w-full">
       <div className="container mx-auto flex justify-between items-center">
         <div className="flex items-center">
-          <div className="">
+          <div className="p-4">
             <ID_STAKING_ICON />
           </div>
           <span className="ml-3 text-lg text-color-4">Identity Staking</span>
@@ -40,7 +40,7 @@ const Footer: React.FC = () => {
               Passport
             </a>
           </div>
-          <div className="flex flex-col items-start border-r-2  border-foreground-3 mx-2">
+          <div className="flex flex-col items-start border-r-2 border-foreground-3 ">
             <h4 className="font-semibold text-color-8 mr-4">Info</h4>
             <div className="flex-row space-x-4 mr-4">
               <a href="#/faq" className="text-color-8 hover:underline">
