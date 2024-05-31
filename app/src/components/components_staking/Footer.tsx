@@ -33,25 +33,25 @@ const Footer: React.FC = () => {
           </div>
           <span className="ml-3 text-lg text-color-4">Identity Staking</span>
         </div>
-        <div className="flex space-x-8 items-center">
-          <div className="flex flex-col items-start border-r-2 border-foreground-3 ">
+        <div className="flex space-x-8 items-center ">
+          <div className="flex flex-col items-start border-r-2 border-foreground-3  min-w-[70px]">
             <h4 className="font-semibold text-color-8 mr-4">Links</h4>
             <a href="https://passport.gitcoin.co/" className="text-color-8 hover:underline mr-4">
               Passport
             </a>
           </div>
-          <div className="flex flex-col items-start border-r-2 border-foreground-3 ">
+          <div className="flex flex-col items-start border-r-2 min-w-[70px] border-foreground-3 ">
             <h4 className="font-semibold text-color-8 mr-4">Info</h4>
             <div className="flex-row space-x-4 mr-4">
               <a href="#/faq" className="text-color-8 hover:underline">
                 FAQ
               </a>
-              <a href="#/leaderboard" className="text-color-8 hover:underline">
+              {/* <a href="#/leaderboard" className="text-color-8 hover:underline">
                 Leaderboard
-              </a>
+              </a> */}
             </div>
           </div>
-          <div className="flex flex-col items-start">
+          <div className="flex flex-col items-start min-w-[70px]">
             <h4 className="font-semibold text-color-8">Legal</h4>
             <div className="flex-row justify-between space-x-4">
               <a href="#/terms" className="text-color-8 hover:underline">
