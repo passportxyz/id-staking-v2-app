@@ -147,6 +147,7 @@ export const useLegacySelfStake = (address: `0x${string}` | undefined, chain: Ch
               amount: amount.toString(),
               unlock_time: round?.unlock_time || "",
               lock_time: round?.lock_time || "",
+              last_updated_in_block: BigInt(0),
             });
           return acc;
         }, [])
@@ -257,6 +258,7 @@ export const useLegacyCommunityStakes = (
               unlock_time: round.unlock_time,
               staker: address || "0x",
               stakee: "0x",
+              last_updated_in_block: BigInt(0),
             });
           }
         }
