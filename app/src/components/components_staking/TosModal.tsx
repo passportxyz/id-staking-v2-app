@@ -18,20 +18,28 @@ export const TosModal = ({
     <>
       I understand that I may be slashed for what is deemed Sybil behavior when using Passport. Slashing criteria will
       continue to evolve over time.{" "}
-      <a href="https://support.passport.xyz/passport-knowledge-base/gtc-staking/passport-slashing">
+      <a
+        href="https://support.passport.xyz/passport-knowledge-base/gtc-staking/passport-slashing"
+        className="underline font-bold text-[#4ABEFF]"
+      >
         Learn more about slashing conditions.
       </a>
     </>,
     <>
       I understand that credentials/Stamps may be verified on multiple Passports (i.e., the same Google account can be
       verified on two wallets), BUT those wallets should never be submitted to the same application.{" "}
-      <a href="https://docs.passport.xyz/building-with-passport/major-concepts/deduplicating-stamps">
+      <a
+        href="https://docs.passport.xyz/building-with-passport/major-concepts/deduplicating-stamps"
+        className="underline font-bold text-[#4ABEFF]"
+      >
         Learn more about Passport Stamps and wallets.
       </a>
     </>,
     <>
       I have read, understand, and agree to the{" "}
-      <a href="https://stake.passport.xyz/#/terms">Terms and Conditions of Passport&apos;s Identity Staking.</a>
+      <a href="https://stake.passport.xyz/#/terms" className="underline font-bold text-[#4ABEFF]">
+        Terms and Conditions of Passport&apos;s Identity Staking.
+      </a>
     </>,
   ];
 
