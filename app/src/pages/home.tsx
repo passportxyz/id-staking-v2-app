@@ -3,6 +3,7 @@ import React from "react";
 
 // --Components
 import Header from "../components/Header";
+import Footer from "../components/components_staking/Footer";
 import BodyWrapper from "../components/BodyWrapper";
 import HeaderContentFooterGrid from "../components/HeaderContentFooterGrid";
 import PageWidthGrid from "../components/PageWidthGrid";
@@ -25,6 +26,7 @@ export default function Home() {
             <TrustInYou />
           </PageWidthGrid>
         </BodyWrapper>
+        <Footer />
       </HeaderContentFooterGrid>
     </LoggedInPageRoot>
   );

@@ -4,6 +4,7 @@ import React from "react";
 
 // --Components
 import LoggedInPageRoot from "@/components/components_staking/LoggedInPageRoot";
+import Footer from "../components/components_staking/Footer";
 import Header from "../components/Header";
 import BodyWrapper from "../components/BodyWrapper";
 import HeaderContentFooterGrid from "../components/HeaderContentFooterGrid";
@@ -51,8 +52,8 @@ const ENTRIES = [
     body: (
       <p>
         Slashing is an automated penalty mechanism that confiscates and eventually burns the staked GTC of users who
-        violate Passport’s trust protocols. This process helps maintain the community&apos;s integrity by deterring malicious
-        behaviors.
+        violate Passport’s trust protocols. This process helps maintain the community&apos;s integrity by deterring
+        malicious behaviors.
       </p>
     ),
   },
@@ -117,8 +118,8 @@ const ENTRIES = [
     title: "How much GTC do I need to stake?",
     body: (
       <p>
-        There is no minimum requirement for staking GTC on your identity or your friends&apos;. However, the more GTC you
-        stake, the higher your Passport score.
+        There is no minimum requirement for staking GTC on your identity or your friends&apos;. However, the more GTC
+        you stake, the higher your Passport score.
       </p>
     ),
   },
@@ -127,8 +128,8 @@ const ENTRIES = [
     body: (
       <p>
         While Identity Staking involves certain costs, such as purchasing GTC and gas fees, there are other ways to
-        improve your Passport score without financial investment. Keeping an eye on Passport&apos;s social media for events
-        and opportunities is a good strategy.
+        improve your Passport score without financial investment. Keeping an eye on Passport&apos;s social media for
+        events and opportunities is a good strategy.
       </p>
     ),
   },
@@ -175,6 +176,7 @@ export default function FAQ() {
             </Disclosure>
           ))}
         </BodyWrapper>
+        <Footer />
       </HeaderContentFooterGrid>
     </LoggedInPageRoot>
   );

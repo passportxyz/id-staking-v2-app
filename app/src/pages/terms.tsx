@@ -4,6 +4,7 @@ import React from "react";
 
 // --Components
 import PageRoot from "@/components/components_staking/PageRoot";
+import Footer from "../components/components_staking/Footer";
 import Header from "../components/Header";
 import BodyWrapper from "../components/BodyWrapper";
 import HeaderContentFooterGrid from "../components/HeaderContentFooterGrid";
@@ -61,8 +62,8 @@ const ENTRIES = [
     body: (
       <>
         <p>
-          In using Passport, it&apos;s crucial that users have a foundational understanding of blockchain technology and the
-          specific mechanisms we employ, such as staking and slashing, to maintain the integrity and security of the
+          In using Passport, it&apos;s crucial that users have a foundational understanding of blockchain technology and
+          the specific mechanisms we employ, such as staking and slashing, to maintain the integrity and security of the
           ecosystem. To assist with this, we provide access to a variety of resources:
         </p>
         <ul>
@@ -203,8 +204,8 @@ const ENTRIES = [
     title: "Limitation of Liability and Warranty Disclaimer",
     body: (
       <p>
-        Passport is provided &apos;as is&apos; without warranties. Passport is not liable for damages arising from the use of
-        Passport.
+        Passport is provided &apos;as is&apos; without warranties. Passport is not liable for damages arising from the
+        use of Passport.
       </p>
     ),
   },
@@ -266,6 +267,7 @@ export default function Terms() {
             </div>
           ))}
         </BodyWrapper>
+        <Footer />
       </HeaderContentFooterGrid>
     </PageRoot>
   );
