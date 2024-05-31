@@ -4,11 +4,15 @@ import { DisplayAddressOrENS, DisplayDuration, formatAmount, formatDate, getLock
 import { StakeData } from "@/utils/stakeHistory";
 import { parseEther } from "viem";
 import { useStakeTxWithApprovalCheck } from "@/hooks/hooks_staking/useStakeTxWithApprovalCheck";
+import { useSelfStakeTxStore } from "@/hooks/hooks_staking/useSelfStakeTxStore";
+import { useChainId } from "wagmi";
 
-const useSelfStakeTx = ({ address }: { address: `0x${string}` }) => {
-  const { stake, isLoading, isConfirmed, approvalIsLoading } = useStakeTxWithApprovalCheck({
+export const useSelfStakeTx = ({ address }: { address: `0x${string}` }) => {
+  const { blockNumber, stake, isLoading, isConfirmed, approvalIsLoading } = useStakeTxWithApprovalCheck({
     address,
   });
+  const chainId = useChainId();
+  const { updateSelfStakeTxInfo } = useSelfStakeTxStore();
 
   const selfStake = useCallback(
     ({ inputValue, lockedPeriodSeconds }: { inputValue: string; lockedPeriodSeconds: number }) => {
@@ -28,6 +32,12 @@ const useSelfStakeTx = ({ address }: { address: `0x${string}` }) => {
     },
     [stake]
   );
+
+  useEffect(() => {
+    if (blockNumber) {
+      updateSelfStakeTxInfo(chainId, address, { blockNumber, timestamp: new Date() });
+    }
+  }, [chainId, address, blockNumber, updateSelfStakeTxInfo]);
 
   return {
     selfStake,

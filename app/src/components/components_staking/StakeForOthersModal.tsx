@@ -3,11 +3,15 @@ import { StakeModal } from "./StakeModal";
 import { useStakeTxWithApprovalCheck } from "@/hooks/hooks_staking/useStakeTxWithApprovalCheck";
 import { DisplayAddressOrENS, DisplayDuration, formatAmount } from "@/utils/helpers";
 import { useCommunityStakesStore } from "./StakeForOthersForm";
+import { useCommunityStakeTxStore } from "@/hooks/hooks_staking/useCommunityStakeTxStore";
+import { useChainId } from "wagmi";
 
 const useCommunityStakeTx = ({ staker }: { staker: `0x${string}` }) => {
-  const { stake, isLoading, isConfirmed } = useStakeTxWithApprovalCheck({
+  const { blockNumber, stake, isLoading, isConfirmed } = useStakeTxWithApprovalCheck({
     address: staker,
   });
+  const chainId = useChainId();
+  const { updateCommunityStakeTxInfo } = useCommunityStakeTxStore();
 
   const communityStake = useCallback(
     ({
@@ -39,6 +43,12 @@ const useCommunityStakeTx = ({ staker }: { staker: `0x${string}` }) => {
     },
     [stake]
   );
+
+  useEffect(() => {
+    if (blockNumber) {
+      updateCommunityStakeTxInfo(chainId, staker, { blockNumber, timestamp: new Date() });
+    }
+  }, [chainId, staker, blockNumber, updateCommunityStakeTxInfo]);
 
   return {
     communityStake,
