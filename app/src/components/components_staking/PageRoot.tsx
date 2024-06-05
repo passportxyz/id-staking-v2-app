@@ -4,15 +4,13 @@ import { Backdrop } from "./Backdrop";
 
 type BackgroundGradientStyle = "top-only" | "top-and-side";
 
-const PageRoot = ({
-  children,
-  className,
-  backgroundGradientStyle = "top-and-side",
-}: {
+export type PageRootProps = {
   children: React.ReactNode;
   className?: string;
   backgroundGradientStyle?: BackgroundGradientStyle;
-}) => {
+};
+
+const PageRoot = ({ children, className, backgroundGradientStyle = "top-and-side" }: PageRootProps) => {
   return (
     <div className={`bg-background font-body ${className}`}>
       <Backdrop />

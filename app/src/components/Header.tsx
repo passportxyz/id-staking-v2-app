@@ -8,12 +8,12 @@ import { SupportBanner } from "../components/SupportBanner";
 import { useAtom } from "jotai";
 import { useSupportBanners } from "../hooks/useSupportBanners";
 
-type HeaderProps = {
+export type HeaderProps = {
   hideMenu?: boolean;
+  hideAccountCenter?: boolean;
 };
 
-
-const Header = ({ hideMenu }: HeaderProps): JSX.Element => {
+const Header = (props: HeaderProps): JSX.Element => {
   const [userWarning, setUserWarning] = useAtom(userWarningAtom);
   const { banners, loadBanners } = useSupportBanners();
 
@@ -24,7 +24,7 @@ const Header = ({ hideMenu }: HeaderProps): JSX.Element => {
   return (
     <div>
       <div className={`w-full bg-background ${PAGE_PADDING}`}>
-        <MinimalHeader hideMenu={hideMenu}/>
+        <MinimalHeader {...props} />
       </div>
       {!(userWarning || banners.length) && (
         <div className="h-1 w-full bg-gradient-to-b from-foreground-4 to-background" />
