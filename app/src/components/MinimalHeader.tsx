@@ -7,10 +7,10 @@ import { useAccount, useDisconnect } from "wagmi";
 import { ContentTooltip } from "./Tooltip";
 import { useAddCommonParamsToLink } from "@/hooks/hooks_staking/useNavigateWithCommonParams";
 import { AccountCenter } from "./AccountCenter";
+import { HeaderProps } from "./Header";
 
-type MinimalHeaderProps = {
+type MinimalHeaderProps = HeaderProps & {
   className?: string;
-  hideMenu?: boolean;
 };
 
 const LINKS = [
@@ -38,7 +38,7 @@ const getAssets = () => {
   };
 };
 
-const MinimalHeader = ({ className, hideMenu }: MinimalHeaderProps): JSX.Element => {
+const MinimalHeader = ({ className, hideMenu, hideAccountCenter }: MinimalHeaderProps): JSX.Element => {
   const assets = useMemo(() => getAssets(), []);
   const { disconnectAsync } = useDisconnect();
   const { isConnected } = useAccount();
@@ -71,9 +71,7 @@ const MinimalHeader = ({ className, hideMenu }: MinimalHeaderProps): JSX.Element
         </div>
       )}
       {/* This is really just a placeholder div, because AccountCenter uses fixed positioning */}
-      <div className="flex-1">
-        <AccountCenter />
-      </div>
+      <div className="flex-1">{hideAccountCenter || <AccountCenter />}</div>
     </div>
   );
 };

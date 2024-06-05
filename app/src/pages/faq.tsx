@@ -3,7 +3,7 @@
 import React from "react";
 
 // --Components
-import LoggedInPageRoot from "@/components/components_staking/LoggedInPageRoot";
+import PageRoot from "@/components/components_staking/PageRoot";
 import Footer from "../components/components_staking/Footer";
 import Header from "../components/Header";
 import BodyWrapper from "../components/BodyWrapper";
@@ -12,6 +12,7 @@ import HeaderContentFooterGrid from "../components/HeaderContentFooterGrid";
 import { SubHeader } from "@/components/SubHeader";
 
 import { Disclosure } from "@headlessui/react";
+import { useAccount } from "wagmi";
 
 const ENTRIES = [
   {
@@ -163,10 +164,12 @@ const ENTRIES = [
 ];
 
 export default function FAQ() {
+  const { isConnected } = useAccount();
+
   return (
-    <LoggedInPageRoot className="text-color-1">
+    <PageRoot className="text-color-1">
       <HeaderContentFooterGrid>
-        <Header />
+        <Header hideAccountCenter={!isConnected} />
         <BodyWrapper className="mb-20">
           <SubHeader text="FAQ" />
           {ENTRIES.map((entry, index) => (
@@ -178,6 +181,6 @@ export default function FAQ() {
         </BodyWrapper>
         <Footer />
       </HeaderContentFooterGrid>
-    </LoggedInPageRoot>
+    </PageRoot>
   );
 }
