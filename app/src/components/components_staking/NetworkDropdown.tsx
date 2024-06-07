@@ -36,7 +36,6 @@ const ChainMenuItem = ({
     minimumFractionDigits: 2,
     maximumFractionDigits: 2,
   });
-
   return (
     <div
       className={`${!(isSelected || menuIsOpen) ? "h-0" : "h-10"} transition-all cursor-pointer`}
@@ -48,7 +47,9 @@ const ChainMenuItem = ({
         } ${className}`}
       >
         <img src={chain.icon} className="h-6 w-5" />
-        <div className="mx-4 grow">{isPendingWalletApproval ? "Approve in wallet..." : "GTC Balance"}</div>
+        <div className="mx-4 grow flex whitespace-nowrap overflow-hidden text-overflow-ellipsis">
+          {isPendingWalletApproval ? "Approve in wallet..." : "GTC Balance"}
+        </div>
         <img src="/assets/gitcoinLogoGreen.svg" alt="Gitcoin Logo" />
         <div className="mx-2 font-bold">{formattedBalance}</div>
         <DropDownIcon
@@ -92,9 +93,7 @@ export const NetworkDropdown: React.FC = ({}) => {
         <div
           className={`absolute top-0 left-0 border rounded-lg ease-in-out duration-200 border-foreground-4 opacity-70 
           hover:opacity-100 hover:border-foreground-2 focus:border-foreground-2 focus:opacity-100 
-          w-full bg-gradient-to-r from-background to-background-6 transition-all ${
-            menuIsOpen ? "z-10" : ""
-          }`}
+          w-full bg-gradient-to-r from-background to-background-6 transition-all ${menuIsOpen ? "z-10" : ""}`}
         >
           {sortedChainConfigs.map((chain, idx) => (
             <ChainMenuItem
