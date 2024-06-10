@@ -29,7 +29,7 @@ const ID_STAKING_ICON: React.FC<IDStakingIconProps> = ({ className, style }) => 
 
 const BigScreenFooter: React.FC = () => {
   return (
-    <footer className="flex justify-between bg-gradient-to-r from-foreground-2 to-foreground-4 bottom-0 fixed w-full">
+    <footer className="hidden md:flex fixed justify-between bg-gradient-to-r from-foreground-2 to-foreground-4 bottom-0 w-full">
       <div className="container mx-auto flex justify-between items-center">
         <div className="flex items-center">
           <div className="p-4">
@@ -73,7 +73,7 @@ const BigScreenFooter: React.FC = () => {
 };
 
 const PhoneScreenFooter: React.FC = () => (
-  <footer className="relative bg-gradient-to-r from-foreground-2 to-foreground-4 bottom-0 fixed w-full p-4 flex flex-col md:flex-row justify-between max-h-[135px] overflow-hidden">
+  <footer className="bg-gradient-to-r from-foreground-2 to-foreground-4 bottom-0 fixed w-full p-4 flex flex-col md:flex-row justify-between max-h-[135px] overflow-hidden">
     <div className="pl-4 flex items-start mb-4 md:mb-0">
       <ID_STAKING_ICON />
       <span className="m-2 text-lg text-color-4">Identity Staking</span>
@@ -107,9 +107,12 @@ const PhoneScreenFooter: React.FC = () => (
 );
 
 const Footer = () => {
-  const isPhone = useMediaQuery({ query: "(max-width: 768px)" });
-
-  return <div>{isPhone ? <PhoneScreenFooter /> : <BigScreenFooter />}</div>;
+  return (
+    <>
+      <PhoneScreenFooter />
+      <BigScreenFooter />
+    </>
+  );
 };
 
 export default Footer;

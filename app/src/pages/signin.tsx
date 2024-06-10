@@ -379,7 +379,7 @@ export default function Home() {
         isPending={isPendingCheck}
       />
       <div className="flex h-full min-h-default items-center justify-center self-center p-8">
-        <div className="absolute top-0 right-0 h-auto w-full  gradient-mask-t-0 md:h-full md:w-auto md:gradient-mask-l-0">
+        <div className="absolute top-0 right-0 h-auto w-max gradient-mask-t-0 md:h-full md:w-auto md:gradient-mask-l-0">
           <svg width="674" height="746" viewBox="0 0 674 746" fill="none" xmlns="http://www.w3.org/2000/svg">
             <path
               d="M325.567 742.951L11.4334 562.576C4.35899 558.511 0 551.006 0 542.875V182.125C0 173.994 4.35899 166.489 11.4334 162.424L325.567 -17.9511C332.641 -22.0163 341.359 -22.0163 348.433 -17.9511L662.567 162.424C669.641 166.489 674 173.994 674 182.125V542.875C674 551.006 669.641 558.511 662.567 562.576L348.433 742.951C341.359 747.016 332.641 747.016 325.567 742.951ZM68.6005 529.756L325.567 677.311C332.641 681.376 341.359 681.376 348.433 677.311L605.4 529.756C612.474 525.69 616.833 518.185 616.833 510.055V214.959C616.833 206.829 612.474 199.324 605.4 195.258L348.433 47.7033C341.359 43.6381 332.641 43.6381 325.567 47.7033L68.6005 195.258C61.5261 199.324 57.1671 206.829 57.1671 214.959V510.055C57.1671 518.185 61.5261 525.69 68.6005 529.756Z"
@@ -417,7 +417,7 @@ export default function Home() {
         </div>
 
         <div className="grid grid-cols-1">
-          <div className="grid grid-flow-row grid-cols-2 gap-4 lg:grid-flow-col">
+          <div className="grid grid-flow-row grid-cols-1 md:grid-cols-2 gap-4 lg:grid-flow-col">
             <div className="pr-16">
               <div className="col-span-2 font-heading text-6xl lg:row-start-2 text-foreground-2">
                 Increase Your
@@ -449,7 +449,7 @@ export default function Home() {
               />
             </div>
             {/* <div>Right panel - TO BE DONE</div> */}
-            <div className="flex justify-center">
+            <div className="hidden md:flex justify-center">
               <PlatformCard platform={gtcStakingStampPlatform} className="ml-24 mt-12" />
             </div>
           </div>
