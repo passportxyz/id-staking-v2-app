@@ -29,7 +29,7 @@ const ID_STAKING_ICON: React.FC<IDStakingIconProps> = ({ className, style }) => 
 
 const BigScreenFooter: React.FC = () => {
   return (
-    <footer className="hidden md:flex fixed justify-between bg-gradient-to-r from-foreground-2 to-foreground-4 bottom-0 w-full">
+    <footer className="hidden md:flex justify-between bg-gradient-to-r from-foreground-2 to-foreground-4 bottom-0 w-full">
       <div className="container mx-auto flex justify-between items-center">
         <div className="flex items-center">
           <div className="p-4">
@@ -73,35 +73,39 @@ const BigScreenFooter: React.FC = () => {
 };
 
 const PhoneScreenFooter: React.FC = () => (
-  <footer className="bg-gradient-to-r from-foreground-2 to-foreground-4 bottom-0 fixed w-full p-4 flex flex-col md:flex-row justify-between max-h-[135px] overflow-hidden">
-    <div className="pl-4 flex items-start mb-4 md:mb-0">
-      <ID_STAKING_ICON />
-      <span className="m-2 text-lg text-color-4">Identity Staking</span>
-    </div>
-    <div className="pl-4 flex flex-row items-center space-x-4">
-      <div className="border-r-2 border-foreground-3">
-        <a href="https://passport.gitcoin.co/" className="text-color-8 hover:underline mr-6">
-          Passport
-        </a>
+  <footer className="md:hidden bg-gradient-to-r from-foreground-2 to-foreground-4 items-center w-full flex  overflow-hidden">
+    <div className="flex flex-grow flex-col md:flex-row p-4 ">
+      <div className="flex items-start mb-2 md:mb-0">
+        <ID_STAKING_ICON />
+        <span className="m-2 md:text-lg text-color-4">Identity Staking</span>
       </div>
-      <div>
-        <a href="#/faq" className="ml-2 text-color-8 hover:underline">
-          FAQ
-        </a>
+      <div className="overflow-x-hidden text-sm">
+        <div className="relative pl-4 flex flex-row flex-wrap items-start justify-items-start -ml-8">
+          <div className="border-l-2 border-foreground-3 px-4">
+            <a href="https://passport.gitcoin.co/" className="text-color-8 hover:underline ">
+              Passport
+            </a>
+          </div>
+          <div className="border-l-2 border-foreground-3 px-4">
+            <a href="#/faq" className="text-color-8 hover:underline">
+              FAQ
+            </a>
+          </div>
+          <div className="border-l-2 border-foreground-3 px-4">
+            <a href="#/terms" className="text-color-8 hover:underline">
+              Terms & Conditions
+            </a>
+          </div>
+          <div className="border-l-2 border-foreground-3 px-4">
+            <a href="https://www.gitcoin.co/privacy" className="text-color-8 hover:underline">
+              Privacy Policy
+            </a>
+          </div>
+        </div>
       </div>
     </div>
-    <div className="pl-4 flex flex-row items-center space-x-4">
-      <div className="border-r-2 border-foreground-3">
-        <a href="#/terms" className="text-color-8 hover:underline mr-4">
-          Terms & Conditions
-        </a>
-      </div>
-      <a href="https://www.gitcoin.co/privacy" className="ml-2 text-color-8 hover:underline">
-        Privacy Policy
-      </a>
-    </div>
-    <div className="absolute top-0 right-0 h-full  overflow-hidden  items-center justify-end">
-      <ID_STAKING_ICON className="h-full w-full" style={{ transform: "translateX(50%)" }} />
+    <div className="-mr-[50px]">
+      <ID_STAKING_ICON className="my-2 h-auto w-[100px] opacity-25" />
     </div>
   </footer>
 );
