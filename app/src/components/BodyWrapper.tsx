@@ -72,7 +72,7 @@ const PassportLogo = () => (
 
 const BodyWrapper = ({ children, className }: { children: React.ReactNode; className?: string }) => (
   <div
-    className={`${PAGE_PADDING} ${CONTENT_MAX_WIDTH_INCLUDING_PADDING} grid w-full justify-self-center overflow-x-hidden pb-4 ${className}`}
+    className={`${PAGE_PADDING} ${CONTENT_MAX_WIDTH_INCLUDING_PADDING} grid w-full justify-self-center overflow-x-hidden pb-4 mb-8 ${className}`}
   >
     <div className="flex col-start-1 row-start-1 justify-center overflow-hidden">
       <PassportLogo />
