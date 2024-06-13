@@ -149,6 +149,9 @@ const Tbody = ({ presetAddress, clearPresetAddress }: { presetAddress?: string; 
   const { communityStakeTxInfoMap } = useCommunityStakeTxStore();
   const stakeTxInfo = address ? communityStakeTxInfoMap[chainId]?.[address] : null;
   const blockNumber = stakeTxInfo?.blockNumber;
+  const combinedV1AndV2Stakes = (data || [])
+    ?.sort((a, b) => new Date(b.lock_time).valueOf() - new Date(a.lock_time).valueOf())
+    .concat(legacyData);
 
   // Verify that the expected block has been indexed already
   const hasBlockBeenIndexed = blockNumber ? data?.some((stake) => stake.last_updated_in_block >= blockNumber) : true;
@@ -158,21 +161,25 @@ const Tbody = ({ presetAddress, clearPresetAddress }: { presetAddress?: string; 
   }, [error, isError]);
 
   let tbody_contents;
-  if (!isPending && !isError && address && data && data.length > 0 && hasBlockBeenIndexed) {
+  if (
+    !isPending &&
+    !isError &&
+    address &&
+    combinedV1AndV2Stakes &&
+    combinedV1AndV2Stakes.length > 0 &&
+    hasBlockBeenIndexed
+  ) {
     tbody_contents = (
       <>
-        {data
-          .sort((a, b) => new Date(b.lock_time).valueOf() - new Date(a.lock_time).valueOf())
-          .concat(legacyData)
-          .map((stake, index) => (
-            <StakeLine
-              key={index}
-              stake={stake}
-              address={address}
-              isPresetAddress={presetAddress?.toLowerCase() === stake.stakee.toLowerCase()}
-              clearPresetAddress={clearPresetAddress}
-            />
-          ))}
+        {combinedV1AndV2Stakes.map((stake, index) => (
+          <StakeLine
+            key={index}
+            stake={stake}
+            address={address}
+            isPresetAddress={presetAddress?.toLowerCase() === stake.stakee.toLowerCase()}
+            clearPresetAddress={clearPresetAddress}
+          />
+        ))}
       </>
     );
   } else {
