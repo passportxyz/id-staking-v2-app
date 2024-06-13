@@ -150,7 +150,7 @@ const Tbody = ({ presetAddress, clearPresetAddress }: { presetAddress?: string; 
   const stakeTxInfo = address ? communityStakeTxInfoMap[chainId]?.[address] : null;
   const blockNumber = stakeTxInfo?.blockNumber;
   const combinedV1AndV2Stakes = (data || [])
-    ?.sort((a, b) => new Date(b.lock_time).valueOf() - new Date(a.lock_time).valueOf())
+    .sort((a, b) => new Date(b.lock_time).valueOf() - new Date(a.lock_time).valueOf())
     .concat(legacyData);
 
   // Verify that the expected block has been indexed already
