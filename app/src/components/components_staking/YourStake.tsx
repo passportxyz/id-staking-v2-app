@@ -1,14 +1,14 @@
 import React, { useMemo } from "react";
 import { YourStakeForm } from "./YourStakeForm";
 import { StakeSection } from "./StakeSection";
+import { useSelfStakes } from "./YourStakeHistory";
 import { YourStakeHistory } from "./YourStakeHistory";
-import { StakeData, useStakeHistoryQuery } from "@/utils/stakeHistory";
 import { useAccount, useChainId } from "wagmi";
 
 export const YourStake = () => {
   const { address } = useAccount();
   const chainId = useChainId();
-  const { data } = useStakeHistoryQuery(address);
+  const { data } = useSelfStakes();
 
   const stakedAmount = useMemo(
     () =>
