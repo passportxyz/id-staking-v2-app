@@ -44,7 +44,9 @@ const StampsIcon = () => (
 );
 
 export const StatsSection = ({ className }: { className?: string }) => (
-  <div className={`flex flex-wrap flex-row gap-4 justify-between text-foreground-2 ${className}`}>
+  <div
+    className={`grid grid-cols-[repeat(auto-fit,minmax(min-content,333px))] gap-4 justify-center xl:justify-between text-foreground-2 ${className}`}
+  >
     {[
       { title: "GTC Staked", value: "1.5M+", icon: <GtcIcon /> },
       { title: "Stakers", value: "123K+", icon: <StakersIcon /> },
@@ -52,7 +54,7 @@ export const StatsSection = ({ className }: { className?: string }) => (
     ].map(({ title, value, icon }) => (
       <div
         key={title}
-        className="bg-gradient-to-b from-background max-w-80 to-background-6 h-16 rounded-lg border border-foreground-4 text-color-6 flex justify-between items-center w-full"
+        className="bg-gradient-to-b from-background to-background-6 h-16 rounded-lg border border-foreground-4 text-color-6 flex justify-between items-center w-full"
       >
         <div className="m-4 text-base md:text-lg">{title}</div>
         <div className="border-l rounded-lg h-full justify-center items-center border-foreground-4 flex w-36">
