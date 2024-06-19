@@ -219,7 +219,7 @@ export const useLegacyCommunityStakes = (
         const data = query.data;
         if (data) {
           const unstakedCommunityStakes = data.reduce((acc, stake: V1GtcStake) => {
-            if (stake.event_type === "Xstake") {
+            if (stake.event_type === "Xstake" && stake.address.toLowerCase() !== address.toLowerCase()) {
               if (acc[stake.address] === undefined) {
                 acc[stake.address] = BigInt(0);
               }
