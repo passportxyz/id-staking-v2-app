@@ -29,7 +29,7 @@ const ID_STAKING_ICON: React.FC<IDStakingIconProps> = ({ className, style }) => 
 
 const BigScreenFooter: React.FC = () => {
   return (
-    <footer className="hidden md:flex justify-between bg-gradient-to-r from-foreground-2 to-foreground-4 bottom-0 w-full">
+    <footer className="z-10 hidden md:flex justify-between bg-gradient-to-r from-foreground-2 to-foreground-4 bottom-0 w-full">
       <div className="container mx-auto flex justify-between items-center">
         <div className="flex items-center">
           <div className="p-4">
