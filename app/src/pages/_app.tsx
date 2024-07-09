@@ -13,8 +13,10 @@ import { WagmiProvider } from "wagmi";
 import { wagmiConfig } from "@/utils/wagmi";
 
 import { datadogLogs } from "@datadog/browser-logs";
+import Script from "next/script";
 
 const INTERCOM_APP_ID = process.env.NEXT_PUBLIC_INTERCOM_APP_ID || "";
+const GA_ID = process.env.NEXT_PUBLIC_GA_ID;
 
 datadogLogs.init({
   clientToken: `${process.env.NEXT_PUBLIC_DATADOG_CLIENT_TOKEN}`,
@@ -104,6 +106,15 @@ export default function App({ Component, pageProps }: AppProps) {
         <title>Gitcoin Passport Identity Staking</title>
         <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0" />
       </Head>
+      <Script src={`https://www.googletagmanager.com/gtag/js?id=${GA_ID}`} strategy="afterInteractive" />
+      <Script id="google-analytics" strategy="afterInteractive">
+        {`
+          window.dataLayer = window.dataLayer || [];
+          function gtag(){dataLayer.push(arguments);}
+          gtag('js', new Date());
+          gtag('config', '${GA_ID}');
+        `}
+      </Script>
       <WagmiProvider config={wagmiConfig}>
         <QueryClientProvider client={queryClient}>
           <DatastoreConnectionContextProvider>
