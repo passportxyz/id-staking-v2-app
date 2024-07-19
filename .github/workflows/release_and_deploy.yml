@@ -35,7 +35,7 @@ jobs:
         uses: passportxyz/gh-workflows/.github/actions/push_to_branch@main
         with:
           commit: ${{ needs.ref.outputs.refspec }}
-          github-token: ${{ secrets.github_token }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
           branch: "staging-app"
 
     outputs:
