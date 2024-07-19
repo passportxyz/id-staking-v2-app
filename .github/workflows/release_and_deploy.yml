@@ -32,8 +32,7 @@ jobs:
           fetch-depth: 0
 
       - name: Push to Staging Branch
-        # TODODODODODODODD - update to main
-        uses: passportxyz/gh-workflows/.github/actions/push-to-branch@2683-id-staking-workflow
+        uses: passportxyz/gh-workflows/.github/actions/push-to-branch@main
         with:
           commit: ${{ needs.ref.outputs.refspec }}
           github-token: ${{ secrets.GITHUB_TOKEN }}
@@ -64,8 +63,7 @@ jobs:
           fetch-depth: 0
 
       - name: Push to Production Branch
-        # TODODODODODODODD - update to main
-        uses: passportxyz/gh-workflows/.github/actions/push-to-branch@2683-id-staking-workflow
+        uses: passportxyz/gh-workflows/.github/actions/push-to-branch@main
         with:
           commit: ${{ needs.ref.outputs.refspec }}
           github-token: ${{ secrets.GITHUB_TOKEN }}
