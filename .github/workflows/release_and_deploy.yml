@@ -1,0 +1,83 @@
+name: Release and Deploy
+on:
+  workflow_dispatch:
+    inputs:
+      commit:
+        description: "Leave blank to use current HEAD, or provide an override commit SHA"
+        type: string
+        required: false
+
+jobs:
+  ref:
+    name: Load Commit Ref
+    runs-on: ubuntu-latest
+    steps:
+      - id: ref
+        uses: passportxyz/gh-workflows/.github/actions/load_commit_ref@main
+        with:
+          commit: ${{ inputs.commit }}
+    outputs:
+      version_tag: ${{ steps.ref.outputs.version_tag }}
+      docker_tag: ${{ steps.ref.outputs.docker_tag }}
+      refspec: ${{ steps.ref.outputs.refspec }}
+
+  push_to_staging:
+    name: Push to Staging
+    needs: ref
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+
+      - name: Push to Staging Branch
+        uses: passportxyz/gh-workflows/.github/actions/push-to-branch@main
+        with:
+          commit: ${{ needs.ref.outputs.refspec }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          branch: "staging-app"
+
+    outputs:
+      deployed-commit: ${{ steps.push-to-branch.outputs.deployed-commit }}
+
+  wait_for_production_approval:
+    name: Production Approval Pending
+    needs: [ref, push_to_staging]
+    runs-on: ubuntu-latest
+    environment: production
+    steps:
+      - name: Approve Release to Production
+        run: |
+          echo "Approved Production Release for: " ${{ needs.ref.outputs.version_tag }}
+          echo "Ref: ${{ needs.ref.outputs.refspec }}"
+
+  push_to_production:
+    name: Push to Production
+    needs: [ref, wait_for_production_approval]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+
+      - name: Push to Production Branch
+        uses: passportxyz/gh-workflows/.github/actions/push-to-branch@main
+        with:
+          commit: ${{ needs.ref.outputs.refspec }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          branch: "production-app"
+
+    outputs:
+      deployed-commit: ${{ steps.push-to-branch.outputs.deployed-commit }}
+
+  deployment_info:
+    name: Display Deployment Information
+    needs: [ref, push_to_staging, push_to_production]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Show Deployment Details
+        run: |
+          echo "Version Tag: ${{ needs.ref.outputs.version_tag }}"
+          echo "Docker Tag: ${{ needs.ref.outputs.docker_tag }}
