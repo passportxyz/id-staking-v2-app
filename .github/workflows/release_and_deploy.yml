@@ -32,14 +32,14 @@ jobs:
           fetch-depth: 0
 
       - name: Push to Staging Branch
-        uses: passportxyz/gh-workflows/.github/actions/push-to-branch@main
+        uses: passportxyz/gh-workflows/.github/actions/push_to_branch@main
         with:
           commit: ${{ needs.ref.outputs.refspec }}
           github-token: ${{ secrets.GITHUB_TOKEN }}
           branch: "staging-app"
 
     outputs:
-      deployed-commit: ${{ steps.push-to-branch.outputs.deployed-commit }}
+      deployed-commit: ${{ steps.push_to_branch.outputs.deployed-commit }}
 
   wait_for_production_approval:
     name: Production Approval Pending
@@ -63,14 +63,14 @@ jobs:
           fetch-depth: 0
 
       - name: Push to Production Branch
-        uses: passportxyz/gh-workflows/.github/actions/push-to-branch@main
+        uses: passportxyz/gh-workflows/.github/actions/push_to_branch@main
         with:
           commit: ${{ needs.ref.outputs.refspec }}
           github-token: ${{ secrets.GITHUB_TOKEN }}
           branch: "production-app"
 
     outputs:
-      deployed-commit: ${{ steps.push-to-branch.outputs.deployed-commit }}
+      deployed-commit: ${{ steps.push_to_branch.outputs.deployed-commit }}
 
   deployment_info:
     name: Display Deployment Information
