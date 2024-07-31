@@ -34,9 +34,6 @@ const APP_GITHUB_URL = op.read.parse(
   `op://DevOps/passport-${stack}-env/ci-staking/STAKING_APP_GITHUB_URL`
 );
 
-const STAKING_APP_GITHUB_ACCESS_TOKEN_FOR_AMPLIFY = op.read.parse(
-  `op://DevOps/passport-${stack}-secrets/ci-staking/STAKING_APP_GITHUB_ACCESS_TOKEN_FOR_AMPLIFY`
-);
 // CLOUDFLARE_DOMAIN & CLOUDFLARE_ZONE_ID are only required for production
 const CLOUDFLARE_DOMAIN = stack === "production" ? `passport.xyz` : "";
 const CLOUDFLARE_ZONE_ID = op.read.parse(
@@ -64,7 +61,6 @@ passportXYZDomain.apply((domainName) => {
     {
       name: name,
       repository: APP_GITHUB_URL,
-      oauthToken: STAKING_APP_GITHUB_ACCESS_TOKEN_FOR_AMPLIFY,
       platform: "WEB_COMPUTE",
       buildSpec: `version: 1
 applications:
