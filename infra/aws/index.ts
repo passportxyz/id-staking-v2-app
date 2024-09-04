@@ -25,7 +25,9 @@ const amplifyStage = Object({
 });
 const prefix = "stake";
 
-const coreInfraStack = new pulumi.StackReference(`gitcoin/core-infra/${stack}`);
+const coreInfraStack = new pulumi.StackReference(
+  `passportxyz/core-infra/${stack}`
+);
 const passportXYZDomain = coreInfraStack.getOutput("newPassportDomain");
 
 // Get STAKING_APP_GITHUB_URL Variables
