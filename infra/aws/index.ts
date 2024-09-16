@@ -9,7 +9,8 @@ const stack = pulumi.getStack();
 const defaultTags = {
   ManagedBy: "pulumi",
   PulumiStack: stack,
-  Project: "id-staking-v2",
+  Application: "id-staking-v2",
+  Name: "missing",
 };
 
 const stakingBranches = Object({
@@ -97,8 +98,8 @@ applications:
         ...stakingEnvironment,
       },
       tags: {
-        Name: name,
         ...defaultTags,
+        Name: name,
       },
     },
     { protect: true }
@@ -110,6 +111,12 @@ applications:
     displayName: stakingBranches[stack],
     // stage: amplifyStage[stack],
     ttl: "5",
+    tags: {
+      ...defaultTags,
+      Name: `${name}-${stakingBranches[stack]}`,
+      AmplifyAppId: amplifyApp.id.apply((n) => n),
+      AmplifyAppName: amplifyApp.name.apply((n) => n),
+    }
   });
 
   const webHook = new aws.amplify.Webhook(`${name}-${stakingBranches[stack]}`, {
