@@ -7,10 +7,12 @@ import { secretsManager } from "infra-libs";
 const stack = pulumi.getStack();
 
 const defaultTags = {
-  ManagedBy: "pulumi",
-  PulumiStack: stack,
   Application: "id-staking-v2",
-  Name: "missing",
+  Repo: "https://github.com/passportxyz/id-staking-v2-app",
+  PulumiStack: stack,
+  Environment: stack,
+  ManagedBy: "pulumi",
+  Name: "missing"
 };
 
 const stakingBranches = Object({
