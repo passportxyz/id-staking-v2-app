@@ -842,6 +842,13 @@
   dependencies:
     "@pulumi/pulumi" "^3.0.0"
 
+"@pulumi/cloudflare@^5.38.0":
+  version "5.38.0"
+  resolved "https://registry.yarnpkg.com/@pulumi/cloudflare/-/cloudflare-5.38.0.tgz#91e2d9b46af648675bbc56bce8a9c719ff900d9a"
+  integrity sha512-dClqItv2ybF2FTgXDI09eKVfVo6J6GKJukeH9Wel9YNoyaZRdEyb1nsY98H0T/T8wQZwug3VcgSlJIZazHnP8w==
+  dependencies:
+    "@pulumi/pulumi" "^3.0.0"
+
 "@pulumi/docker@^4.5.1":
   version "4.5.5"
   resolved "https://registry.yarnpkg.com/@pulumi/docker/-/docker-4.5.5.tgz#67a2a8677eb8bcc16d95067a9ef9d5c355d058c6"
@@ -890,6 +897,13 @@
   version "0.3.0"
   resolved "https://registry.yarnpkg.com/@pulumi/query/-/query-0.3.0.tgz#f496608e86a18c3dd31b6c533408e2441c29071d"
   integrity sha512-xfo+yLRM2zVjVEA4p23IjQWzyWl1ZhWOGobsBqRpIarzLvwNH/RAGaoehdxlhx4X92302DrpdIFgTICMN4P38w==
+
+"@pulumi/std@^1.6.2":
+  version "1.7.3"
+  resolved "https://registry.yarnpkg.com/@pulumi/std/-/std-1.7.3.tgz#a3edee28e2dfea704bbe3c96202b3d9462c274bd"
+  integrity sha512-rQnwBjlSQtem7gvfIlAgFwpvC9HXxDuYeu99WifcN+QY+uTRyyq3IMHak7dVgPQmVr/GEHqkugZeAV6cBwL/lQ==
+  dependencies:
+    "@pulumi/pulumi" "^3.0.0"
 
 "@sigstore/bundle@^2.3.2":
   version "2.3.2"
@@ -2043,13 +2057,15 @@ indent-string@^4.0.0:
   resolved "https://registry.yarnpkg.com/indent-string/-/indent-string-4.0.0.tgz#624f8f4497d619b2d9768531d58f4122854d7251"
   integrity sha512-EdDDZu4A2OyIK7Lr/2zG+w5jmbuk1DVBnEwREQvBzspBJkCEbRa8GxU1lghYcaGJCnRWibjDXlq779X1/y5xwg==
 
-"infra-libs@passportxyz/infra-libs#semver:^1.0.0":
+"infra-libs@https://github.com/passportxyz/infra-libs.git#2845-fleek-aws":
   version "1.0.0"
-  resolved "https://codeload.github.com/passportxyz/infra-libs/tar.gz/f3072dc8d547529c5cb7200c02178046d2d47e0e"
+  resolved "https://github.com/passportxyz/infra-libs.git#c824f123e02a1fdb1f31faf6e09524c8617a2605"
   dependencies:
     "@1password/op-js" "^0.1.13"
     "@pulumi/aws" "^6.45.0"
+    "@pulumi/cloudflare" "^5.38.0"
     "@pulumi/pulumi" "^3.126.0"
+    "@pulumi/std" "^1.6.2"
 
 inherits@^2.0.3:
   version "2.0.4"
