@@ -1,14 +1,7 @@
 import * as pulumi from "@pulumi/pulumi";
 import * as op from "@1password/op-js";
+import { stack, defaultTags } from "./tags";
 import { secretsManager, amplify } from "infra-libs";
-
-const stack = pulumi.getStack();
-
-const defaultTags = {
-  ManagedBy: "pulumi",
-  PulumiStack: stack,
-  Project: "id-staking-v2",
-};
 
 const PASSPORT_APP_GITHUB_URL = op.read.parse(`op://DevOps/passport-${stack}-env/ci-staking/STAKING_APP_GITHUB_URL`);
 const PASSPORT_APP_GITHUB_ACCESS_TOKEN_FOR_AMPLIFY = op.read.parse(
