@@ -2057,9 +2057,9 @@ indent-string@^4.0.0:
   resolved "https://registry.yarnpkg.com/indent-string/-/indent-string-4.0.0.tgz#624f8f4497d619b2d9768531d58f4122854d7251"
   integrity sha512-EdDDZu4A2OyIK7Lr/2zG+w5jmbuk1DVBnEwREQvBzspBJkCEbRa8GxU1lghYcaGJCnRWibjDXlq779X1/y5xwg==
 
-"infra-libs@https://github.com/passportxyz/infra-libs.git#2845-fleek-aws":
+infra-libs@passportxyz/infra-libs#v1.3.0:
   version "1.0.0"
-  resolved "https://github.com/passportxyz/infra-libs.git#c824f123e02a1fdb1f31faf6e09524c8617a2605"
+  resolved "https://codeload.github.com/passportxyz/infra-libs/tar.gz/ec106f542b49a15a826639bef7bfbff0dc9da86b"
   dependencies:
     "@1password/op-js" "^0.1.13"
     "@pulumi/aws" "^6.45.0"
