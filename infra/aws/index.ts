@@ -3,14 +3,14 @@ import * as op from "@1password/op-js";
 import { stack, defaultTags } from "./tags";
 import { secretsManager, amplify } from "infra-libs";
 
-const PASSPORT_APP_GITHUB_URL = op.read.parse(`op://DevOps/passport-${stack}-env/ci-staking/STAKING_APP_GITHUB_URL`);
+const PASSPORT_APP_GITHUB_URL = op.read.parse(`op://DevOps/passport-xyz-${stack}-env/ci-staking/STAKING_APP_GITHUB_URL`);
 const PASSPORT_APP_GITHUB_ACCESS_TOKEN_FOR_AMPLIFY = op.read.parse(
   `op://DevOps/passport-xyz-${stack}-secrets/ci-staking/STAKING_APP_GITHUB_ACCESS_TOKEN_FOR_AMPLIFY`
 );
 
 const CLOUDFLARE_DOMAIN = stack === "production" ? `passport.xyz` : "";
 // TODO: this should be moved to id-staking-v2-${stack}-env/ci/STAKING_APP_GITHUB_URL
-const CLOUDFLARE_ZONE_ID = op.read.parse(`op://DevOps/passport-${stack}-env/ci/CLOUDFLARE_ZONE_ID`);
+const CLOUDFLARE_ZONE_ID = op.read.parse(`op://DevOps/passport-xyz-${stack}-env/ci/CLOUDFLARE_ZONE_ID`);
 
 // Passport XYZ
 const passportBranches = Object({
@@ -24,7 +24,7 @@ const coreInfraStack = new pulumi.StackReference(`passportxyz/core-infra/${stack
 const passportXyzAppEnvironment = secretsManager
   .getEnvironmentVars({
     vault: "DevOps",
-    repo: "passport",  // TODO: this should be moved to id-staking-v2
+    repo: "passport-xyz",  // TODO: this should be moved to id-staking-v2
     env: stack,
     section: "staking",  // TODO: this section should be `app` ?
   })
