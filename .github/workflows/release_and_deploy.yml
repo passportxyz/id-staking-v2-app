@@ -32,7 +32,7 @@ jobs:
           fetch-depth: 0
 
       - name: Push to Staging Branch
-        uses: passportxyz/gh-workflows/.github/actions/push_to_branch@main
+        uses: passportxyz/gh-workflows/.github/actions/push_to_branch@v2
         with:
           commit: ${{ needs.ref.outputs.refspec }}
           github-token: ${{ secrets.GITHUB_TOKEN }}
@@ -63,7 +63,7 @@ jobs:
           fetch-depth: 0
 
       - name: Push to Production Branch
-        uses: passportxyz/gh-workflows/.github/actions/push_to_branch@main
+        uses: passportxyz/gh-workflows/.github/actions/push_to_branch@v2
         with:
           commit: ${{ needs.ref.outputs.refspec }}
           github-token: ${{ secrets.GITHUB_TOKEN }}
