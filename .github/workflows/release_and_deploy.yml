@@ -118,4 +118,4 @@ jobs:
       - name: Show Deployment Details
         run: |
           echo "Version Tag: ${{ needs.ref.outputs.version_tag }}"
-          echo "Docker Tag: ${{ needs.ref.outputs.docker_tag }}
+          echo "Docker Tag: ${{ needs.ref.outputs.docker_tag }}"
