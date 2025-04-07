@@ -1,3 +1,4 @@
+# TOD: (#106) delete this workflow, and the ones extending it, after moving to S3
 name: Library - Deploy Infra only - Generic
 on:
   workflow_call:
