@@ -32,7 +32,8 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: 20.9.0
-          cache: "yarn"
+          cache: yarn
+          cache-dependency-path: app/yarn.lock
 
       - name: Load secret
         id: op-load-secret
