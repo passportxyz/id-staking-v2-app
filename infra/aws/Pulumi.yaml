@@ -1,7 +1,0 @@
-name: id-staking-v2
-runtime: nodejs
-description: Pulumi IaC for id-staking-v2-app
-config:
-  pulumi:tags:
-    value:
-      pulumi:template: ""

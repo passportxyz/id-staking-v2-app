@@ -21,27 +21,6 @@ jobs:
       docker_tag: ${{ steps.ref.outputs.docker_tag }}
       refspec: ${{ steps.ref.outputs.refspec }}
 
-  push_to_staging:
-    # TODO (#106): drop after moving to amplify
-    name: Push to Staging
-    needs: ref
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v3
-        with:
-          fetch-depth: 0
-
-      - name: Push to Staging Branch
-        uses: passportxyz/gh-workflows/.github/actions/push_to_branch@v2
-        with:
-          commit: ${{ needs.ref.outputs.refspec }}
-          github-token: ${{ secrets.GITHUB_TOKEN }}
-          branch: "staging-app"
-
-    outputs:
-      deployed-commit: ${{ steps.push_to_branch.outputs.deployed-commit }}
-
   build_app_staging:
     name: Build App for Staging
     needs: ref
@@ -71,7 +50,7 @@ jobs:
 
   wait_for_production_approval:
     name: Production Approval Pending
-    needs: [ref, push_to_staging, push_app_to_staging]
+    needs: [ref, push_app_to_staging]
     runs-on: ubuntu-latest
     environment: production
     steps:
@@ -79,27 +58,6 @@ jobs:
         run: |
           echo "Approved Production Release for: " ${{ needs.ref.outputs.version_tag }}
           echo "Ref: ${{ needs.ref.outputs.refspec }}"
-
-  push_to_production:
-    # TODO (#106): drop after moving to amplify
-    name: Push to Production
-    needs: [ref, wait_for_production_approval]
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v3
-        with:
-          fetch-depth: 0
-
-      - name: Push to Production Branch
-        uses: passportxyz/gh-workflows/.github/actions/push_to_branch@v2
-        with:
-          commit: ${{ needs.ref.outputs.refspec }}
-          github-token: ${{ secrets.GITHUB_TOKEN }}
-          branch: "production-app"
-
-    outputs:
-      deployed-commit: ${{ steps.push_to_branch.outputs.deployed-commit }}
 
   push_app_to_production:
     name: Push App for Production
@@ -112,7 +70,7 @@ jobs:
 
   deployment_info:
     name: Display Deployment Information
-    needs: [ref, push_to_staging, push_to_production]
+    needs: [ref, push_app_to_staging, push_app_to_production]
     runs-on: ubuntu-latest
     steps:
       - name: Show Deployment Details
