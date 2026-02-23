@@ -27,7 +27,7 @@ jobs:
       - id: ref
         uses: passportxyz/gh-workflows/.github/actions/load_commit_ref@v1
         with:
-          commit: ${{ inputs.commit }}
+          commit: ${{ inputs.commit || '' }}
 
     outputs:
       version_tag: ${{ steps.ref.outputs.version_tag }}
@@ -41,7 +41,7 @@ jobs:
     secrets: inherit
     with:
       refspec: ${{ needs.ref.outputs.refspec }}
-      environment: ${{ inputs.environment }}
+      environment: ${{ inputs.environment || 'review' }}
 
   push-ui:
     name: Push UI to S3
@@ -50,4 +50,4 @@ jobs:
     secrets: inherit
     with:
       refspec: ${{ needs.ref.outputs.refspec }}
-      environment: ${{ inputs.environment }}
+      environment: ${{ inputs.environment || 'review' }}
