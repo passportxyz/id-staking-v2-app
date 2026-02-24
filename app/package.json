@@ -40,6 +40,9 @@
     "wagmi": "^2.8.7",
     "zustand": "^4.5.2"
   },
+  "resolutions": {
+    "unstorage": "1.14.4"
+  },
   "devDependencies": {
     "@testing-library/dom": "^10.0.0",
     "@testing-library/jest-dom": "^6.9.1",
