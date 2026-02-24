@@ -6,7 +6,7 @@ import axios from "axios";
 import { useAccount, useDisconnect } from "wagmi";
 import { create } from "zustand";
 
-export type DbAuthTokenStatus = "idle" | "failed" | "connected" | "connecting";
+export type DbAuthTokenStatus = "idle" | "failed" | "connected";
 
 const CERAMIC_CACHE_ENDPOINT = process.env.NEXT_PUBLIC_SCORER_ENDPOINT + "/ceramic-cache";
 
@@ -61,6 +61,7 @@ const getPassportDatabaseAccessToken = async (
     chainId: 1,
     nonce,
     issuedAt: new Date(),
+    expirationTime: new Date(Date.now() + 5 * 60 * 1000),
   };
 
   const message = createSiweMessage(siweParams);
@@ -99,27 +100,12 @@ export const useDatastoreConnection = () => {
   useEffect(() => {
     // Clear status when wallet disconnected
     if (!isConnected && dbAccessTokenStatus === "connected") {
-      console.log("Clearing dbAccessTokenStatus");
       update({
         dbAccessTokenStatus: "idle",
         dbAccessToken: undefined,
       });
     }
   }, [isConnected, dbAccessTokenStatus, update]);
-
-  const loadDbAccessToken = useCallback(async (address: string, walletClient: WalletClient): Promise<string> => {
-    const dbCacheTokenKey = `dbcache-token-${address}`;
-
-    try {
-      const dbAccessToken = await getPassportDatabaseAccessToken(address, walletClient);
-      window.localStorage.setItem(dbCacheTokenKey, dbAccessToken);
-      return dbAccessToken;
-    } catch (error) {
-      const msg = `Error getting access token for address: ${address}`;
-      datadogRum.addError(msg);
-      throw error;
-    }
-  }, []);
 
   const connectInFlightRef = useRef<Promise<void> | null>(null);
 
@@ -129,7 +115,27 @@ export const useDatastoreConnection = () => {
       connectInFlightRef.current = (async () => {
         try {
           if (!address) return;
-          const newAccessToken = await loadDbAccessToken(address, walletClient);
+
+          const cacheKey = `dbcache-token-${address}`;
+          const cached = window.localStorage.getItem(cacheKey);
+          if (cached) {
+            try {
+              const payload = JSON.parse(atob(cached.split(".")[1]));
+              if (payload.exp && payload.exp * 1000 > Date.now() + 60_000) {
+                update({
+                  dbAccessToken: cached,
+                  dbAccessTokenStatus: "connected",
+                  connectedAddress: address,
+                });
+                return;
+              }
+            } catch {
+              // malformed token, fall through to re-auth
+            }
+          }
+
+          const newAccessToken = await getPassportDatabaseAccessToken(address, walletClient);
+          window.localStorage.setItem(cacheKey, newAccessToken);
           update({
             dbAccessToken: newAccessToken,
             dbAccessTokenStatus: "connected",
@@ -149,7 +155,7 @@ export const useDatastoreConnection = () => {
       })();
       return connectInFlightRef.current;
     },
-    [loadDbAccessToken, update]
+    [update]
   );
 
   return {

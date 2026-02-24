@@ -154,6 +154,7 @@ describe("useDatastoreConnection – SIWE authentication flow", () => {
     expect(siweCall.chainId).toBe(1);
     expect(siweCall.nonce).toBe(TEST_NONCE);
     expect(siweCall.issuedAt).toBeInstanceOf(Date);
+    expect(siweCall.expirationTime).toBeInstanceOf(Date);
 
     // -- Step 3: wallet signs the message --
     expect(mockWalletClient.signMessage).toHaveBeenCalledWith({
@@ -163,14 +164,16 @@ describe("useDatastoreConnection – SIWE authentication flow", () => {
 
     // -- Step 4: POST to authenticate with SIWE params and signature --
     expect(axios.post).toHaveBeenCalledTimes(1);
-    const [postUrl, postBody] = vi.mocked(axios.post).mock.calls[0];
+    const [postUrl, postBody] = vi.mocked(axios.post).mock.calls[0] as [string, Record<string, any>];
     expect(postUrl).toBe(`${SCORER_ENDPOINT}/ceramic-cache/authenticate/v2`);
     expect(postBody).toHaveProperty("signature", "0xmocked-signature");
     expect(postBody).toHaveProperty("message");
 
-    // -- KEY ASSERTION: issuedAt is present in the message object sent to the backend --
+    // -- KEY ASSERTION: issuedAt and expirationTime are present in the message object sent to the backend --
     expect(postBody.message).toHaveProperty("issuedAt");
     expect(postBody.message.issuedAt).toBeInstanceOf(Date);
+    expect(postBody.message).toHaveProperty("expirationTime");
+    expect(postBody.message.expirationTime).toBeInstanceOf(Date);
 
     // -- Step 5: store is updated --
     expect(result.current.dbAccessTokenStatus).toBe("connected");
@@ -200,8 +203,6 @@ describe("useDatastoreConnection – SIWE authentication flow", () => {
     expect(result.current.dbAccessTokenStatus).toBe("failed");
     expect(result.current.dbAccessToken).toBeUndefined();
 
-    // datadogRum.addError is called in both loadDbAccessToken (descriptive msg)
-    // and in connect (raw error).
     expect(datadogRum.addError).toHaveBeenCalled();
   });
 
@@ -299,12 +300,13 @@ describe("useDatastoreConnection – SIWE authentication flow", () => {
       expect(siweParams[key]).toBe(value);
     }
 
-    // issuedAt must be a Date instance
+    // issuedAt and expirationTime must be Date instances
     expect(siweParams.issuedAt).toBeInstanceOf(Date);
+    expect(siweParams.expirationTime).toBeInstanceOf(Date);
 
     // Verify no extra unexpected fields leak in
     const actualKeys = Object.keys(siweParams).sort();
-    const expectedKeys = [...Object.keys(expectedShape), "issuedAt"].sort();
+    const expectedKeys = [...Object.keys(expectedShape), "issuedAt", "expirationTime"].sort();
     expect(actualKeys).toEqual(expectedKeys);
 
     // Also verify the POST body forwards the same params object

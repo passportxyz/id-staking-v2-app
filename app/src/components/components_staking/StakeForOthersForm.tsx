@@ -9,7 +9,7 @@ import { StakeForOthersModal } from "./StakeForOthersModal";
 import { useCommunityStakeHistoryQuery } from "@/utils/stakeHistory";
 import { getLockSeconds } from "@/utils/helpers";
 import { useChainInitializing } from "@/hooks/staking_hooks/useChainInitialization";
-import { getEnsAddress } from "@wagmi/core";
+import { getEnsAddress } from "wagmi/actions";
 import { wagmiChains } from "@/utils/chains";
 import { mainnet } from "viem/chains";
 import { normalize } from "viem/ens";
