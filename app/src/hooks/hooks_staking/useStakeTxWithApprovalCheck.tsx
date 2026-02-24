@@ -7,7 +7,7 @@ import { onTxError, onTxReceiptError, useStakeTxHandler } from "@/hooks/hooks_st
 import { useStakeHistoryQueryKey } from "@/utils/stakeHistory";
 import { useToast } from "@chakra-ui/react";
 import { wagmiConfig } from "@/utils/wagmi";
-import { waitForTransactionReceipt, writeContract } from "@wagmi/core";
+import { waitForTransactionReceipt, writeContract } from "wagmi/actions";
 
 export const useStakeTxWithApprovalCheck = ({ address }: { address: `0x${string}` }) => {
   const toast = useToast();

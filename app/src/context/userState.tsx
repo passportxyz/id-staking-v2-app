@@ -4,7 +4,7 @@ import React from "react";
 // --- Utils & configs
 import { atom } from "jotai";
 
-type UserWarningName = "expiredStamp" | "cacaoError";
+type UserWarningName = "expiredStamp";
 
 export interface UserWarning {
   content: React.ReactNode;

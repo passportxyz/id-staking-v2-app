@@ -1,10 +1,5 @@
-// import React from "react";
-
 // --- Types
 import axios, { AxiosResponse } from "axios";
-import { datadogRum } from "@datadog/browser-rum";
-import { Cacao } from "@didtools/cacao";
-import { DID } from "dids";
 import { ethers } from "ethers";
 import React, { useMemo } from "react";
 import moment from "moment";
@@ -92,30 +87,6 @@ export const isServerOnMaintenance = () => {
   }
 
   return false;
-};
-
-export const createSignedPayload = async (did: DID, data: any) => {
-  const { jws, cacaoBlock } = await did.createDagJWS(data);
-
-  if (!cacaoBlock) {
-    const msg = `Failed to create DagJWS for did: ${did.parent}`;
-    datadogRum.addError(msg);
-    throw msg;
-  }
-
-  // Get the JWS & serialize it (this is what we would send to the BE)
-  const { link, payload, signatures } = jws;
-
-  const cacao = await Cacao.fromBlockBytes(cacaoBlock);
-  const issuer = cacao.p.iss;
-
-  return {
-    signatures: signatures,
-    payload: payload,
-    cid: Array.from(link ? link.bytes : []),
-    cacao: Array.from(cacaoBlock ? cacaoBlock : []),
-    issuer,
-  };
 };
 
 export const formatAmount = (amount: string) => +parseFloat(ethers.formatEther(amount)).toFixed(2);
